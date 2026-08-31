@@ -1,0 +1,110 @@
+# How long a vowel is held, and the two the scale had never been asked about.
+#
+# assign_cast_start_dur is the second chain that dispatches on which vowel a
+# phone is, and the amplitude chain in ss_ssval.up is the first. Both were
+# written for five vowels and both answer wrongly for a sixth, but they fail
+# in opposite ways, which is why one was heard at once and the other was not.
+# get_stanspan_nuc_AV leaves its field alone, so an open vowel took the
+# amplitude of the consonant in front of it and after a stop that is silence.
+# This one has a fall-through, so an open vowel took a real number -- 100,
+# which is the shortest in the language -- and merely sounded clipped.
+#
+# IBM's five are a (120), e (110), i (100), o (110) and u, which is not given
+# a number of its own: its arm tests and discards the answer and falls into
+# the 100. So does anything else that reaches here, which is what the open
+# pair were doing.
+#
+# The three numbers are a straight line in the first formant, exactly: i and u
+# sit near 300 hertz and take 100, e and o at 480 take 110, a at 660 takes 120,
+# which is ten for every hundred and eighty hertz with no residual at any of
+# the three. So the scale is openness, and it says where the open pair belong
+# without any judgement of ours: 600 and 580 hertz put both at 116. They are
+# the same height as each other -- open-mid, both of them, and the twenty
+# hertz between them is a formant choice rather than a difference in aperture
+# -- so they take one number and one arm apiece rather than two of each.
+#
+# What is kept is every call IBM's rule makes, in its order, with its own
+# planted numbers stated rather than allocated: 1, 3, 4, 5 and 6, skipping 2
+# as its compiler did. So a run of this over the five vowels Castilian has
+# enters the same wrappers in the same order as a run of the original, and the
+# two new arms are only ever reached by a phone that used to reach nothing.
+# The one difference is where the u arm goes: IBM's falls through into the
+# 100 and this one says so, because there are arms after it now.
+rule assign_cast_start_dur takes 1 from ss_ssdur.obj
+  through wrappers
+  call ZZfence_null
+  plant test try_e as 1
+  call ZZlpta_load_vvg__setscan_0035r__4
+  if answer is 0
+    call ZZtest_string_s_4_1_ZZstring115                      # a
+    if answer is 0
+      go to longest
+    end
+  end
+place try_e
+  plant test try_i as 3
+  call ZZlpta_load_vvg__setscan_0035r__4
+  if answer is 0
+    call ZZtest_string_s_4_1_ZZstring114                      # e
+    if answer is 0
+      go to mid
+    end
+  end
+place try_i
+  plant test try_o as 4
+  call ZZlpta_load_vvg__setscan_0035r__4
+  if answer is 0
+    call ZZtest_string_s_4_1_ZZstring113                      # i
+    if answer is 0
+      go to shortest
+    end
+  end
+place try_o
+  plant test try_u as 5
+  call ZZlpta_load_vvg__setscan_0035r__4
+  if answer is 0
+    call ZZtest_string_s_4_1_ZZstring116                      # o
+    if answer is 0
+      go to mid
+    end
+  end
+place try_u
+  plant test try_eopen as 6
+  call ZZlpta_load_vvg__setscan_0035r__4
+  if answer is 0
+    call ZZtest_string_s_4_1_ZZstring117                      # u
+    if answer is 0
+      go to shortest
+    end
+  end
+place try_eopen
+  plant test try_oopen as 7
+  call ZZlpta_load_vvg__setscan_0035r__4
+  if answer is 0
+    call cat_test_eopen                                       # the open e
+    if answer is 0
+      go to open
+    end
+  end
+place try_oopen
+  plant test shortest as 8
+  call ZZlpta_load_vvg__setscan_0035r__4
+  if answer is 0
+    call cat_test_oopen                                       # the open o
+    if answer is 0
+      go to open
+    end
+  end
+place shortest
+  set global word 2636 to 100
+  match
+place mid
+  set global word 2636 to 110
+  match
+place open
+  set global word 2636 to 116
+  match
+place longest
+  set global word 2636 to 120
+  match
+end

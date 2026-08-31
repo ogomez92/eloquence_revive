@@ -1,0 +1,23 @@
+01-salutacio|Bon dia. Com estàs? Molt bé, gràcies.
+02-reduccio|casa cosa pare mare dona taula
+03-Barcelona|Barcelona és la capital de Catalunya.
+04-sibilants|caixa xocolata jove gener girafa panxa
+05-africades|cotxe despatx metge platja viatge dotze setze
+06-palatals|any Catalunya llibre ull cavall canya lluna palla
+07-essa-sonora|casa rosa francesa presentar passar massa
+08-numeros|un dos tres quatre cinc sis set vuit nou deu
+09-dies|dilluns dimarts dimecres dijous divendres dissabte diumenge
+10-frase-llarga|La meva germana treballa en una escola del poble i cada dia agafa el tren.
+11-pregunta|Vols venir amb mi a la platja aquest dissabte?
+12-pangrama|Aquest gener el jove metge de Barcelona va despatxar dotze caixes.
+13-obertes|cafè òpera això està sèrie dòna dóna més bé
+14-hiat-ia|dia via policia Maria família gràcies duana suau cua
+15-diftongs|dijous taula aigua quatre vuit avui peix noia riu bou
+16-ix|caixa peix baixa deixar coneixement calaix
+17-final-sord|fred verd club sang gat groc pop dissabte dubte
+18-ena-final|gran tren bon un món nen banc sang canvi enfadat
+19-numeros-xifres|1 5 9 12 15 19 20 21 25 26 30 31 36 45 55 66 78 91 99
+20-text-corrent|Avui és dissabte i el cafè de la cantonada és ple de gent que llegeix el diari.
+21-penjat|Mengen fetge d'un penjat.
+22-jotes|El jove de Girona menja taronges. Penjar, menjar, àngel, mengen.
+23-melodia|La meva germana treballa en una escola del poble. Vols venir amb mi? Tinc pa, vi i formatge.

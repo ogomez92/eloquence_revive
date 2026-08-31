@@ -1,0 +1,152 @@
+# Bytes a rule of Catalan's names by address, which no lifter writes: these
+# are ours. The phonemes are the phone statement's own alphabet, which
+# tools/lang-phonemes.py caes prints.
+#
+# Catalan has two affricates Castilian has not. The voiced postalveolar --
+# metge, platja, viatge -- and the voiced alveolar -- dotze, setze. Spanish
+# declares a code for the first, J, and never reaches it from its own
+# spelling, so nothing in the module speaks it: there is no span_ph_J, and no
+# arm of the value chain that would expand it the way C is expanded into a
+# stop and a fricative. Inserting it laid down a phone nothing could say and
+# the word stopped where it stood.
+#
+# So a letter rule lays down the two phones itself, which is the same two
+# sounds in the same order and asks nothing of the module that is not already
+# there. That is what Polish did with its own hard affricates for the same
+# reason.
+bytes cat_ph_dzz 05 12   # d, then the voiced postalveolar
+bytes cat_ph_dz  05 0e   # d, then a voiced s
+
+# The schwa, which is code 37 and the module's first phoneme of its own.
+# Central Catalan reduces every unstressed a and e to it, and it is the sound
+# that makes the language recognisable: casa is not [kasa] but [kaza], and
+# the last vowel is neither a nor e.
+bytes cat_ph_schwa 25
+
+# The two open vowels, and the two letters that write them.
+#
+# Catalan has seven stressed vowels where Castilian has five, and the pairs it
+# adds are the open e and the open o: sec and sec, dona and dona, are one
+# letter apart in writing and one vowel apart in speech. The accent is what
+# tells them apart -- the acute is the close vowel and the grave the open one
+# -- so the grave letters have to reach a rule of their own rather than being
+# flattened to a plain vowel on the way in.
+bytes cat_letter_egrave 62   # e with a grave, by its code in the alphabet
+bytes cat_letter_ograve 64   # o with a grave
+bytes cat_ph_eopen 26        # the open e, phone 38
+bytes cat_ph_oopen 27        # the open o, phone 39
+
+# The digits, as Catalan says them. They are characters rather than phonemes:
+# a number word goes in as letters and the letter rules then read it, which is
+# the same path a letter's own name takes. tools/lang-alphabet.py caes says
+# which code is which character.
+#
+# Castilian says these through span_char_name, a dictionary, and changing a
+# word there wants an action whose record is a length that rule already lays
+# down -- and even a rewrite that keeps the length comes out silent, because
+# what delta-dict.py writes is reached by an address the arena does not know.
+# So the digits are laid down by a rule instead, out of bytes of ours, which
+# is a store the arena is told about.
+bytes cat_num_zero    1f 02 18 04         # zero
+bytes cat_num_un      10 05 15               # un
+bytes cat_num_dos     0d 04 19            # dos
+bytes cat_num_tres    1a 18 02 19         # tres
+bytes cat_num_quatre  17 05 01 1a 18 02   # quatre
+bytes cat_num_cinc    0c 03 15 0c         # cinc
+bytes cat_num_sis     19 19 03 19            # sis
+bytes cat_num_set     19 19 02 1a            # set
+bytes cat_num_vuit    1b 05 03 1a         # vuit
+bytes cat_num_nou     15 04 05            # nou
+
+# And the teens, which Catalan makes its own way: ten is deu, and eleven to
+# sixteen are one word each where seventeen to nineteen are dis- and di- on
+# the front of seven, eight and nine.
+bytes cat_num_deu     0d 02 05                  # deu
+bytes cat_num_onze    04 15 1f 02               # onze
+bytes cat_num_dotze   0d 04 1a 1f 02            # dotze
+bytes cat_num_tretze  1a 18 02 1a 1f 02         # tretze
+bytes cat_num_catorze 0c 01 1a 04 18 1f 02      # catorze
+bytes cat_num_quinze  17 05 03 15 1f 02         # quinze
+bytes cat_num_setze   19 02 1a 1f 02            # setze
+bytes cat_num_disset  0d 03 19 19 02 1a         # disset
+bytes cat_num_divuit  0d 03 1b 05 03 1a         # divuit
+bytes cat_num_dinou   0d 03 15 04 05            # dinou
+
+# Twenty to twenty-nine. Catalan runs a compound number together into one
+# word -- vinticinc, not vint i cinc -- so these carry no spaces.
+#
+# Two of them are spelled for the sound rather than for the page. un is
+# written hun, because an h says nothing and an i before a u would otherwise
+# make the u a glide: vintiun is [b i n t i u n] and not [b i n t i w n]. sis
+# and set are written with two esses, because a single s between two vowels is
+# voiced in Catalan and here it must not be: vintissis is [b i n t i s i s].
+# The same two spellings serve the bare digits, which come out the same.
+bytes cat_num_vint         1b 03 15 1a
+bytes cat_num_vintiun      1b 03 15 1a 03 10 05 15
+bytes cat_num_vintidos     1b 03 15 1a 03 0d 04 19
+bytes cat_num_vintitres    1b 03 15 1a 03 1a 18 02 19
+bytes cat_num_vintiquatre  1b 03 15 1a 03 17 05 01 1a 18 02
+bytes cat_num_vinticinc    1b 03 15 1a 03 0c 03 15 0c
+bytes cat_num_vintisis     1b 03 15 1a 03 19 19 03 19
+bytes cat_num_vintiset     1b 03 15 1a 03 19 19 02 1a
+bytes cat_num_vintivuit    1b 03 15 1a 03 1b 05 03 1a
+bytes cat_num_vintinou     1b 03 15 1a 03 15 04 05
+
+# The tens that fit where Castilian's stand. convert_span_double pushes a
+# symbol and inserts a fixed number of characters from it, so a Catalan word
+# of the same length goes in its place by pointing the push at bytes of ours.
+bytes cat_num_noranta   15 04 18 01 15 1a 01 48      # noranta, padded to eight
+bytes cat_num_quaranta  17 05 01 18 01 15 1a 01      # quaranta, for cuarenta
+bytes cat_num_cinquanta 0c 03 15 17 05 01 15 1a 01   # cinquanta, for cincuenta
+
+# Three more tens. trenta is padded to the eight characters the arm it shares
+# lays down; seixanta wants one more than sesenta did, so its call site is
+# widened by a character too; setanta is exactly as long as setenta.
+bytes cat_num_trenta   1a 18 02 15 1a 01 48 48      # trenta, padded, for treinta
+bytes cat_num_seixanta 19 02 03 1d 01 15 1a 01      # seixanta, for sesenta
+bytes cat_num_setanta  19 02 1a 01 15 1a 01 48      # setanta, padded to eight
+bytes cat_num_vuitanta 1b 05 03 1a 01 15 1a 01      # vuitanta, for ochenta
+
+# The mark Castilian's number machinery puts between the pieces of a compound
+# number. It says nothing and it is not a letter, which is exactly what a
+# Catalan compound wants between its halves: quarantacinc is one word, but the
+# s of sis must not voice the way an s between two vowels does, and the u of
+# vintiun must stay a vowel rather than gliding after the i. A character with
+# no record in the alphabet fails both of those tests and is silent besides.
+bytes cat_num_join c7
+
+# The velar fricative's code, retaken. Catalan has no such sound: j and g
+# before e and i are the voiced postalveolar here, so no Catalan spelling
+# reaches phone 16 and the whole of the module's machinery for it -- an arm in
+# the value chain, an arm in the durations, a record every neighbour reads --
+# is standing idle. It is what a Catalan word-final r turns into, and
+# ss_val.up says what that then sounds like, which is nothing.
+bytes cat_ph_mute 10
+
+# The phone a Catalan word ends an n with. Castilian velarises a word-final n
+# and Catalan does not, and the way that was stopped was to spell the final
+# one with the interdental's code, which no Catalan spelling can reach and
+# which the arm doing the velarising does not test for. st_strss.up is where
+# the price of that is paid back: the stress rule asks whether a word ends in
+# a nasal by the code as well, so it has to be told about this one too.
+bytes cat_ph_final_n 0f
+
+# The voiced postalveolar on its own, which is cat_ph_dzz without the stop in
+# front of it. j and g before e and i lay one down or the other, and a rule of
+# ours has to name both by address to choose between them: glob.up says which
+# is said where.
+bytes cat_ph_zz 12
+
+# The glide and the fricative that ix says, as one insertion.
+#
+# Catalan writes the postalveolar after a vowel as ix, and the i is not only a
+# graphic mark: caixa is [ka j S @] and calaix [k @ l a j S], with an audible
+# glide that the spelling is there to record. Central Catalan is the dialect
+# that drops it and Western and Valencian keep it, so both are Catalan; this
+# is the one that can be heard, and hearing it is what tells calaix from a
+# word that ends in a bare fricative.
+#
+# It is two phones from one letter, which is what insert_2pt_s's _4_2 form is
+# for and what cat_ph_dzz above already does for the affricates. The glide
+# first, then the fricative: y is 29 and S is 17.
+bytes cat_ph_ysh 1d 11

@@ -1,0 +1,25 @@
+# Sentences for measuring the melody. kind|text
+stmt|La meva germana treballa en una escola del poble.
+stmt|Barcelona és la capital de Catalunya.
+stmt|Avui és dissabte i el cafè és ple de gent.
+stmt|El tren de les vuit arriba sempre tard.
+stmt|La Maria ha comprat un llibre nou.
+stmt|Els nens juguen al pati de l'escola.
+stmt|Aquest matí he vist el metge del poble.
+stmt|El llibre que em vas deixar és molt bo.
+stmt|Demà anirem a la platja amb els amics.
+stmt|La casa del costat és molt gran.
+stmt|Volen melmelada de taronja amarga.
+stmt|Mengen fetge d'un penjat.
+yesno|Vols venir amb mi a la platja?
+yesno|Vindria la Maria a sopar demà?
+yesno|Voleu una mandarina del meu hort?
+yesno|Que plou avui a Barcelona?
+wh|Què li duries a la teva germana?
+wh|On vas amb aquesta pressa?
+wh|Qui ha trucat aquest matí a casa?
+wh|Com es diu el teu germà petit?
+comma|Tinc pa, vi i formatge a la taula.
+comma|Si vols venir, truca'm abans de les vuit.
+comma|La Maria, que viu a Girona, ve demà.
+comma|Primer el cafè, després la feina.

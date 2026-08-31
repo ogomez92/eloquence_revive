@@ -1,0 +1,280 @@
+# The vowel the module did not have, and the chain that reaches it.
+#
+# Central Catalan has a schwa and Castilian has not. It is not a refinement:
+# every unstressed a and e in the language is one, so it is the commonest
+# vowel in any Catalan sentence and the single thing that makes the language
+# sound like itself rather than like Spanish.
+#
+# A phoneme code that has never existed is invisible to every rule that asks
+# what its neighbours are, and the one that matters here is stanspan_vals: it
+# is a chain of alternatives testing the phone against each vowel in turn, and
+# a code with no arm falls straight past every one of them into the tail with
+# no formants set at all, so the vowel comes out as whatever the phone before
+# it left behind. So the chain is written again with an arm for the schwa in
+# it.
+#
+# What is kept from IBM's is everything else, in the same order: the fence,
+# the seven vowels it already had, the breathiness a female voice wants, the
+# nasalisation of a vowel beside a nasal, and insert_acoustic_vals, which is
+# what reads the formants the arm just set. Only the schwa arm is new.
+
+# The block IBM's own rule runs before nasalize_vow, kept exactly as it was.
+# It is raw lower notation inside a bare rule because what it does cannot be
+# said in the upper form: it hands if_testeq_v_i the address of a state cell,
+# and the notation has a word for a state variable's value and none for where
+# it lives. A bare rule owns its registers, so a copy of IBM's own lines is
+# safe here in a way it would not be inside a rule the compiler is allocating.
+rule cat_fem_breathiness takes 1 from ss_ssval.obj
+  bare
+  raw load movl slot 8 into r6
+  raw push reg r6
+  raw call ZZstarttest15 arity 1 depth 1
+  raw push imm 1
+  raw addk 3024 reg r6 into r3
+  raw push reg r3
+  raw addk 3026 reg r6 into r7
+  raw push reg r6
+  raw store movw imm 4 ind reg r7 0
+  raw call if_testeq_v_i arity 3 depth 4
+  raw popn 4
+  if answer is 0
+    raw push imm 100
+    raw push reg r3
+    raw push reg r6
+    raw store movw imm 6 ind reg r7 0
+    raw call if_testneq_v_i arity 3 depth 3
+    raw popn 3
+    if answer is 0
+      call ZZstarttest15
+      call modify_breathiness_for_femV
+    end
+  end
+  answer 0
+end
+
+# Whether the phone the chain is looking at carries no stress. The phone
+# statement has a stress field -- offset 8, two bytes -- that
+# copy_stress_to_phones fills in from the syllable structure, so by the time
+# the value chain runs it says which vowels the word leans on. Nothing in
+# IBM's Spanish ever asks, because Spanish reduces nothing.
+rule cat_unstressed takes 1 from ss_ssval.obj
+  bare
+  call ZZlpta_load_vvg__setscan_0103r__4
+  call testFldeq 4 8 0
+end
+
+# What the schwa sounds like. A vowel rule is five numbers -- the first
+# formant once and the second and third twice each, because the transition
+# into a vowel and the one out of it are separate targets -- and several
+# hundred lines of context tests that move them for the consonants around.
+# This is the five. Spanish's own a is 660, 1400 and 2450 and its e is 480,
+# 1800 and 2650, and the schwa sits between them and further in: mid, central,
+# and the mouth nearer to rest than for either.
+#
+# It needs no amplitude of its own, and the two below do, for the reason their
+# comment gives: the schwa is never a phone code at all. Nothing lays code 37
+# down -- the reduction happens here, on the a or the e the letter rules
+# already wrote -- so every rule downstream still sees a vowel Spanish knows.
+rule cat_ph_schwa_vals takes 1 from ss_ssval.obj
+  call ZZfence_null
+  set global half 2930 to 600
+  set global half 2938 to 1500
+  set global half 2942 to 1500
+  set global half 2946 to 2450
+  set global half 2950 to 2450
+  match
+end
+
+# The open e and the open o, which Catalan has and Castilian has not. They
+# are the vowels of sec, dona and cafe with a grave, and they differ from the
+# close pair mostly in the first formant: the mouth is further open, which is
+# what open means. Castilian's e is 480, 1800 and 2650 and its o 480, 900 and
+# 2500, so these sit below both.
+#
+# Six numbers rather than five, and the sixth is why cafe with a grave came
+# out as a hole. These two are real phone codes -- 38 and 39, laid down by
+# apply_span_enye_rules -- and the value chain is not the only chain that asks
+# a phone which vowel it is. get_stanspan_nuc_AV is another: it sets the
+# amplitude of voicing at offset 2722 from an arm apiece for i, e, a, o and u,
+# and a code with no arm leaves the field alone, so the open vowels were
+# spoken at whatever amplitude the consonant before them had left there. After
+# a d or a p that is silence, which is what a listener reported: nearly a
+# fifth of a sentence full of graves was not voiced at all.
+#
+# So they set it themselves. That the chain writes nothing for them is what
+# makes this sound rather than a race: get_stanspan_nuc_AV runs after this
+# rule, from inside insert_acoustic_vals, and for these two codes it has
+# nothing to say. IBM's numbers are 55 for i, 50 for a and 53 by default, and
+# they equalise rather than follow sonority -- a high vowel radiates less and
+# is given more. 55 and 54 put the two open vowels inside the band its own
+# five occupy, measured on tepa, tipa, tapa, topa and tupa against tepa and
+# topa with a grave: 0.218 and 0.223 where Castilian's five run 0.192 to
+# 0.223. The contrast Catalan needs is in the formants, not the loudness.
+rule cat_ph_eopen_vals takes 1 from ss_ssval.obj
+  call ZZfence_null
+  set global half 2722 to 55
+  set global half 2930 to 600
+  set global half 2938 to 1750
+  set global half 2942 to 1750
+  set global half 2946 to 2600
+  set global half 2950 to 2600
+  match
+end
+
+rule cat_ph_oopen_vals takes 1 from ss_ssval.obj
+  call ZZfence_null
+  set global half 2722 to 54
+  set global half 2930 to 580
+  set global half 2938 to 1000
+  set global half 2942 to 1000
+  set global half 2946 to 2500
+  set global half 2950 to 2500
+  match
+end
+
+# The vowel chain, with an eighth arm and the reduction in it.
+#
+# Central Catalan neutralises every unstressed a and e to the schwa and every
+# unstressed o to u. That is not an accent, it is the vowel system: casa and
+# casi differ in the first vowel and not the last, and a speaker who says the
+# last one as a is not speaking Catalan. So the three arms ask the phone
+# whether it carries stress and hand it to a different rule when it does not.
+#
+# It is done here rather than in the letter rules because stress is not known
+# when a letter is read: the syllables have not been counted and the accent
+# has not been placed. By the time the value chain runs, both have.
+rule stanspan_vals takes 1 from ss_ssval.obj
+  call ZZfence_null
+  plant test try_e
+  call ZZlpta_load_vvg__setscan_0103r__4
+  if answer is 0
+    call ZZtest_string_s_4_1_ZZstring113                      # i
+    if answer is 0
+      call stanspan_ph_i
+      go to tail
+    end
+  end
+  backtrack
+place try_e
+  plant test try_a
+  call ZZlpta_load_vvg__setscan_0103r__4
+  if answer is 0
+    call ZZtest_string_s_4_1_ZZstring114                      # e
+    if answer is 0
+      call cat_unstressed
+      if answer is 0
+        call cat_ph_schwa_vals
+        go to tail
+      end
+      call stanspan_ph_e
+      go to tail
+    end
+  end
+  backtrack
+place try_a
+  plant test try_u
+  call ZZlpta_load_vvg__setscan_0103r__4
+  if answer is 0
+    call ZZtest_string_s_4_1_ZZstring115                      # a
+    if answer is 0
+      call cat_unstressed
+      if answer is 0
+        call cat_ph_schwa_vals
+        go to tail
+      end
+      call stanspan_ph_a
+      go to tail
+    end
+  end
+  backtrack
+place try_u
+  plant test try_o
+  call ZZlpta_load_vvg__setscan_0103r__4
+  if answer is 0
+    call ZZtest_string_s_4_1_ZZstring117                      # u
+    if answer is 0
+      call stanspan_ph_u
+      go to tail
+    end
+  end
+  backtrack
+place try_o
+  plant test try_schwa
+  call ZZlpta_load_vvg__setscan_0103r__4
+  if answer is 0
+    call ZZtest_string_s_4_1_ZZstring116                      # o
+    if answer is 0
+      call cat_unstressed
+      if answer is 0
+        call stanspan_ph_u
+        go to tail
+      end
+      call stanspan_ph_o
+      go to tail
+    end
+  end
+  backtrack
+place try_schwa
+  plant test try_eopen
+  call ZZlpta_load_vvg__setscan_0103r__4
+  if answer is 0
+    call cat_test_schwa                                       # the schwa
+    if answer is 0
+      call cat_ph_schwa_vals
+      go to tail
+    end
+  end
+  backtrack
+place try_eopen
+  plant test try_oopen
+  call ZZlpta_load_vvg__setscan_0103r__4
+  if answer is 0
+    call cat_test_eopen                                       # the open e
+    if answer is 0
+      call cat_ph_eopen_vals
+      go to tail
+    end
+  end
+  backtrack
+place try_oopen
+  plant test try_w
+  call ZZlpta_load_vvg__setscan_0103r__4
+  if answer is 0
+    call cat_test_oopen                                       # the open o
+    if answer is 0
+      call cat_ph_oopen_vals
+      go to tail
+    end
+  end
+  backtrack
+place try_w
+  plant test try_y
+  call ZZlpta_load_vvg__setscan_0103r__4
+  if answer is 0
+    call ZZtest_string_s_4_1_ZZstring112                      # w
+    if answer is 0
+      call stanspan_ph_w
+      go to tail
+    end
+  end
+  backtrack
+place try_y
+  plant test tail
+  call ZZlpta_load_vvg__setscan_0103r__4
+  if answer is 0
+    call ZZtest_string_s_4_1_ZZstring108                      # y
+    if answer is 0
+      call stanspan_ph_y
+      go to tail
+    end
+  end
+  backtrack
+place tail
+  call cat_fem_breathiness
+  call ZZstarttest16
+  call nasalize_vow
+  call ZZstarttest17
+  call insert_acoustic_vals
+  call succeed
+  answer 0
+end

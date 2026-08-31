@@ -1,0 +1,37 @@
+# The interdental, which Catalan has not got, is an alveolar nasal now.
+#
+# Castilian velarises an n at the end of a word and Catalan does not: gran is
+# [g r a n], not [g r a ng]. The change is made in span_phrase_level_rules,
+# 588 lines that do a great deal else besides, and it is made on the phone's
+# code -- so a word-final n that is some other code goes through untouched.
+#
+# T is that other code. Castilian spells it with c before e and i and with z,
+# and Catalan says a plain s for both, so nothing here can reach it: it is a
+# code the language cannot say, with an arm already in every chain that asks
+# about a phoneme, which the docs' own advice prefers to a code that has never
+# existed. Its record now says what n's says -- voiced, nasal, alveolar -- so
+# every rule that reads the record rather than the code treats it as one.
+#
+# What it sounds like is what n sounds like, so this forwards. Bare, because
+# it stands where a rule the value chain calls stands and the choice points
+# around the call are the chain's.
+rule span_ph_T takes 1 from ss_val.obj
+  bare
+  call span_ph_n
+end
+
+# And the velar fricative says nothing, because it is not a sound of Catalan's
+# any more: st_phone.up turns a word-final r into it and this is where that r
+# stops being heard. Castilian reaches this phone from j and from g before e
+# and i, and Catalan says the voiced postalveolar for both, so nothing else in
+# the module can arrive here.
+#
+# Laying nothing down is not the same as leaving a gap. The source parameters
+# and the formant targets are whatever the segment before set, so the vowel in
+# front of it simply carries on through, which is what a Catalan word that has
+# lost its r does: passar is [p @ s a] with the a a little longer than it
+# would be. The frame and the fence are the rule's own, as syneresis's are.
+rule span_ph_j takes 1 from ss_val.obj
+  call ZZfence_null
+  match
+end

@@ -1,0 +1,22 @@
+# Catalan keeps its vowels apart where Castilian runs them together.
+#
+# syneresis is the pass that makes two vowels into one syllable, and Castilian
+# wants it: duana is [dwana] there. Catalan says the two, and the words where
+# it does not are the ones a dictionary knows rather than a rule. With
+# Castilian's pass in, duana came out [d w a n @], suau [s w a w] and serie
+# [s E r y @], each a syllable short, and the letter rules had laid both
+# vowels down correctly before it ran.
+#
+# So this is the same rule with the merging taken out: it takes what it is
+# given, answers where the run ends unchanged, and lays nothing down. The
+# frame and the two pointers are IBM's, because the caller passes them and
+# reads the second one back.
+rule syneresis takes 3 from st_phnol.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfence_null
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end

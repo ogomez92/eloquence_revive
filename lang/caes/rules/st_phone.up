@@ -1,0 +1,976 @@
+# What a letter says, where Catalan and Castilian Spanish disagree about it.
+#
+# The module is Spanish, so every rule here stands in for one of the same name
+# in st_phone.dr and keeps the number the letter chain reaches it by. That is
+# why the names are Spanish: generate_span_diaphons dispatches on a letter to
+# a rule, and a rule written here is put in that rule's place rather than
+# beside it, so nothing has to be renumbered.
+#
+# The shape is IBM's, because it is the machine's. A letter rule is handed the
+# two ends of the run of letters it is being asked about -- left and right --
+# and fills the range between them with phonemes. The wrapper names carry
+# insert_2pt_s's own two arguments: _4_1_ is one phoneme, _1_1_ one letter of
+# the input alphabet, the 4 and the 1 being which field the string belongs to.
+# A rule that says two letters make one sound moves the right-hand end past
+# the second letter with savescptr first, and answers that position back
+# through arg 2, so the next letter read is the one after the digraph.
+#
+# Catalan needs almost no phoneme Spanish has not got. S is the voiceless
+# postalveolar, Z its voiced pair, C and J the two affricates, N the palatal
+# nasal, L the palatal lateral: all six are Spanish's own, declared, given
+# rules and merely never reached by Castilian spelling. What Spanish has that
+# Catalan has not is the interdental T and the velar fricative j, and what
+# Catalan has that Spanish has not is the schwa, which is a vowel and is in
+# st_vowel.up rather than here.
+#
+# tools/lang-phonemes.py caes prints the codes; the ZZstring numbers are
+# IBM's own and say nothing, so every call below carries what it lays down.
+
+# ---- the letters that say one thing wherever they stand ------------------
+
+# Catalan j is the voiced postalveolar, not Spanish's velar fricative: jove is
+# not jota. g before e and i is the same sound and is below.
+#
+# After a nasal or a lateral it is the affricate rather than the fricative --
+# penjat, menjar, angel -- which is what cat_insert_zz decides; glob.up says
+# why the letter is where that can be asked and what it cannot see.
+rule apply_span_j_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  call cat_insert_zz addr left addr right
+  if answer is not 0
+    give up
+  end
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# Catalan x is the voiceless postalveolar almost wherever it stands -- xocolata,
+# panxa, caixa. Spanish reads it as k and s, which is right for its own
+# learned words and wrong for every Catalan one. The handful that really are
+# ks -- examen, taxi -- are dictionary words rather than a rule.
+rule apply_span_x_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring64 addr left addr right   # S
+  if answer is not 0
+    give up
+  end
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# Catalan z is a voiced s -- zona, dotze -- where Spanish's is the interdental
+# it shares with c before e and i. Nothing in Catalan is interdental.
+rule apply_span_z_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring48 addr left addr right   # z
+  if answer is not 0
+    give up
+  end
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# c with a cedilla is a plain voiceless s in Catalan -- forca, capcalera --
+# and Spanish keeps the letter only for borrowed words.
+rule apply_span_c_cedilla_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring37 addr left addr right   # s
+  if answer is not 0
+    give up
+  end
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# ---- the letters that read the one after them ---------------------------
+
+# c before e and i is a voiceless s, not the interdental: Barcelona, cel,
+# ciutat. Everywhere else it is k, and that covers ch as well, since h says
+# nothing.
+rule apply_span_c_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  plant test before_i
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring77                                # e?
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring37 addr left addr right  # s
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place before_i
+  plant test hard
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring109                               # i?
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring37 addr left addr right  # s
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place hard
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring109 addr left addr right   # k
+  if answer is not 0
+    backtrack
+  end
+place said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# g before e and i is the voiced postalveolar -- gener, girafa -- which is
+# what j says, and the affricate after a nasal or a lateral, which is also
+# what j does: mengen is [m e N d Z @ n] where gener is [Z @ n e]. gue and gui are a hard g with a silent u, so those are tried
+# first and the u is eaten; g with a diaeresis is a different letter, so gue
+# with one falls through to the plain arm and the u is spoken, which is what
+# Catalan does with it.
+rule apply_span_g_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  plant test gu_i
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring128                               # u?
+    if answer is 0
+      call ZZsavescptr2 addr right
+      call ZZtest_string_s_1_1_ZZstring77                              # then e?
+      if answer is 0
+        call ZZlprp_load__insert_2pt_s_4_1_ZZstring140 addr left addr right  # g
+        if answer is 0
+          go to said
+        end
+      end
+    end
+  end
+  backtrack
+place gu_i
+  plant test before_e
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring128                               # u?
+    if answer is 0
+      call ZZsavescptr2 addr right
+      call ZZtest_string_s_1_1_ZZstring109                             # then i?
+      if answer is 0
+        call ZZlprp_load__insert_2pt_s_4_1_ZZstring140 addr left addr right  # g
+        if answer is 0
+          go to said
+        end
+      end
+    end
+  end
+  backtrack
+place before_e
+  plant test before_i
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring77                                # e?
+    if answer is 0
+      call cat_insert_zz addr left addr right
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place before_i
+  plant test hard
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring109                               # i?
+    if answer is 0
+      call cat_insert_zz addr left addr right
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place hard
+  plant test plain
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtestFldeq1_3_1                                              # a letter?
+    if answer is 0
+      call cat_voiceless_follows                                       # a voiceless one?
+      if answer is not 0
+        backtrack
+      end
+    end
+  end
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring109 addr left addr right   # k
+  if answer is not 0
+    backtrack
+  end
+  go to said
+place plain
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring140 addr left addr right   # g
+  if answer is not 0
+    backtrack
+  end
+place said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# ---- the digraphs -------------------------------------------------------
+
+# ny is the palatal nasal, which is what Spanish spells with a single letter:
+# any, Catalunya, canya. The y is eaten, so the letter read next is the one
+# after it.
+#
+# It is also the palatal nasal in front of the sound j and g before e and i
+# say, which is where Catalan puts the affricate: penjat, mengen, angel. The
+# y is eaten there and the j is not, since the j has its own rule to reach.
+rule apply_span_n_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  plant test palatal
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring112                               # y?
+    if answer is 0
+      call ZZsavescptr2 addr right
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring94 addr left addr right  # N
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place palatal
+  plant test plain
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call cat_palatal_follows                                           # a j, or ge, gi?
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring94 addr left addr right  # N
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place plain
+  plant test medial
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtestFldeq1_3_1                                              # a letter?
+    if answer is 0
+      backtrack
+    end
+  end
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring54 addr left addr right   # the final n
+  if answer is not 0
+    backtrack
+  end
+  go to said
+place medial
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring93 addr left addr right    # n
+  if answer is not 0
+    backtrack
+  end
+place said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# tx is the voiceless affricate -- cotxe, despatx. tg and tj are the voiced
+# one -- metge, platja -- and tz is the voiced alveolar one -- dotze, setze.
+# All four are one sound written with two letters, so the second is eaten.
+#
+# The voiceless one is Spanish's own C, which its phonology already breaks
+# into a stop and the palatal fricative because Spanish spells it ch. The two
+# voiced ones have no code the module can speak, so the rule lays down both
+# phones itself out of rules/constants; the comment there says why.
+rule apply_span_t_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  # A t at the end of a word goes when an n or an l stands before it: gent is
+  # [Z e n], sant [s a n], vint [b i n], molt [m o l], content [k u n t e n],
+  # and every adverb in -ment with them. It goes the same way a final r does,
+  # by becoming the phone that says nothing -- and for the same reason, since
+  # a word left ending in an n would have taken assign_span_stress's rule for
+  # a word ending in a nasal and moved its stress a syllable back.
+  plant test before_x
+  call cat_word_end addr right
+  if answer is 0
+    call ZZlpta_load__setscan_l__1 addr left
+    if answer is 0
+      call ZZtest_string_s_1_1_ZZstring84                              # an n?
+      if answer is 0
+        call cat_insert_mute addr left addr right
+        if answer is 0
+          go to said
+        end
+      end
+      call ZZtest_string_s_1_1_ZZstring69                              # or an l?
+      if answer is 0
+        call cat_insert_mute addr left addr right
+        if answer is 0
+          go to said
+        end
+      end
+    end
+  end
+  backtrack
+place before_x
+  plant test before_g
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring108                               # x?
+    if answer is 0
+      call ZZsavescptr2 addr right
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring69 addr left addr right  # C
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place before_g
+  plant test before_j
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring54                                # g?
+    if answer is 0
+      call ZZsavescptr2 addr right
+      call ZZlprp_load__insert_2pt_s_4_2 addr left addr right sym cat_ph_dzz
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place before_j
+  plant test before_z
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring64                                # j?
+    if answer is 0
+      call ZZsavescptr2 addr right
+      call ZZlprp_load__insert_2pt_s_4_2 addr left addr right sym cat_ph_dzz
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place before_z
+  plant test plain
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring113                               # z?
+    if answer is 0
+      call ZZsavescptr2 addr right
+      call ZZlprp_load__insert_2pt_s_4_2 addr left addr right sym cat_ph_dz
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place plain
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring77 addr left addr right    # t
+  if answer is not 0
+    backtrack
+  end
+place said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# s between two vowels is voiced -- casa, cosa, rosa, francesa -- and written
+# double it is not: passar and massa keep the voiceless one, which is the whole
+# reason Catalan spells it twice. Everywhere else it is voiceless.
+#
+# What this drops from IBM's own s rule is the voicing of s before a voiced
+# consonant -- Spanish mismo, Catalan esdevenir. That wants a test of the
+# following consonant's voicing, and the input statement records a letter's
+# type but not its voice, so it needs a set of its own rather than a field.
+rule apply_span_s_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  plant test between_vowels
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring96                                # s?
+    if answer is 0
+      call ZZsavescptr2 addr right
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring37 addr left addr right  # s
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place between_vowels
+  plant test plain
+  call ZZlpta_load__setscan_l__1 addr left
+  if answer is 0
+    call ZZtestFldeq1_4_1                                              # vowel before?
+    if answer is 0
+      call ZZlpta_load__setscan_r__1 addr right
+      if answer is 0
+        call ZZtestFldeq1_4_1                                          # and after?
+        if answer is 0
+          call ZZlprp_load__insert_2pt_s_4_1_ZZstring48 addr left addr right  # z
+          if answer is 0
+            go to said
+          end
+        end
+      end
+    end
+  end
+  backtrack
+place plain
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring37 addr left addr right    # s
+  if answer is not 0
+    backtrack
+  end
+place said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# i is a full vowel where Castilian makes it a glide, which is the difference
+# that shows in the commonest words there are: dia is two syllables and
+# Spanish's rule makes it one. Catalan has the glide only in a falling
+# diphthong -- after a vowel, as in caixa, peix, noia -- and everywhere else
+# an i beside a vowel is a hiatus: di-a, vi-a, poli-ci-a, Ma-ri-a, gra-ci-es.
+#
+# And ix is the postalveolar, with a glide in front of it where a vowel comes
+# first. The i of caixa is not only a graphic mark saying that the x is not k
+# and s: caixa is [ka j S @], peix [pe j S], calaix [k @ l a j S], and the
+# glide is what the spelling is there to record. Central Catalan is the
+# dialect that drops it and Western and Valencian keep it, so both are
+# Catalan; this is the one a listener can hear, and without it calaix and
+# llegeix end in a bare fricative that sounds like neither. rules/constants
+# holds the two phones as one insertion, the way the affricates are laid down.
+#
+# Where no vowel comes first there is no diphthong to make, so ix is the
+# fricative alone and the i is eaten -- which is the arm below, IBM's shape
+# with our phoneme in it. Both have to be asked before the glide arm further
+# down, because the i of caixa does stand after a vowel and would otherwise be
+# spoken as one and leave the x to say k and s.
+rule apply_span_i_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  plant test ix_bare
+  call ZZlpta_load__setscan_l__1 addr left
+  if answer is 0
+    call ZZtestFldeq1_4_1                                              # vowel before?
+    if answer is 0
+      call ZZlpta_load__setscan_r__1 addr right
+      if answer is 0
+        call ZZtest_string_s_1_1_ZZstring108                           # and x after?
+        if answer is 0
+          call ZZsavescptr2 addr right
+          call ZZlprp_load__insert_2pt_s_4_2 addr left addr right sym cat_ph_ysh
+          if answer is 0
+            go to said
+          end
+        end
+      end
+    end
+  end
+  backtrack
+place ix_bare
+  plant test qu_first
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring108                               # x?
+    if answer is 0
+      call ZZsavescptr2 addr right
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring64 addr left addr right  # S
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place qu_first
+  # The u of qui and gui is not there. It is a vowel letter, so the arm above
+  # takes it for one and makes this i a glide -- quinze came out [k y n z @]
+  # where Catalan says [k i n z @]. A test that matches leaves the scan past
+  # what it matched, so asking for the u and then for a q or a g reads two
+  # letters back, which is the only way to tell qui from cui: the u of cuina
+  # is a vowel and this i really is a glide there.
+  plant test after_vowel
+  call ZZlpta_load__setscan_l__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring128                               # u before?
+    if answer is 0
+      call ZZtest_string_s_1_1_ZZstring93                              # and q?
+      if answer is 0
+        call ZZlprp_load__insert_2pt_s_4_1_ZZstring113 addr left addr right  # i
+        if answer is 0
+          go to said
+        end
+      end
+      call ZZtest_string_s_1_1_ZZstring54                              # or g?
+      if answer is 0
+        call ZZlprp_load__insert_2pt_s_4_1_ZZstring113 addr left addr right  # i
+        if answer is 0
+          go to said
+        end
+      end
+    end
+  end
+  backtrack
+place after_vowel
+  plant test plain
+  call ZZlpta_load__setscan_l__1 addr left
+  if answer is 0
+    call ZZtestFldeq1_4_1                                              # vowel before?
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring108 addr left addr right  # y
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place plain
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring113 addr left addr right   # i
+  if answer is not 0
+    backtrack
+  end
+place said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# u is a full vowel too, for the same reason i is, and getting one right
+# without the other is worse than getting neither: Spanish makes both a glide
+# before a vowel, so ui came out as two glides with no vowel between them --
+# vuit was [b w y t], a syllable with nothing to be the nucleus of it, and the
+# durations were then asked to shape a stretch that was not there and the word
+# crashed.
+#
+# Catalan has the glide in two places. After a q or a g it is the [w] of
+# quatre, quota and aigua -- que and qui are the other spelling, where the u
+# is silent and the letter before it eats it. And after a vowel it is the
+# falling diphthong of au, eu, ou and iu. Everywhere else u is a vowel, which
+# is what makes vuit [b u y t] and cuita [k u y t @].
+rule apply_span_u_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  plant test after_g
+  call ZZlpta_load__setscan_l__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring93                                # q before?
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring112 addr left addr right  # w
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place after_g
+  plant test after_vowel
+  call ZZlpta_load__setscan_l__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring54                                # g before?
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring112 addr left addr right  # w
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place after_vowel
+  plant test plain
+  call ZZlpta_load__setscan_l__1 addr left
+  if answer is 0
+    call ZZtestFldeq1_4_1                                              # vowel before?
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring112 addr left addr right  # w
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place plain
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring117 addr left addr right   # u
+  if answer is not 0
+    backtrack
+  end
+place said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# The two graves, which reach here through the arm of the letter chain that
+# Castilian keeps for n with a tilde -- Catalan spells that sound ny and never
+# writes the letter, so the arm is free, and the wrapper that guards it asks
+# for a grave instead. glob.up says how.
+#
+# A grave is the open vowel and always carries the stress. Which of the two it
+# is has to be asked here, because one arm serves both.
+rule apply_span_enye_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  plant test o_grave
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_egrave
+    if answer is 0
+      call cat_insert_eopen addr left addr right
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place o_grave
+  call cat_insert_oopen addr left addr right
+  if answer is not 0
+    backtrack
+  end
+place said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# a, e and o say one thing each and take nothing with them.
+#
+# Castilian's rules for these are long because they are where its diphthongs
+# are decided: an a followed by an i eats the i and lays down the glide
+# itself. Catalan decides the same thing from the other end -- an i or a u is
+# a glide when a vowel stands before it, which is what the two rules above
+# say -- and having both is worse than having either. It is why ix could not
+# work: the i of caixa never reached its own rule to eat the x, because the a
+# had already taken it.
+#
+# So these three lay down their vowel and leave the scan where it was. The
+# accented forms come through the same rules and say the same vowel, which is
+# right for Catalan: a with an acute is the same [a], and the graves are the
+# open pair and go elsewhere.
+rule apply_span_a_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring115 addr left addr right   # a
+  if answer is not 0
+    give up
+  end
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+rule apply_span_e_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring114 addr left addr right   # e
+  if answer is not 0
+    give up
+  end
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+rule apply_span_o_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring116 addr left addr right   # o
+  if answer is not 0
+    give up
+  end
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# Catalan devoices a stop at the end of a word, and Castilian does not: fred
+# is [f r e t], verd [b e r t], club [k l u p]. Spanish softens the same three
+# letters into approximants instead, so every one of those words ended in a
+# sound Catalan does not have there.
+#
+# What says the word has ended is two things together, because neither alone
+# is enough: the scan may fail, and it may equally well succeed onto a space
+# or a full stop. So the test is that the scan fails, or that what it lands on
+# is not a letter. Anywhere else the letter says what it always said, and the
+# lenition that follows is free to soften it.
+rule apply_span_b_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  plant test plain
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtestFldeq1_3_1                                              # a letter?
+    if answer is 0
+      call cat_voiceless_follows                                       # a voiceless one?
+      if answer is not 0
+        backtrack
+      end
+    end
+  end
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring5 addr left addr right     # p
+  if answer is not 0
+    backtrack
+  end
+  go to said
+place plain
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring121 addr left addr right   # b
+  if answer is not 0
+    backtrack
+  end
+place said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+rule apply_span_d_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  plant test plain
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtestFldeq1_3_1                                              # a letter?
+    if answer is 0
+      call cat_voiceless_follows                                       # a voiceless one?
+      if answer is not 0
+        backtrack
+      end
+    end
+  end
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring77 addr left addr right    # t
+  if answer is not 0
+    backtrack
+  end
+  go to said
+place plain
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring128 addr left addr right   # d
+  if answer is not 0
+    backtrack
+  end
+place said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# ---- r, and the one Catalan does not say --------------------------------
+
+# Castilian's three arms are kept as they are: rr is the trill, so is an r at
+# the start of a word and one after l, n or s, and everywhere else it is the
+# tap. What is new is the arm in front of them, which is the whole of the
+# difference between cagar and caga` -- an r at the end of a word goes when
+# the word has a second vowel in it.
+#
+# glob.up says why it becomes a phone rather than becoming nothing, and what
+# the test in front of it asks. The order matters: the drop is asked about
+# first, because an r at the end of a word would otherwise be taken by the
+# arm for the tap and never reach this.
+rule apply_span_r_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  plant test rr
+  call cat_word_end addr right
+  if answer is 0
+    call ZZlpta_load__setscan_l__1 addr left
+    if answer is 0
+      call ZZtestFldeq1_4_1                                # a vowel before it?
+      if answer is 0
+        call advance_tok                                   # step on to it
+        if answer is 0
+          call cat_more_vowels_left                        # and another behind?
+          if answer is 0
+            call cat_insert_mute addr left addr right
+            if answer is 0
+              go to said
+            end
+          end
+        end
+      end
+    end
+  end
+  backtrack
+place rr
+  plant test word_start
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring94                    # another r?
+    if answer is 0
+      call ZZsavescptr2 addr right
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring106 addr left addr right  # R
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place word_start
+  # An r that begins a word is the trill: roig, riu, ra'pid. Castilian asks
+  # this by holding the left-hand end against the pointer the word began at,
+  # which is a state variable and so is an address the upper notation cannot
+  # name. What stands before the first letter of a word is not a letter, and
+  # that is the same question asked of the letters themselves.
+  plant test after_lns
+  call ZZlpta_load__setscan_l__1 addr left
+  if answer is not 0
+    call ZZlprp_load__insert_2pt_s_4_1_ZZstring106 addr left addr right  # R
+    if answer is 0
+      go to said
+    end
+  end
+  call ZZtestFldeq1_3_1                                  # a letter before it?
+  if answer is not 0
+    call ZZlprp_load__insert_2pt_s_4_1_ZZstring106 addr left addr right  # R
+    if answer is 0
+      go to said
+    end
+  end
+  backtrack
+place after_lns
+  plant test tap
+  call ZZlpta_load__setscan_l__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring96                    # s before it?
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring106 addr left addr right  # R
+      if answer is 0
+        go to said
+      end
+    end
+    call ZZtest_string_s_1_1_ZZstring69                    # or l?
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring106 addr left addr right  # R
+      if answer is 0
+        go to said
+      end
+    end
+    call ZZtest_string_s_1_1_ZZstring84                    # or n?
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring106 addr left addr right  # R
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place tap
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring104 addr left addr right   # r
+  if answer is not 0
+    backtrack
+  end
+place said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# qu says k before e and i, and the u is not there. Castilian's rule asks
+# about four letters -- e, i and the two of them with an acute -- and Catalan
+# writes a fifth: que` and perque` carry the grave, which caes.codepoints
+# deliberately does not flatten because it is the open vowel. Without it here
+# the u was read as the glide it is in quatre, and perque` came out
+# [p @ r k w E].
+rule apply_span_q_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  plant test said
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring128                   # a u after the q?
+    if answer is 0
+      call ZZsavescptr2 addr right                         # then it says nothing
+      call ZZtest_string_s_1_1_ZZstring77                  # e?
+      if answer is 0
+        go to said
+      end
+      call test_string_s 1 1 sym cat_letter_egrave         # e with a grave?
+      if answer is 0
+        go to said
+      end
+      call ZZtest_string_s_1_1_ZZstring12                  # e with an acute?
+      if answer is 0
+        go to said
+      end
+      call ZZtest_string_s_1_1_ZZstring109                 # i?
+      if answer is 0
+        go to said
+      end
+      call ZZtest_string_s_1_1_ZZstring13                  # i with an acute?
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place said
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring109 addr left addr right   # k
+  if answer is not 0
+    backtrack
+  end
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end

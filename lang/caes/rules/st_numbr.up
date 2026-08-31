@@ -1,0 +1,465 @@
+# The digits, in Catalan.
+#
+# Castilian speaks a bare digit through span_char_name, its dictionary of
+# character names, and that is where cinco came from. A Catalan word cannot be
+# put there: the record wants a length the rule already lays down, and even a
+# rewrite that keeps the length comes out silent, because what delta-dict.py
+# writes is named by an address the arena does not know. That is the gap
+# docs/building.md records between the dictionary tooling and the arena.
+#
+# So the digits are said here instead, out of bytes of ours in
+# rules/constants, which is a store startup copies into the arena. A number
+# word goes in as characters and the letter rules read it back, which is the
+# same path a letter name takes, so cinc comes out with the velar nasal
+# Catalan gives it before a c.
+#
+# What this drops is the ordinal arms, which laid down primero, cuarto and the
+# rest. Catalan ordinals are primer and quart and are not those words, so they
+# were wrong either way; a digit written 1r says un now. A bare nought never
+# reaches here at all -- it is spelled as a character, by single_chars.
+rule convert_span_single_digit takes 3 from st_numbr.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfence_null
+  plant test d1
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring132
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_4 addr left addr right sym cat_num_zero
+      if answer is 0
+        go to d_said
+      end
+    end
+  end
+  backtrack
+place d1
+  plant test d2
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring134
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_3 addr left addr right sym cat_num_un
+      if answer is 0
+        go to d_said
+      end
+    end
+  end
+  backtrack
+place d2
+  plant test d3
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring135
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_3 addr left addr right sym cat_num_dos
+      if answer is 0
+        go to d_said
+      end
+    end
+  end
+  backtrack
+place d3
+  plant test d4
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring136
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_4 addr left addr right sym cat_num_tres
+      if answer is 0
+        go to d_said
+      end
+    end
+  end
+  backtrack
+place d4
+  plant test d5
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring137
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_6 addr left addr right sym cat_num_quatre
+      if answer is 0
+        go to d_said
+      end
+    end
+  end
+  backtrack
+place d5
+  plant test d6
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring138
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_4 addr left addr right sym cat_num_cinc
+      if answer is 0
+        go to d_said
+      end
+    end
+  end
+  backtrack
+place d6
+  plant test d7
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring139
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_4 addr left addr right sym cat_num_sis
+      if answer is 0
+        go to d_said
+      end
+    end
+  end
+  backtrack
+place d7
+  plant test d8
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring141
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_4 addr left addr right sym cat_num_set
+      if answer is 0
+        go to d_said
+      end
+    end
+  end
+  backtrack
+place d8
+  plant test d9
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring142
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_4 addr left addr right sym cat_num_vuit
+      if answer is 0
+        go to d_said
+      end
+    end
+  end
+  backtrack
+place d9
+  plant test d_other
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring143
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_3 addr left addr right sym cat_num_nou
+      if answer is 0
+        go to d_said
+      end
+    end
+  end
+  backtrack
+place d_other
+  call span_char_name addr left addr right
+  if answer is not 0
+    backtrack
+  end
+place d_said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+
+# Ten to nineteen. The rule is handed the number with the ten already read, so
+# what each arm tests is the second digit: 0 for deu, 1 for onze, and up.
+# The scan goes leftwards here where the digits' goes right, which is what
+# IBM's own rule does, and it reads from the right-hand end, which is where
+# the digit that is left of it can be reached from.
+rule convert_span_teens takes 3 from st_numbr.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfence_null
+  plant test t1
+  call ZZlpta_load__setscan_l__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring132
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_3 addr left addr right sym cat_num_deu
+      if answer is 0
+        go to t_said
+      end
+    end
+  end
+  backtrack
+place t1
+  plant test t2
+  call ZZlpta_load__setscan_l__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring134
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_4 addr left addr right sym cat_num_onze
+      if answer is 0
+        go to t_said
+      end
+    end
+  end
+  backtrack
+place t2
+  plant test t3
+  call ZZlpta_load__setscan_l__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring135
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_5 addr left addr right sym cat_num_dotze
+      if answer is 0
+        go to t_said
+      end
+    end
+  end
+  backtrack
+place t3
+  plant test t4
+  call ZZlpta_load__setscan_l__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring136
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_6 addr left addr right sym cat_num_tretze
+      if answer is 0
+        go to t_said
+      end
+    end
+  end
+  backtrack
+place t4
+  plant test t5
+  call ZZlpta_load__setscan_l__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring137
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_7 addr left addr right sym cat_num_catorze
+      if answer is 0
+        go to t_said
+      end
+    end
+  end
+  backtrack
+place t5
+  plant test t6
+  call ZZlpta_load__setscan_l__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring138
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_6 addr left addr right sym cat_num_quinze
+      if answer is 0
+        go to t_said
+      end
+    end
+  end
+  backtrack
+place t6
+  plant test t7
+  call ZZlpta_load__setscan_l__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring139
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_5 addr left addr right sym cat_num_setze
+      if answer is 0
+        go to t_said
+      end
+    end
+  end
+  backtrack
+place t7
+  plant test t8
+  call ZZlpta_load__setscan_l__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring141
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_6 addr left addr right sym cat_num_disset
+      if answer is 0
+        go to t_said
+      end
+    end
+  end
+  backtrack
+place t8
+  plant test t9
+  call ZZlpta_load__setscan_l__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring142
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_6 addr left addr right sym cat_num_divuit
+      if answer is 0
+        go to t_said
+      end
+    end
+  end
+  backtrack
+place t9
+  plant test t_other
+  call ZZlpta_load__setscan_l__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring143
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_5 addr left addr right sym cat_num_dinou
+      if answer is 0
+        go to t_said
+      end
+    end
+  end
+  backtrack
+place t_other
+  call span_char_name addr left addr right
+  if answer is not 0
+    backtrack
+  end
+place t_said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+
+# Twenty to twenty-nine. Like the teens, the rule is handed the number with
+# the twenty already read and each arm tests the second digit, reading
+# rightwards from the right-hand end, which is where this rule's bounds put
+# it -- the teens rule wants the other direction, and only trying says which. The whole word goes in at once, spaces
+# and all, because Catalan writes the joiner here.
+rule convert_span_twenties takes 3 from st_numbr.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfence_null
+  plant test v1
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring132
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_4 addr left addr right sym cat_num_vint
+      if answer is 0
+        go to v_said
+      end
+    end
+  end
+  backtrack
+place v1
+  plant test v2
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring134
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_8 addr left addr right sym cat_num_vintiun
+      if answer is 0
+        go to v_said
+      end
+    end
+  end
+  backtrack
+place v2
+  plant test v3
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring135
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_8 addr left addr right sym cat_num_vintidos
+      if answer is 0
+        go to v_said
+      end
+    end
+  end
+  backtrack
+place v3
+  plant test v4
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring136
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_9 addr left addr right sym cat_num_vintitres
+      if answer is 0
+        go to v_said
+      end
+    end
+  end
+  backtrack
+place v4
+  plant test v5
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring137
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_11 addr left addr right sym cat_num_vintiquatre
+      if answer is 0
+        go to v_said
+      end
+    end
+  end
+  backtrack
+place v5
+  plant test v6
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring138
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_9 addr left addr right sym cat_num_vinticinc
+      if answer is 0
+        go to v_said
+      end
+    end
+  end
+  backtrack
+place v6
+  plant test v7
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring139
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_9 addr left addr right sym cat_num_vintisis
+      if answer is 0
+        go to v_said
+      end
+    end
+  end
+  backtrack
+place v7
+  plant test v8
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring141
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_9 addr left addr right sym cat_num_vintiset
+      if answer is 0
+        go to v_said
+      end
+    end
+  end
+  backtrack
+place v8
+  plant test v9
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring142
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_9 addr left addr right sym cat_num_vintivuit
+      if answer is 0
+        go to v_said
+      end
+    end
+  end
+  backtrack
+place v9
+  plant test v_other
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring143
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_8 addr left addr right sym cat_num_vintinou
+      if answer is 0
+        go to v_said
+      end
+    end
+  end
+  backtrack
+place v_other
+  call span_char_name addr left addr right
+  if answer is not 0
+    backtrack
+  end
+place v_said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end

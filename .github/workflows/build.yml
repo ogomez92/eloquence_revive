@@ -1,0 +1,342 @@
+# Builds both binaries on every push, checks that the engine still says the
+# same thing, and cuts a release with the Windows exes when a tag is pushed.
+#
+# What it cannot do is compare against IBM's binary: that wants the SDK, which
+# is not in the tree and is not ours to put in a runner. So the check here is
+# test/hash.sh, which speaks one fixed sentence and holds the samples against a
+# hash in the tree. It does not prove the engine right -- test/suite.sh does
+# that, on a machine with the SDK -- it proves it unchanged.
+
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # Both forms of the rules are built and both are held to the same hash. Which
+  # one is the default has changed once and could change again, so each job says
+  # which it wants rather than taking it: whichever way the default points, the
+  # other form is the one that would quietly rot, and the compiled rules are
+  # checked against the interpreter by tools/delta-check.sh -- so if the
+  # interpreter moves, the thing the C is held against has moved.
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build, with the rules as C
+        run: make -j"$(nproc)" RULES=c
+
+      - name: Check the samples
+        run: test/hash.sh
+
+      - name: Check the add-on's own two
+        run: make nvda-test
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: evv-linux-x86_64
+          path: build/evv
+          if-no-files-found: error
+
+  # The quick one: no Python, no thirteen megabytes of generated C, half a
+  # minute. It proves the interpreter still says what it has always said, and it
+  # is what a fresh clone with nothing but a C compiler gets.
+  linux-bytecode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build, with the rules as bytecode
+        run: make -j"$(nproc)" RULES=bytecode
+
+      - name: Check the samples
+        run: test/hash.sh
+
+      - name: Check a rate change keeps the caller's buffer
+        run: make RULES=bytecode rate
+
+      - name: Check a key that is not in a section reads as absent
+        run: make RULES=bytecode inikeys
+
+      # The eight voices the caller may edit on an instance just made. The
+      # suite is blind to them: the loop that fills them can be turned off
+      # entirely and all 81 cases still match IBM's binary, which is how a
+      # stale script in /tmp got that edit past everything once.
+      - name: Check the voices the caller may edit
+        run: make RULES=bytecode voices
+
+      - name: Check a stop from another thread leaves the engine whole
+        run: make RULES=bytecode stopthread
+
+      # Half of test/prims.sh. The comparison against IBM's own objects wants
+      # Wine and the SDK and cannot run here, but our side of it exercises
+      # every machine primitive no rule calls -- fifty thousand calls that
+      # nothing else in the tree makes -- so a crash or a link that has lost
+      # one shows up.
+      - name: Run our side of the machine primitives
+        run: make RULES=bytecode prims
+
+      # The rules written in the upper form, held against the ones IBM
+      # compiled: every rule entered and every call made with its arguments,
+      # over a build carrying each. It wants neither Wine nor IBM's objects.
+      # Only this harness's own sentences here rather than those and the
+      # suite's seven, because tracing costs twenty times what the synthesis
+      # does and these are the ones that reach the rules being checked.
+      - name: Check the rules written as what they do
+        run: EVV_UPPER_CASES=test/cases/upper.txt bash tools/upper-check.sh
+
+      # The four texts a language module is made of besides its rules, each
+      # written back out as the C the build compiles and held against the tree
+      # byte for byte. Wants no objects and no Wine, and takes seconds.
+      - name: Check the tables beside the rules
+        run: |
+          make LANGS="$(printf 'lang/%s ' enus dede engb eses esus frfr frca itit plpl)" \
+               tables-check
+
+      # Every language module builds and speaks, which wants neither Wine nor
+      # IBM's objects: only the comparison against IBM does. So a module that
+      # stops linking, or an engine change that suits one language and not
+      # another, is caught here rather than on somebody's machine. Samples are
+      # required: a build that links and says nothing would otherwise pass.
+      - name: Build and speak every language
+        run: |
+          set -eu
+          for l in lang/*/; do
+            t=$(basename "$l")
+            make -j"$(nproc)" probe LANG="lang/$t" RULES=bytecode
+            p=build/probe
+            [ "$t" = enus ] || p="build/probe-$t"
+            "$p" "The quick brown fox jumps over the lazy dog." "/tmp/$t.wav"
+            test -s "/tmp/$t.wav"
+          done
+
+      # And all of them in one binary, each still speaking: this is what says
+      # nothing in the engine has quietly stayed global.
+      - name: Speak every language out of one binary
+        run: |
+          set -eu
+          all=$(printf 'lang/%s ' enus dede engb eses esus frfr frca itit plpl)
+          make -j"$(nproc)" probe RULES=bytecode LANGS="$all"
+          b=build/probe-enus-dede-engb-eses-esus-frfr-frca-itit-plpl
+          for id in 0x10000 0x10001 0x20000 0x20001 0x30000 0x30001 0x40000 0x50000 0x110000; do
+            EVV_LANGUAGE=$id "$b" "The quick brown fox." "/tmp/one-$id.wav"
+            test -s "/tmp/one-$id.wav"
+          done
+
+  # Cross-compiled here rather than on a Windows runner, because this is the
+  # same toolchain the tree is developed with and it takes a minute.
+  windows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Get the mingw toolchains
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64 \
+                                  gcc-mingw-w64-i686 binutils-mingw-w64-i686
+
+      - name: Build
+        run: make -j"$(nproc)" win win-dlltest win32
+
+      - name: Say what came out
+        run: |
+          ls -l build/evv.exe build/evvspeak.exe build/eci.dll build/eci32.dll
+          # Where the image lands stopped mattering when the language's data
+          # stopped being named where it lies, so this only reports it now.
+          # What is worth failing over is that the exports are plain names,
+          # since a caller asks for them by name.
+          x86_64-w64-mingw32-objdump -p build/evvspeak.exe | grep -i imagebase
+          for dll in build/eci.dll build/eci32.dll; do
+            n=$(x86_64-w64-mingw32-objdump -p "$dll" \
+                  | grep -cE '\beci[A-Za-z]+@[0-9]+' || true)
+            echo "$dll: $n decorated exports"
+            test "$n" = 0
+          done
+
+      # The add-on is built here because it wants both libraries, and this is
+      # the only job that has them. A tag names itself; anything else is named
+      # after the commit, so a downloaded artifact says what it came from.
+      #
+      # It is uploaded as a build artifact and deliberately left out of
+      # releases: it is not stable enough to hand anyone yet. The release job
+      # throws it away rather than this job not making it, so that a build to
+      # try is always there.
+      - name: Pack the NVDA add-on
+        run: |
+          case "$GITHUB_REF" in
+          refs/tags/v*) version=${GITHUB_REF_NAME#v} ;;
+          *)            version=0.0+${GITHUB_SHA::8} ;;
+          esac
+          python3 nvda/build.py --version "$version"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: openevv-windows-x86_64
+          path: |
+            build/evv.exe
+            build/evvspeak.exe
+            build/eci.dll
+            build/eci32.dll
+            build/eci.ini
+            build/dlltest.exe
+            build/dlltest32.exe
+            build/openevv-*.nvda-addon
+          if-no-files-found: error
+
+  # The one thing the cross build cannot answer: whether it runs on Windows.
+  windows-check:
+    needs: windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: openevv-windows-x86_64
+
+      - name: Speak, and check the samples
+        shell: pwsh
+        run: |
+          .\evv.exe -o out.wav "The quick brown fox jumps over the lazy dog."
+          $have = (Get-FileHash out.wav -Algorithm SHA256).Hash.ToLower()
+          $want = (Get-Content test/samples.sha256).Split(' ')[0]
+          "on Windows: $have"
+          "wanted:     $want"
+          if ($have -ne $want) { throw "the samples have moved on Windows" }
+
+      # The library is what an add-on loads, so it is checked the way an add-on
+      # loads it: by name, through ctypes, in a sixty-four bit process, on
+      # Windows itself. The C harness checks the same crossing without ctypes'
+      # opinions in the way.
+      - name: Speak through the library, from C and from ctypes
+        shell: pwsh
+        run: |
+          .\dlltest.exe -o fromc.wav "The quick brown fox jumps over the lazy dog."
+          $want = (Get-Content test/samples.sha256).Split(' ')[0]
+          $havec = (Get-FileHash fromc.wav -Algorithm SHA256).Hash.ToLower()
+          "from C:      $havec"
+          if ($havec -ne $want) { throw "the library says something else than the engine" }
+          python test/dll.py eci.dll fromctypes.wav "The quick brown fox jumps over the lazy dog."
+          $havep = (Get-FileHash fromctypes.wav -Algorithm SHA256).Hash.ToLower()
+          "from ctypes: $havep"
+          "wanted:      $want"
+          if ($havep -ne $want) { throw "the library says something else through ctypes" }
+
+      # The thirty-two bit library, which is what the most used driver loads --
+      # it hosts the engine in a 32-bit process of its own whatever bitness the
+      # reader is. Checked from C, because a sixty-four bit Python cannot load
+      # a thirty-two bit library at all.
+      - name: Speak through the thirty-two bit library
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path t32 | Out-Null
+          Copy-Item eci32.dll t32\eci.dll
+          Copy-Item dlltest32.exe t32\
+          Copy-Item eci.ini t32\
+          Push-Location t32
+          .\dlltest32.exe -o from32.wav "The quick brown fox jumps over the lazy dog."
+          $have = (Get-FileHash from32.wav -Algorithm SHA256).Hash.ToLower()
+          Pop-Location
+          $want = (Get-Content test/samples.sha256).Split(' ')[0]
+          "thirty-two bit: $have"
+          "wanted:         $want"
+          if ($have -ne $want) { throw "the 32-bit library says something else" }
+
+  # The thirty-two bit library's real caller is not one of our own binaries: it
+  # is a host DLL built with MSVC, loading us across a toolchain boundary. A
+  # thirty-two bit Python is the closest thing a runner has to that -- MSVC
+  # built, no mingw runtime anywhere in it -- and ctypes is how the add-ons
+  # call in anyway.
+  windows-check-32:
+    needs: windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: openevv-windows-x86_64
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          architecture: x86
+
+      - name: Speak through the thirty-two bit library, from a 32-bit Python
+        shell: pwsh
+        run: |
+          python -c "import struct, sys; print('python is', struct.calcsize('P') * 8, 'bit')"
+          New-Item -ItemType Directory -Force -Path p32 | Out-Null
+          Copy-Item eci32.dll p32\eci.dll
+          Copy-Item eci.ini p32\
+          python test/dll.py p32\eci.dll from32py.wav "The quick brown fox jumps over the lazy dog."
+          $have = (Get-FileHash from32py.wav -Algorithm SHA256).Hash.ToLower()
+          $want = (Get-Content test/samples.sha256).Split(' ')[0]
+          "from a 32-bit ctypes: $have"
+          "wanted:               $want"
+          if ($have -ne $want) { throw "the 32-bit library says something else through ctypes" }
+
+  release:
+    needs: [linux, linux-bytecode, windows, windows-check, windows-check-32]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      # Under dist, and not under win or linux: those are directories in the
+      # tree, and downloading into one put the speak window's own sources in
+      # the zip.
+      - uses: actions/download-artifact@v8
+        with:
+          name: openevv-windows-x86_64
+          path: dist/windows
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: evv-linux-x86_64
+          path: dist/linux
+
+      - name: Make the archives
+        run: |
+          # The harnesses are checks, not something to ship.
+          rm -f dist/windows/dlltest.exe dist/windows/dlltest32.exe
+          # The add-on is not released yet. It is still built and uploaded as a
+          # build artifact, which is how it gets tried, but it is thrown away
+          # here so it neither goes out as a file nor ends up inside the zip.
+          rm -f dist/windows/openevv-*.nvda-addon
+          # Two libraries with the same name cannot sit in one directory, and
+          # dropping the wrong one in is the mistake to design out: each gets a
+          # folder saying which it is, with the ini it wants beside it.
+          mkdir -p dist/windows/eci-x86_64 dist/windows/eci-x86
+          mv dist/windows/eci.dll dist/windows/eci-x86_64/eci.dll
+          mv dist/windows/eci32.dll dist/windows/eci-x86/eci.dll
+          cp dist/windows/eci.ini dist/windows/eci-x86_64/
+          mv dist/windows/eci.ini dist/windows/eci-x86/
+          cp README.md LICENSE NOTICE dist/windows/
+          (cd dist/windows \
+             && zip -q -r ../../openevv-${GITHUB_REF_NAME}-windows-x86_64.zip .)
+          chmod +x dist/linux/evv
+          cp README.md LICENSE NOTICE dist/linux/
+          tar -C dist/linux -czf \
+              openevv-${GITHUB_REF_NAME}-linux-x86_64.tar.gz .
+          echo "what is going out:"
+          unzip -l openevv-${GITHUB_REF_NAME}-windows-x86_64.zip
+          tar -tzf openevv-${GITHUB_REF_NAME}-linux-x86_64.tar.gz
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "openevv $GITHUB_REF_NAME" \
+            --notes-file .github/release-notes.md \
+            openevv-*-windows-x86_64.zip \
+            openevv-*-linux-x86_64.tar.gz

@@ -1,0 +1,25 @@
+# What each of Catalan's own characters arrives as: the code point a caller
+# writes, and the byte the module reads it as. The byte is the Windows Western
+# one, because that is what utf8ToWestern answers with; it is not the
+# alphabet's own code. The conversion runs on text that is UTF-8, which is
+# what a caller should be sending.
+#
+# a with a grave is the same vowel as a with an acute, and Catalan never
+# writes the acute one, so it arrives as that and takes the stress rule
+# Castilian already has for it. i and u with a grave are not Catalan at all --
+# it writes those two only with an acute -- and are mapped for the same reason,
+# so that a stray one is stressed rather than swallowed.
+#
+# e and o with a grave are not here, and that is the point: they are the open
+# vowels, they reach a rule of their own through the arm of the letter chain
+# Castilian keeps for n with a tilde, and mapping them onto the acute would
+# throw away the one thing in the writing that says which of the two vowels is
+# meant. glob.up says how that arm was freed.
+00e0 e1   # a with grave, as a with acute
+00ec ed   # i with grave, as i with acute
+00f9 fa   # u with grave, as u with acute
+00c0 c1   # A with grave, as A with acute
+00cc cd   # I with grave
+00d9 da   # U with grave
+00c8 e8   # E with grave, as its own lower case
+00d2 f2   # O with grave, as its own lower case

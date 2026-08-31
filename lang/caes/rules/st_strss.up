@@ -1,0 +1,65 @@
+# Where the stress goes when the word does not end the way Castilian's rule
+# expects.
+#
+# assign_span_stress decides between the last syllable and the one before it
+# by looking at the last phone: a vowel, or an n or an s with a vowel before
+# it, takes the penultimate, and anything else takes the last. It asks about
+# the n by its code, and Catalan's word-final n is not that code -- it is the
+# interdental's, taken over so that span_phrase_level_rules would stop
+# velarising it, which ss_val.up and docs/status.md set out. So every word
+# ending in an n fell through to the last syllable: canten came out
+# [k @ n t e n] where Catalan says [k a n t @ n], and with it every third
+# person plural there is, which is most of the verbs anyone says.
+#
+# The test belongs in assign_span_stress, beside the ones for n and s, and it
+# cannot go there: those three are one shared wrapper apiece and the same
+# wrapper is what the velarising arm reads, so widening it would undo the very
+# thing the retaking was for. What can be done is to catch it at the other
+# end. span_final_str is the arm that was wrongly taken, it is nine operations
+# long, and a word that ends in the final n with a vowel in front of it is
+# handed to span_penult_str instead.
+#
+# The rest is IBM's rule operation for operation: the pointer the word ends
+# at, the scan set leftward over the syllables, one step, the mark, and the
+# two places a backtrack comes back to -- the second of which is planted by
+# savescptr rather than by anything here, which is why it is bound to its
+# number rather than allocated one.
+rule span_final_str takes 1 from st_strss.obj
+  local at bytes 8
+  variable word_end word 872
+  call push_ptr_init addr at
+  call ZZfence_null
+  call ZZlpta_load_vvg__setscan_0108l__4
+  if answer is 0
+    call cat_test_final_n                          # a word-final n?
+    if answer is 0
+      call ZZtestFldeq4_1_1                        # with a vowel before it?
+      if answer is 0
+        call span_penult_str
+        if answer is 0
+          match
+        end
+        give up
+      end
+    end
+  end
+  plant test put_mark
+  call lpta_loadp addr word_end
+  call setscan_l 7
+  if answer is 0
+    call advance_tok
+    if answer is 0
+      go to saved
+    end
+  end
+  go to put_mark
+place saved on 2
+  call ZZsavescptr2 addr at
+place put_mark
+  call ZZlprp_load__insert_2pt_i_7_2_ZZstring3 addr at addr word_end
+  if answer is not 0
+    backtrack
+  end
+  call succeed
+  answer 0
+end

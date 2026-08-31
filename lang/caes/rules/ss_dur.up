@@ -1,0 +1,57 @@
+# And it lasts as long as an n lasts, for the reason ss_val.up gives.
+rule span_ph_T_dur takes 1 from ss_dur.obj
+  bare
+  call span_ph_n_dur
+end
+
+# And it lasts hardly any time. The velar fricative is what a word-final r
+# becomes here and it says nothing, so what its duration decides is only how
+# much longer the vowel in front of it is held: Castilian gives the fricative
+# something like ninety milliseconds, which stretched the last vowel of every
+# infinitive past what Catalan does with it. Twenty is the compensatory
+# lengthening a lost r really leaves and no more.
+rule span_ph_j_dur takes 1 from ss_dur.obj
+  call ZZfence_null
+  set global half 2074 to 20
+  match
+end
+
+# And the postalveolar lasts what a fricative lasts.
+#
+# Castilian declares S and never reaches it from its own spelling, so the
+# number IBM left in span_ph_S_dur was never once spoken: 150, flat, for every
+# S that does not stand after a t. Catalan reaches it constantly -- x, ix,
+# caixa, xocolata, aixo -- and 150 is not a fricative, it is a held breath.
+# Measured on our own output it came out at 145 milliseconds against 65 for
+# the s of passa and massa, so the sound Catalan writes most often was more
+# than twice the length of the one beside it.
+#
+# 80 is where it belongs: longer than the s, as a postalveolar is in every
+# language that has both, and not double it. What is kept is the one context
+# IBM did write, the S of an affricate -- tx of cotxe and despatx, which is a
+# stop and this fricative and wants the short one, not a fricative of its own
+# length after the stop has already been said.
+#
+# What is not kept is the scan loop that skipped synchronisation marks on the
+# way left to find that t. It is three operations and a dispatch of IBM's, and
+# the audio says it is not needed here: the fricative of cotxe still measures
+# 50 milliseconds and that of despatx 55, exactly what they were, so the t is
+# found without it. The ones that moved are the fricatives standing alone --
+# caixa and peix from 145 to 75, xocolata from 155 to 85 -- against the 65 of
+# passa, which is untouched.
+rule span_ph_S_dur takes 1 from ss_dur.obj
+  call ZZfence_null
+  plant test on_its_own
+  call ZZlpta_load_vvg__setscan_0103l__4
+  if answer is 0
+    call ZZtest_string_s_4_1_ZZstring77                       # a t before it?
+    if answer is 0
+      set global half 2074 to 40
+      match
+    end
+  end
+  backtrack
+place on_its_own
+  set global half 2074 to 80
+  match
+end
