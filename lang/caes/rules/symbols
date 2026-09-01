@@ -1350,82 +1350,98 @@ at glob.obj sym_1083 caes_evv_glob_data_3 252
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # And the constants of our own, out of rules/constants by tools/delta-consts.py.
 store caes_evv_authored_data
-at * cat_ph_dzz caes_evv_authored_data 0
-at * cat_ph_dz caes_evv_authored_data 2
-at * cat_ph_schwa caes_evv_authored_data 4
-at * cat_letter_egrave caes_evv_authored_data 5
-at * cat_letter_ograve caes_evv_authored_data 6
-at * cat_letter_a caes_evv_authored_data 7
-at * cat_letter_b caes_evv_authored_data 8
-at * cat_letter_d caes_evv_authored_data 9
-at * cat_letter_e caes_evv_authored_data 10
-at * cat_letter_g caes_evv_authored_data 11
-at * cat_letter_h caes_evv_authored_data 12
-at * cat_letter_j caes_evv_authored_data 13
-at * cat_letter_n caes_evv_authored_data 14
-at * cat_letter_o caes_evv_authored_data 15
-at * cat_letter_p caes_evv_authored_data 16
-at * cat_letter_q caes_evv_authored_data 17
-at * cat_letter_x caes_evv_authored_data 18
-at * cat_letter_z caes_evv_authored_data 19
-at * cat_tail_lta caes_evv_authored_data 20
-at * cat_tail_r caes_evv_authored_data 23
-at * cat_tail_t caes_evv_authored_data 24
-at * cat_letter_i caes_evv_authored_data 25
-at * cat_letter_u caes_evv_authored_data 26
-at * cat_letter_c caes_evv_authored_data 27
-at * cat_letter_f caes_evv_authored_data 28
-at * cat_letter_l caes_evv_authored_data 29
-at * cat_letter_m caes_evv_authored_data 30
-at * cat_letter_r caes_evv_authored_data 31
-at * cat_letter_v caes_evv_authored_data 32
-at * cat_letter_s caes_evv_authored_data 33
-at * cat_letter_t caes_evv_authored_data 34
-at * cat_ph_eopen caes_evv_authored_data 35
-at * cat_ph_oopen caes_evv_authored_data 36
-at * cat_num_zero caes_evv_authored_data 37
-at * cat_num_un caes_evv_authored_data 41
-at * cat_num_dos caes_evv_authored_data 44
-at * cat_num_tres caes_evv_authored_data 47
-at * cat_num_quatre caes_evv_authored_data 51
-at * cat_num_cinc caes_evv_authored_data 57
-at * cat_num_sis caes_evv_authored_data 61
-at * cat_num_set caes_evv_authored_data 65
-at * cat_num_vuit caes_evv_authored_data 69
-at * cat_num_nou caes_evv_authored_data 73
-at * cat_num_deu caes_evv_authored_data 76
-at * cat_num_onze caes_evv_authored_data 79
-at * cat_num_dotze caes_evv_authored_data 83
-at * cat_num_tretze caes_evv_authored_data 88
-at * cat_num_catorze caes_evv_authored_data 94
-at * cat_num_quinze caes_evv_authored_data 101
-at * cat_num_setze caes_evv_authored_data 107
-at * cat_num_disset caes_evv_authored_data 112
-at * cat_num_divuit caes_evv_authored_data 118
-at * cat_num_dinou caes_evv_authored_data 124
-at * cat_num_vint caes_evv_authored_data 129
-at * cat_num_vintiun caes_evv_authored_data 133
-at * cat_num_vintidos caes_evv_authored_data 141
-at * cat_num_vintitres caes_evv_authored_data 149
-at * cat_num_vintiquatre caes_evv_authored_data 158
-at * cat_num_vinticinc caes_evv_authored_data 169
-at * cat_num_vintisis caes_evv_authored_data 178
-at * cat_num_vintiset caes_evv_authored_data 187
-at * cat_num_vintivuit caes_evv_authored_data 196
-at * cat_num_vintinou caes_evv_authored_data 205
-at * cat_num_noranta caes_evv_authored_data 213
-at * cat_num_quaranta caes_evv_authored_data 221
-at * cat_num_cinquanta caes_evv_authored_data 229
-at * cat_num_trenta caes_evv_authored_data 238
-at * cat_num_seixanta caes_evv_authored_data 246
-at * cat_num_setanta caes_evv_authored_data 254
-at * cat_num_vuitanta caes_evv_authored_data 262
-at * cat_num_join caes_evv_authored_data 270
-at * cat_ph_mute caes_evv_authored_data 271
-at * cat_ph_final_n caes_evv_authored_data 272
-at * cat_ph_m caes_evv_authored_data 273
-at * cat_ph_z caes_evv_authored_data 274
-at * cat_ph_zz caes_evv_authored_data 275
-at * cat_ph_ysh caes_evv_authored_data 276
+at * cat_ph_tsh caes_evv_authored_data 0
+at * cat_ph_dzz caes_evv_authored_data 2
+at * cat_ph_dz caes_evv_authored_data 4
+at * cat_ph_schwa caes_evv_authored_data 6
+at * cat_letter_egrave caes_evv_authored_data 7
+at * cat_letter_ograve caes_evv_authored_data 8
+at * cat_letter_a caes_evv_authored_data 9
+at * cat_letter_b caes_evv_authored_data 10
+at * cat_letter_d caes_evv_authored_data 11
+at * cat_letter_e caes_evv_authored_data 12
+at * cat_letter_g caes_evv_authored_data 13
+at * cat_letter_h caes_evv_authored_data 14
+at * cat_letter_j caes_evv_authored_data 15
+at * cat_letter_n caes_evv_authored_data 16
+at * cat_letter_o caes_evv_authored_data 17
+at * cat_letter_p caes_evv_authored_data 18
+at * cat_letter_q caes_evv_authored_data 19
+at * cat_letter_x caes_evv_authored_data 20
+at * cat_letter_z caes_evv_authored_data 21
+at * cat_tail_lta caes_evv_authored_data 22
+at * cat_tail_r caes_evv_authored_data 25
+at * cat_tail_t caes_evv_authored_data 26
+at * cat_letter_i caes_evv_authored_data 27
+at * cat_letter_u caes_evv_authored_data 28
+at * cat_letter_c caes_evv_authored_data 29
+at * cat_letter_f caes_evv_authored_data 30
+at * cat_letter_l caes_evv_authored_data 31
+at * cat_letter_m caes_evv_authored_data 32
+at * cat_letter_r caes_evv_authored_data 33
+at * cat_letter_v caes_evv_authored_data 34
+at * cat_letter_s caes_evv_authored_data 35
+at * cat_letter_t caes_evv_authored_data 36
+at * cat_ph_eopen caes_evv_authored_data 37
+at * cat_ph_oopen caes_evv_authored_data 38
+at * cat_num_zero caes_evv_authored_data 39
+at * cat_num_un caes_evv_authored_data 43
+at * cat_num_dos caes_evv_authored_data 46
+at * cat_num_tres caes_evv_authored_data 49
+at * cat_num_quatre caes_evv_authored_data 53
+at * cat_num_cinc caes_evv_authored_data 59
+at * cat_num_sis caes_evv_authored_data 63
+at * cat_num_set caes_evv_authored_data 67
+at * cat_num_vuit caes_evv_authored_data 71
+at * cat_num_nou caes_evv_authored_data 75
+at * cat_num_deu caes_evv_authored_data 78
+at * cat_num_onze caes_evv_authored_data 81
+at * cat_num_dotze caes_evv_authored_data 85
+at * cat_num_tretze caes_evv_authored_data 90
+at * cat_num_catorze caes_evv_authored_data 96
+at * cat_num_quinze caes_evv_authored_data 103
+at * cat_num_setze caes_evv_authored_data 109
+at * cat_num_disset caes_evv_authored_data 114
+at * cat_num_divuit caes_evv_authored_data 120
+at * cat_num_dinou caes_evv_authored_data 126
+at * cat_num_vint caes_evv_authored_data 131
+at * cat_num_vintiun caes_evv_authored_data 135
+at * cat_num_vintidos caes_evv_authored_data 143
+at * cat_num_vintitres caes_evv_authored_data 151
+at * cat_num_vintiquatre caes_evv_authored_data 160
+at * cat_num_vinticinc caes_evv_authored_data 171
+at * cat_num_vintisis caes_evv_authored_data 180
+at * cat_num_vintiset caes_evv_authored_data 189
+at * cat_num_vintivuit caes_evv_authored_data 198
+at * cat_num_vintinou caes_evv_authored_data 207
+at * cat_num_noranta caes_evv_authored_data 215
+at * cat_num_quaranta caes_evv_authored_data 223
+at * cat_num_cinquanta caes_evv_authored_data 231
+at * cat_num_trenta caes_evv_authored_data 240
+at * cat_num_seixanta caes_evv_authored_data 248
+at * cat_num_setanta caes_evv_authored_data 256
+at * cat_num_vuitanta caes_evv_authored_data 264
+at * cat_num_join caes_evv_authored_data 272
+at * cat_ph_mute caes_evv_authored_data 273
+at * cat_ph_final_n caes_evv_authored_data 274
+at * cat_ph_m caes_evv_authored_data 275
+at * cat_ph_z caes_evv_authored_data 276
+at * cat_ph_zz caes_evv_authored_data 277
+at * cat_ph_d caes_evv_authored_data 278

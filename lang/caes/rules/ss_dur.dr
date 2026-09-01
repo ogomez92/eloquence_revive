@@ -2617,7 +2617,7 @@ label L5 was B5
   call ZZtest_string_s_4_1_ZZstring67 arity 1 depth 1
   cmp testl reg r0 reg r0
   popreg r1
-  branch je to L23
+  branch je to L33
 label L6 was B6
   push reg r6
   call ZZstarttest16 arity 1 depth 1
@@ -2818,6 +2818,14 @@ label L30 was B30
   popreg r1
   load movl imm 0 into r0
   jump to L32
+# The stop of the voiced affricate, which is ours and not IBM's. A d with a Z
+# after it is the d of metge, platja and penjat, and IBM sent it to the arm
+# that gives 45 -- five milliseconds under a plain d, and shared with the d
+# that follows an l. A listener asked for the hold before the release to be a
+# little longer, so it has a number of its own here and the l keeps 45.
+label L33
+  store movw imm 70 ind reg r6 2074
+  jump to L25
 label L31 was B31
   push imm 94
   push reg r6

@@ -4,12 +4,13 @@ rule span_ph_T_dur takes 1 from ss_dur.obj
   call span_ph_n_dur
 end
 
-# And it lasts hardly any time. The velar fricative is what a word-final r
+# And it lasts no time at all. The velar fricative is what a word-final r
 # becomes here and it says nothing, so what its duration decides is only how
-# much longer the vowel in front of it is held: Castilian gives the fricative
-# something like ninety milliseconds, which stretched the last vowel of every
-# infinitive past what Catalan does with it. Twenty is the compensatory
-# lengthening a lost r really leaves and no more.
+# long a segment with no amplitude in it stands between two words: Castilian
+# gives the fricative something like ninety milliseconds, and any length at
+# all is heard as a stop closure -- the b of amb, or a gap in the middle of
+# carrer venir that casa venir has not got. ss_val.up says why the length
+# went rather than the amplitude.
 rule span_ph_j_dur takes 1 from ss_dur.obj
   call ZZfence_null
   set global half 2074 to 0
@@ -34,11 +35,14 @@ end
 #
 # What is not kept is the scan loop that skipped synchronisation marks on the
 # way left to find that t. It is three operations and a dispatch of IBM's, and
-# the audio says it is not needed here: the fricative of cotxe still measures
-# 50 milliseconds and that of despatx 55, exactly what they were, so the t is
-# found without it. The ones that moved are the fricatives standing alone --
-# caixa and peix from 145 to 75, xocolata from 155 to 85 -- against the 65 of
-# passa, which is untouched.
+# the audio says it is not needed here: the t is found without it, and the
+# fricative of cotxe measures 50 milliseconds and that of despatx 55. Neither
+# number could be read until st_phone.up stopped laying down the phone C for
+# tx, which nothing in the module speaks -- while it did, this arm was written
+# and never once entered, because there was no S after a t anywhere in the
+# language. The fricatives standing alone are 75 for caixa and peix and 85 for
+# xocolata, down from 145 and 155, against the 65 of passa, which is
+# untouched.
 rule span_ph_S_dur takes 1 from ss_dur.obj
   call ZZfence_null
   plant test on_its_own
@@ -46,12 +50,46 @@ rule span_ph_S_dur takes 1 from ss_dur.obj
   if answer is 0
     call ZZtest_string_s_4_1_ZZstring77                       # a t before it?
     if answer is 0
-      set global half 2074 to 0
+      set global half 2074 to 40
       match
     end
   end
   backtrack
 place on_its_own
-  set global half 2074 to 0
+  set global half 2074 to 80
+  match
+end
+
+# And the voiced postalveolar lasts what its voiceless pair lasts.
+#
+# IBM gave it 20, flat, in every context, which is a third of what it gives
+# the voiced alveolar z and a quarter of what the fricative above gets. Like
+# the S it was never once spoken from Castilian spelling, so the number cost
+# Castilian nothing; Catalan reaches it from j, from g before e and i, and
+# from the tg and tj of metge and platja, and 20 milliseconds of it is heard
+# as a click rather than a sound. A listener put it exactly: the noise of the
+# affricate is too quiet and too short, and it should be the sh with voice in
+# it.
+#
+# So it is span_ph_S_dur's two numbers with the affricate's stop asked for
+# instead of the fricative's. The voiceless affricate is t and S and the
+# voiced one is d and Z, so the question is whether a d stands to the left --
+# `cat_ph_d' in rules/constants, since IBM wrote a wrapper for the Z on the
+# right and none for the d on the left. metge and platja take 40 and jove,
+# gener and girafa take 80.
+rule span_ph_Z_dur takes 1 from ss_dur.obj
+  call ZZfence_null
+  plant test on_its_own
+  call ZZlpta_load_vvg__setscan_0103l__4
+  if answer is 0
+    call test_string_s 4 1 sym cat_ph_d                       # a d before it?
+    if answer is 0
+      set global half 2074 to 40
+      match
+    end
+  end
+  backtrack
+place on_its_own
+  set global half 2074 to 80
   match
 end

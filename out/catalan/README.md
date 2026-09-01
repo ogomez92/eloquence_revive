@@ -100,6 +100,22 @@ the final r, -ble as -ple, aquest as aquet, and the conjunction i: sixteen
 cases, with a README beside them saying what each is for and which of them are
 rules and which are single words.
 
+## xeix/
+
+The fricative of caixa and the affricate of cotxe, before and after the two
+faults that silenced them: a duration walked to nought by a change meant for
+the phone below it, and a `tx` that laid down a phone nothing in the module
+speaks. A is what was in the tree before, B is what is there now.
+
+## zeta/
+
+The voiced postalveolar -- the sound of jove and gener, and the release of the
+affricate in metge and platja -- at five settings. A is what IBM left there
+and no Castilian spelling could reach: 20 milliseconds, no noise modulation,
+and the frication five under what its own S gets. B to E are the S line for
+line with voicing added, and differ in how long the affricate's stop is held
+and how long its release runs. C is what is in the tree.
+
 ## schwa-a/
 
 The schwa and the a moved apart. They were sixty hertz and a hundred from each
@@ -149,7 +165,9 @@ casa               k a z @
 dia                d i @
 cafè               k @ f E
 dòna               d O n @
-caixa              k a y S @
+caixa              k a S @
+cotxe              k o t S @
+metge              m e d Z @
 dijous             d i Z o w s
 quinze             k i n z @
 fred               f r e t

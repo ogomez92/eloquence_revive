@@ -1,0 +1,6 @@
+01-jota|jove gener girafa Girona jutge
+02-affricada|metge platja viatge jutjar mitja
+03-nasal|penjat menjar mengen àngel monja
+04-parells|caixa metge, peix platja, cotxe jove
+05-frase|El jove metge de Girona menja taronges al despatx.
+06-llarga|Aquest gener el jove metge de Barcelona va despatxar dotze caixes.

@@ -50,3 +50,35 @@ rule span_ph_j takes 1 from ss_val.obj
   call ZZfence_null
   match
 end
+
+# And the voiced postalveolar is the voiceless one with voice in it.
+#
+# It is the sound of jove, gener and girafa, and the release of the affricate
+# in metge, platja and penjat, and Castilian reaches none of those: it spells
+# the fricative with a j that says a velar here and the affricate with a ch
+# that is voiceless, so `span_ph_Z' is another rule IBM wrote and never once
+# ran. What it left there is not what its own S does. The frication was 50
+# where S has 55, the amplitudes below it 65 and 50 where S has 60, 62 and 62,
+# the formants were written out inline rather than taken from `span_pal_Fv',
+# and `modulate_noise' -- which is what gives a fricative its noise at all --
+# was not called. With `span_ph_Z_dur' giving 20 milliseconds on top of that,
+# a listener heard the affricate's noise as too quiet and too short and said
+# it should simply be the sh with voice in it. It should, and now it is.
+#
+# So this is span_ph_S line for line, with one number added: 2754, the
+# amplitude of voicing, which S never sets and which IBM's own rule here set
+# to 40 -- but only where the segment to the left passed a test, so a
+# word-initial one in jove had none at all. A phoneme that is voiced by
+# definition does not ask its neighbour whether to be.
+rule span_ph_Z takes 1 from ss_val.obj
+  call ZZfence_null
+  set global half 2930 to 300
+  set global half 2762 to 55
+  set global half 2754 to 40
+  set global half 2782 to 60
+  set global half 2786 to 62
+  set global half 2790 to 62
+  call span_pal_Fv
+  call modulate_noise
+  match
+end

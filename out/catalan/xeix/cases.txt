@@ -1,0 +1,5 @@
+01-ix|caixa peix baixa calaix coneixement
+02-xis|xocolata panxa això xifra caixes
+03-tix|cotxe despatx butxaca esquitx despatxar
+04-parells|caixa cotxe, peix despatx, panxa butxaca
+05-frase|El cotxe del despatx va passar per la caixa de la platja.

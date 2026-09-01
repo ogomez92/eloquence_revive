@@ -2,18 +2,25 @@
 # are ours. The phonemes are the phone statement's own alphabet, which
 # tools/lang-phonemes.py caes prints.
 #
-# Catalan has two affricates Castilian has not. The voiced postalveolar --
-# metge, platja, viatge -- and the voiced alveolar -- dotze, setze. Spanish
-# declares a code for the first, J, and never reaches it from its own
-# spelling, so nothing in the module speaks it: there is no span_ph_J, and no
-# arm of the value chain that would expand it the way C is expanded into a
-# stop and a fricative. Inserting it laid down a phone nothing could say and
-# the word stopped where it stood.
+# Catalan has three affricates Castilian's spelling does not reach. The
+# voiceless postalveolar -- cotxe, despatx -- the voiced one -- metge, platja,
+# viatge -- and the voiced alveolar -- dotze, setze.
 #
-# So a letter rule lays down the two phones itself, which is the same two
-# sounds in the same order and asks nothing of the module that is not already
-# there. That is what Polish did with its own hard affricates for the same
-# reason.
+# Spanish declares a code for two of them, C and J, and never reaches either
+# from its own spelling, so nothing in the module speaks either one: there is
+# no span_ph_C and no span_ph_J, and no arm of the value chain that expands
+# them into a stop and a fricative. Inserting one laid down a phone nothing
+# could say, and the letter went by without a sound: cotxe was [k o @] and
+# despatx [d @ s p a], the t and the x both gone. That C is expanded somewhere
+# is what this comment used to say and it was never true -- Castilian spells
+# the sound ch and its own c rule lays down the two phones, which is why
+# ss_dur.up has an arm for an S that stands after a t and no rule for C at
+# all.
+#
+# So a letter rule lays down the two phones itself, which is the same sounds
+# in the same order and asks nothing of the module that is not already there.
+# That is what Polish did with its own hard affricates for the same reason.
+bytes cat_ph_tsh 02 11   # t, then the voiceless postalveolar
 bytes cat_ph_dzz 05 12   # d, then the voiced postalveolar
 bytes cat_ph_dz  05 0e   # d, then a voiced s
 
@@ -175,16 +182,9 @@ bytes cat_ph_m 16         # the m, phone 22
 bytes cat_ph_z 0e         # the voiced s, phone 14
 bytes cat_ph_zz 12
 
-# The glide and the fricative that ix says, as one insertion.
-#
-# Catalan writes the postalveolar after a vowel as ix, and the i is not only a
-# graphic mark: caixa is [ka j S @] and calaix [k @ l a j S], with an audible
-# glide that the spelling is there to record. Central Catalan is the dialect
-# that drops it and Western and Valencian keep it, so both are Catalan; this
-# is the one that can be heard, and hearing it is what tells calaix from a
-# word that ends in a bare fricative.
-#
-# It is two phones from one letter, which is what insert_2pt_s's _4_2 form is
-# for and what cat_ph_dzz above already does for the affricates. The glide
-# first, then the fricative: y is 29 and S is 17.
-bytes cat_ph_ysh 1d 11
+# The stop of the voiced affricate, so that ss_dur.up can ask whether the d it
+# is timing is the one in metge and platja rather than the d of dia. Castilian
+# asks the same question through a wrapper of IBM's -- there is one for the Z
+# on the right -- and none for the d on the left, this being a question only
+# Catalan has a reason to ask.
+bytes cat_ph_d 05

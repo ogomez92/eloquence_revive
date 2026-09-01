@@ -311,10 +311,12 @@ end
 # one -- metge, platja -- and tz is the voiced alveolar one -- dotze, setze.
 # All four are one sound written with two letters, so the second is eaten.
 #
-# The voiceless one is Spanish's own C, which its phonology already breaks
-# into a stop and the palatal fricative because Spanish spells it ch. The two
-# voiced ones have no code the module can speak, so the rule lays down both
-# phones itself out of rules/constants; the comment there says why.
+# None of the three has a code the module can speak. C and J are declared and
+# no arm of the value chain expands either -- Spanish spells its own voiceless
+# affricate ch and its c rule lays the stop and the fricative down as two
+# phones, which is the whole of what "the module speaks C" ever meant. So all
+# three arms lay down both phones themselves out of rules/constants; the
+# comment there says why.
 rule apply_span_t_rules takes 3 from st_phone.obj
   local left bytes 8
   local right bytes 8
@@ -355,7 +357,7 @@ place before_x
     call ZZtest_string_s_1_1_ZZstring108                               # x?
     if answer is 0
       call ZZsavescptr2 addr right
-      call ZZlprp_load__insert_2pt_s_4_1_ZZstring69 addr left addr right  # C
+      call ZZlprp_load__insert_2pt_s_4_2 addr left addr right sym cat_ph_tsh
       if answer is 0
         go to said
       end
@@ -551,66 +553,38 @@ end
 # diphthong -- after a vowel, as in caixa, peix, noia -- and everywhere else
 # an i beside a vowel is a hiatus: di-a, vi-a, poli-ci-a, Ma-ri-a, gra-ci-es.
 #
-# And ix is the postalveolar, with a glide in front of it where a vowel comes
-# first. The i of caixa is not only a graphic mark saying that the x is not k
-# and s: caixa is [ka j S @], peix [pe j S], calaix [k @ l a j S], and the
-# glide is what the spelling is there to record. Central Catalan is the
-# dialect that drops it and Western and Valencian keep it, so both are
-# Catalan; this is the one a listener can hear, and without it calaix and
-# llegeix end in a bare fricative that sounds like neither. rules/constants
-# holds the two phones as one insertion, the way the affricates are laid down.
+# And ix is the postalveolar and nothing else. The i of caixa is a graphic
+# mark saying that the x is not k and s, and Central Catalan -- which this
+# voice is -- does not say a glide in front of it: caixa is [k a S @], peix
+# [p e S], calaix [k @ l a S]. Western and Valencian keep the glide and it was
+# here for a while on that reasoning, laid down as `cat_ph_ysh'; a listener
+# heard it in every one of these words and it is gone. The dialect has to be
+# picked and this is the one that was picked.
 #
-# Where no vowel comes first there is no diphthong to make, so ix is the
-# fricative alone and the i is eaten -- which is the arm below, IBM's shape
-# with our phoneme in it. Both have to be asked before the glide arm further
-# down, because the i of caixa does stand after a vowel and would otherwise be
-# spoken as one and leave the x to say k and s.
+# So the arm is IBM's shape with our phoneme in it: an i with an x after it
+# says the fricative and eats the x.
+#
+# It is asked second and not first, and that order is the whole of what the
+# glide's going cost. While the glide was there the ix arms had to come before
+# the qu arm, because the i of caixa does stand after a vowel and would
+# otherwise be spoken as one; now the constraint runs the other way. The u of
+# gui and qui is silent, so the i after it is the syllable's own vowel and the
+# x that follows is a fricative in its own right -- guix is [g i S], guixos
+# [g i S u s], quixot [k i S O t]. Asked in the wrong order the ix arm eats
+# both letters and the vowel is gone: guixos came out [g S o s] and guix
+# produced no phonemes at all.
 rule apply_span_i_rules takes 3 from st_phone.obj
   local left bytes 8
   local right bytes 8
   call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
   call ZZfenceZZstring109
-  plant test ix_bare
-  call ZZlpta_load__setscan_l__1 addr left
-  if answer is 0
-    call ZZtestFldeq1_4_1                                              # vowel before?
-    if answer is 0
-      call ZZlpta_load__setscan_r__1 addr right
-      if answer is 0
-        call ZZtest_string_s_1_1_ZZstring108                           # and x after?
-        if answer is 0
-          call ZZsavescptr2 addr right
-          call ZZlprp_load__insert_2pt_s_4_2 addr left addr right sym cat_ph_ysh
-          if answer is 0
-            go to said
-          end
-        end
-      end
-    end
-  end
-  backtrack
-place ix_bare
-  plant test qu_first
-  call ZZlpta_load__setscan_r__1 addr right
-  if answer is 0
-    call ZZtest_string_s_1_1_ZZstring108                               # x?
-    if answer is 0
-      call ZZsavescptr2 addr right
-      call ZZlprp_load__insert_2pt_s_4_1_ZZstring64 addr left addr right  # S
-      if answer is 0
-        go to said
-      end
-    end
-  end
-  backtrack
-place qu_first
-  # The u of qui and gui is not there. It is a vowel letter, so the arm above
-  # takes it for one and makes this i a glide -- quinze came out [k y n z @]
-  # where Catalan says [k i n z @]. A test that matches leaves the scan past
-  # what it matched, so asking for the u and then for a q or a g reads two
-  # letters back, which is the only way to tell qui from cui: the u of cuina
-  # is a vowel and this i really is a glide there.
-  plant test after_vowel
+  # The u of qui and gui is not there. It is a vowel letter, so the arm below
+  # would take it for one and make this i a glide -- quinze came out
+  # [k y n z @] where Catalan says [k i n z @]. A test that matches leaves the
+  # scan past what it matched, so asking for the u and then for a q or a g
+  # reads two letters back, which is the only way to tell qui from cui: the u
+  # of cuina is a vowel and this i really is a glide there.
+  plant test ix
   call ZZlpta_load__setscan_l__1 addr left
   if answer is 0
     call ZZtest_string_s_1_1_ZZstring128                               # u before?
@@ -628,6 +602,20 @@ place qu_first
         if answer is 0
           go to said
         end
+      end
+    end
+  end
+  backtrack
+place ix
+  plant test after_vowel
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring108                               # x?
+    if answer is 0
+      call ZZsavescptr2 addr right
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring64 addr left addr right  # S
+      if answer is 0
+        go to said
       end
     end
   end
