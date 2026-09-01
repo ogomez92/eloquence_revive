@@ -500,6 +500,17 @@ place before_voiced
   # antic [k a z @ n t i k], cavas gran [k @ B a z g r a n]. Castilian does
   # not do it and no letter rule here had ever looked past the word it was
   # reading; glob.up says how the step over the boundary is taken.
+  # Once the step over the boundary has been taken this arm has to finish, and
+  # that is not a preference. advance_tok moves the token pointer and
+  # backtracking does not put it back: an alternative that gives up after
+  # stepping leaves the reader short of the letter it was on, and it reads it
+  # again, and the engine never comes out -- Els meus amics volen anar a casa
+  # ran for two minutes and fifty-four million lines of trace before it was
+  # killed. So the s is laid down here rather than by falling through to the
+  # arm below. Giving up before the step is safe and is what happens at the
+  # end of the input, where there is no next word to look at; giving up after
+  # it is not, and neither is carrying on in the same arm when the step failed,
+  # which is what took the b of amb down with a segmentation fault.
   plant test plain
   call ZZlpta_load__setscan_r__1 addr right
   if answer is 0
@@ -515,6 +526,10 @@ place before_voiced
             go to said
           end
         end
+      end
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring37 addr left addr right      # s
+      if answer is 0
+        go to said
       end
     end
   end
@@ -781,7 +796,7 @@ rule apply_span_e_rules takes 3 from st_phone.obj
   local right bytes 8
   call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
   call ZZfenceZZstring109
-  plant test set
+  plant test accented
   call ZZlpta_load__setscan_r__1 addr right
   if answer is 0
     call test_string_s 1 1 sym cat_letter_t
@@ -805,6 +820,54 @@ rule apply_span_e_rules takes 3 from st_phone.obj
     end
   end
   backtrack
+place aquest
+  # aquest and everything built on it: aquest, aquesta, aquests, aquestes.
+  # The s goes in apply_span_s_rules and the vowel is open, which is one word
+  # and its four forms, so the three letters in front of the e name it -- qu
+  # and an a -- and what follows may be anything.
+  plant test set
+  call ZZlpta_load__setscan_l__1 addr left
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_u
+    if answer is 0
+      call test_string_s 1 1 sym cat_letter_q
+      if answer is 0
+        call test_string_s 1 1 sym cat_letter_a
+        if answer is 0
+          call cat_word_starts
+          if answer is 0
+            call cat_insert_eopen addr left addr right
+            if answer is 0
+              go to said
+            end
+          end
+        end
+      end
+    end
+  end
+  backtrack
+
+place accented
+  # An accent settles it before anything else here is asked, which is the rule
+  # the language actually has: an accent says where the stress is and, on an e
+  # or an o, which of the two vowels it is, over any ending or any word. The
+  # grave never reaches this rule -- caes.codepoints keeps it and the letter
+  # chain hands it to apply_span_enye_rules -- so an accented e arriving here
+  # carries an acute and is the close one. es, mes and Deu with an acute were
+  # all coming out open before this, each caught by a different arm below.
+  plant test aquest
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call testFldeq 1 5 0                                   # an accent on it?
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring114 addr left addr right
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+
 place set
   # set, the number, which is open where fet and gest are close. Another word
   # asked about by its own letters; the digit is spelt with the grave in
@@ -835,7 +898,9 @@ place set
   backtrack
 
 place ple
-  # A word of one syllable that ends on its e: ple, fe, re.
+  # A word of one syllable that ends on its e: ple, fe, re. On the e itself,
+  # which cat_word_end does not mean -- it counts a word ending in a plural s
+  # as ending there, so es and mes came through here and came out open.
   #
   # Which of them are open cannot be read off the letter, because the acute is
   # flattened on the way in -- caes.codepoints keeps the grave and not the
@@ -844,7 +909,7 @@ place ple
   # close, and everything else is open. The same shape the eu diphthong uses
   # for meu, teu and seu.
   plant test eix
-  call cat_word_end addr right
+  call cat_ends_here addr right
   if answer is 0
     call ZZlpta_load__setscan_l__1 addr left
     if answer is 0
@@ -1028,7 +1093,7 @@ rule apply_span_o_rules takes 3 from st_phone.obj
   local right bytes 8
   call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
   call ZZfenceZZstring109
-  plant test ending
+  plant test accented
   call ZZlpta_load__setscan_r__1 addr right
   if answer is 0
     call cat_glide_letter                                  # a u or an i?
@@ -1040,6 +1105,22 @@ rule apply_span_o_rules takes 3 from st_phone.obj
     end
   end
   backtrack
+place accented
+  # The same, and for the same reason: an o with an acute is the close one and
+  # no ending below may overrule it.
+  plant test ending
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call testFldeq 1 5 0                                   # an accent on it?
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring116 addr left addr right
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+
 place ending
   # And the endings. An o before a c or an l that the word ends on is open --
   # groc, poc, foc, joc; sol, vol, col, gol -- and so is the same o before the
@@ -1244,30 +1325,21 @@ rule apply_span_b_rules takes 3 from st_phone.obj
   end
   backtrack
 place amb
-  plant test amb_m
-  call cat_word_end addr right
-  if answer is 0
-    call ZZlpta_load__setscan_l__1 addr left
-    if answer is 0
-      call test_string_s 1 1 sym cat_letter_m
-      if answer is 0
-        call cat_insert_m addr left addr right
-        if answer is 0
-          go to said
-        end
-      end
-    end
-  end
-  backtrack
-place amb_m
-  # A next word that does not begin with a vowel: the b says nothing at all.
+  # A b that a word ends on after an m. amb is [@ m], tomb [t o m], romb
+  # [r o m] -- and amb ell is [@ m b e L], the b coming back in front of a
+  # vowel, with an h counting for nothing in between.
   #
-  # Nothing, and not the mute phone the lost r uses. The mute is a segment
-  # that lays down no formants and no voice, so what comes out is a silence of
-  # its own length, and between the m of amb and the m of mi a silence is a
-  # stop closure -- which is exactly the b that could still be heard. amb mi
-  # and em mi are the same wave to the byte now, which is the test that was
-  # asked for.
+  # What stands in for it is nothing at all. Not the mute phone the lost r
+  # uses: that is a segment which lays down no formants and no voice, so what
+  # comes out is a silence of its own length, and between the m of amb and the
+  # m of mi a silence is a stop closure -- which is exactly the b that could
+  # still be heard. amb mi and em mi are the same wave from the m on now.
+  #
+  # This arm finishes what it starts, and that is not a preference either.
+  # advance_tok moves the token pointer and backtracking does not put it back,
+  # so an alternative that steps over the boundary and then gives up leaves
+  # the reader short of the letter it was on and it reads it again for ever.
+  # The arm below is the one that runs when there is no next word to step to.
   plant test amb_end
   call cat_word_end addr right
   if answer is 0

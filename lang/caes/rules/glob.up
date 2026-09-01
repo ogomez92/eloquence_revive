@@ -658,6 +658,23 @@ end
 # is not a letter, or an s that is itself the last -- carrers is [k @ R e s]
 # and dinars [d i n a s], because the plural is added to a word that had
 # already lost its r.
+# Whether the word ends on this letter exactly, counting no plural s.
+# cat_word_end below counts one, which is right for the r it was written for
+# and wrong for a word being named by its last letter: es and mes reached the
+# arm for ple through it and came out open.
+rule cat_ends_here takes 2 from glob.obj
+  bare
+  call ZZlpta_load__setscan_r__1 arg 1
+  if answer is not 0
+    answer 0
+  end
+  call ZZtestFldeq1_3_1
+  if answer is not 0
+    answer 0
+  end
+  answer 1
+end
+
 rule cat_word_end takes 2 from glob.obj
   bare
   call ZZlpta_load__setscan_r__1 arg 1

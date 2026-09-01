@@ -20,32 +20,33 @@ rule span_ph_T takes 1 from ss_val.obj
   call span_ph_n
 end
 
-# And the velar fricative all but says nothing, because it is not a sound of
+# And the velar fricative says nothing, because it is not a sound of
 # Catalan's any more: st_phone.up turns a word-final r into it and this is where that r
 # stops being heard. Castilian reaches this phone from j and from g before e
 # and i, and Catalan says the voiced postalveolar for both, so nothing else in
 # the module can arrive here.
 #
-# Laying nothing down was not the same as leaving a gap, and that turned out
-# to be exactly what it was. The formant targets are whatever the segment
-# before set, so the vowel does carry through -- but the amplitude is not a
-# formant, and with nothing setting it the segment came out silent. Twenty
-# milliseconds of silence between two words is a stop closure: carrer venir
-# had one in the middle of it where casa venir has none, and a listener heard
-# the b of amb in the same place before that rule stopped using this phone.
+# Laying nothing down is not the same as leaving a gap, and it took two goes
+# to get that right. The formant targets are whatever the segment before set,
+# so the vowel carries through -- but the amplitude is not a formant, and
+# while this phone was thirty milliseconds long with nothing setting one the
+# segment came out silent. Twenty milliseconds of silence between two words is
+# a stop closure: carrer venir had one in the middle of it where casa venir
+# has none, and the b of amb was heard in the same place before that rule
+# stopped using this phone.
 #
-# So it sets an amplitude of its own, low enough to be the tail of the vowel
-# rather than a sound. 30 at thirty milliseconds is what the ear and the
-# measurement agreed on over four settings: below it the silence comes back --
-# at 20 the gap in carrer venir returns -- and above it the vowel stops
-# fading and holds, 45 sitting at a fifth of full amplitude for the whole
-# segment. What that buys at the end of an utterance is the fall a word-final
-# vowel gets and a word ending in this phone did not: venir stopped dead where
-# veni fades over sixty milliseconds, and now it fades too.
+# So the length went instead of the amplitude. ss_dur.up gives it nought now
+# and the silence has nowhere to be. Setting an amplitude was tried first and
+# is worse: it makes the phone a sound, and thirty milliseconds of the vowel
+# held at a fifth of its level is heard as the vowel dipping before it stops,
+# on every word that has lost an r -- which is most of the infinitives in the
+# language. What that bought was the fall a word-final vowel gets at the end
+# of an utterance and a word ending in this phone does not, so venir still
+# stops where veni fades. That is a real difference and it is smaller than the
+# one it cost.
 #
 # The frame and the fence are the rule's own, as syneresis's are.
 rule span_ph_j takes 1 from ss_val.obj
   call ZZfence_null
-  set global half 2754 to 30
   match
 end
