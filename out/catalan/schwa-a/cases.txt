@@ -1,0 +1,5 @@
+01-casa	casa cama cara vaca sala mare pare
+02-tarda	tarda plaça taula dona parla
+03-frase	La casa gran de la plaça és la de la mare.
+04-cara-maca	Una cara maca i una taula parada.
+05-contrast	pare para pera pera cafè sec

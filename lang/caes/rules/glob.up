@@ -71,6 +71,452 @@ rule cat_test_oopen takes 1 from glob.obj
   call test_string_s 4 1 sym cat_ph_oopen
 end
 
+# Whether the letter the scan is on is one of the two that make a diphthong
+# after a vowel. Catalan's ou and oi are the strongest thing anybody can say
+# about an unaccented stressed o: it is open in nou, bou, prou, plou, dijous,
+# noia, boira and coure, and the grammars give it as a rule rather than as a
+# tendency. The caller sets the scan; answering 0 is a match, which is what
+# test_string_s answers and what the letter rules read.
+rule cat_glide_letter takes 1 from glob.obj
+  bare
+  call test_string_s 1 1 sym cat_letter_u
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_i
+end
+
+# The consonants an open o stands in front of at the end of a word. The
+# grammars give a list -- oc, of, oig, ol, ort, ost, ot and the feminines --
+# and these two are the part of it that has no exception worth the name: poc,
+# groc, foc, joc, xoc, toc, bloc; sol, vol, col, gol, escola, bola, cassola.
+# The rest of the list is left alone on purpose. ot would take tot with it,
+# which is [t o t] and one of the commonest words in the language, and there
+# is nowhere here to keep an exception: a word list is a dictionary and this
+# module has none it can add to.
+rule cat_open_o_cons takes 1 from glob.obj
+  bare
+  call test_string_s 1 1 sym cat_letter_c
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_l
+end
+
+# Whether the word ends after the letter the scan is on, counting the endings
+# that are put on a stem without changing it: a feminine a, a plural s, and
+# the two together. So escola and escoles reach the same arm groc does.
+#
+# There is no step in here, and that is the whole of what took the longest to
+# see. A test that matches moves the scan past what it matched and a test that
+# fails leaves it where it was, so the letter the caller matched has already
+# been stepped over by the matching. cat_word_end above is IBM's own rule of
+# this shape and says the same thing by having no step in it either: it tests
+# for an s and then asks what follows straight away. Stepping by hand as well
+# skips a letter, which reads every word as though it were two shorter --
+# molt, colze and golfa all came out as though they ended at the l.
+rule cat_stem_ends takes 1 from glob.obj
+  bare
+  call ZZtestFldeq1_3_1                                # anything after it?
+  if answer is not 0
+    answer 0                                           # groc, sol, vol
+  end
+  call test_string_s 1 1 sym cat_letter_a
+  if answer is 0
+    call cat_after_one_more                            # escola, escoles
+    if answer is 0
+      answer 0
+    end
+    answer 1
+  end
+  call test_string_s 1 1 sym cat_letter_e
+  if answer is 0
+    call cat_after_one_more
+    if answer is 0
+      answer 0
+    end
+    answer 1
+  end
+  call test_string_s 1 1 sym cat_letter_s
+  if answer is not 0
+    answer 1
+  end
+  call ZZtestFldeq1_3_1
+  if answer is not 0
+    answer 0                                           # jocs, sols
+  end
+  answer 1
+end
+
+# The same question, but a stem ending in a vowel and not a bare one: rosa
+# and roses, where cos and gos must not follow. It is what -osa needs and
+# what -os must not have.
+rule cat_stem_ends_vowel takes 1 from glob.obj
+  bare
+  call ZZtestFldeq1_3_1
+  if answer is not 0
+    answer 1                                           # cos, gos, os, tros
+  end
+  call test_string_s 1 1 sym cat_letter_a
+  if answer is 0
+    call cat_after_one_more
+    if answer is 0
+      answer 0
+    end
+    answer 1
+  end
+  call test_string_s 1 1 sym cat_letter_e
+  if answer is 0
+    call cat_after_one_more
+    if answer is 0
+      answer 0
+    end
+    answer 1
+  end
+  answer 1
+end
+
+# And the same question one letter further on, for the s of escoles.
+rule cat_after_one_more takes 1 from glob.obj
+  bare
+  call ZZtestFldeq1_3_1
+  if answer is not 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_s
+  if answer is not 0
+    answer 1
+  end
+  call ZZtestFldeq1_3_1
+  if answer is not 0
+    answer 0
+  end
+  answer 1
+end
+
+# The three words whose eu is the close vowel: meu, teu, seu. Everything else
+# the language ends in -eu is open -- deu, peu, neu, creu, beu, veu, preu --
+# and so is every second person plural in -eu, canteu and beveu and veieu.
+# What tells those from teu is that the three close ones are whole words of
+# three letters, so the head has to be where the word starts. Without that
+# canteu would follow teu, and it does not.
+rule cat_close_eu_head takes 1 from glob.obj
+  bare
+  call test_string_s 1 1 sym cat_letter_m
+  if answer is 0
+    call cat_word_starts
+    if answer is 0
+      answer 0
+    end
+    answer 1
+  end
+  call test_string_s 1 1 sym cat_letter_t
+  if answer is 0
+    call cat_word_starts
+    if answer is 0
+      answer 0
+    end
+    answer 1
+  end
+  call test_string_s 1 1 sym cat_letter_s
+  if answer is 0
+    call cat_word_starts
+    if answer is 0
+      answer 0
+    end
+    answer 1
+  end
+  answer 1
+end
+
+# The words whose o is open that no ending here reaches, one test apiece.
+#
+# This is the list to add to, and adding a word is two lines: the letters that
+# follow its o go in rules/constants as one `bytes\' line, and one block like
+# the one below comes here with that name in it. The letters before the o are
+# not asked about at all where the tail is enough to name the word.
+#
+# volta and revolta are open where molt is close, which is the same shape and
+# the other vowel, and is why this list exists rather than another ending.
+rule cat_open_o_word takes 3 from glob.obj
+  bare
+  call ZZlpta_load__setscan_r__1 arg 2
+  if answer is 0
+    call test_string_s 1 3 sym cat_tail_lta
+    if answer is 0
+      call cat_after_one_more
+      if answer is 0
+        answer 0
+      end
+    end
+  end
+  # Where the tail is one letter it names too many words on its own, so the
+  # letter in front comes into it and the word has to start there. cor and
+  # por against mar and clar; got against tot, which is close.
+  call ZZlpta_load__setscan_r__1 arg 2
+  if answer is 0
+    call test_string_s 1 1 sym cat_tail_r
+    if answer is 0
+      call cat_after_one_more
+      if answer is 0
+        call ZZlpta_load__setscan_l__1 arg 1
+        if answer is 0
+          call test_string_s 1 1 sym cat_letter_c
+          if answer is 0
+            call cat_word_starts
+            if answer is 0
+              answer 0
+            end
+          end
+        end
+      end
+    end
+  end
+  call ZZlpta_load__setscan_r__1 arg 2
+  if answer is 0
+    call test_string_s 1 1 sym cat_tail_t
+    if answer is 0
+      call cat_after_one_more
+      if answer is 0
+        call ZZlpta_load__setscan_l__1 arg 1
+        if answer is 0
+          call test_string_s 1 1 sym cat_letter_g
+          if answer is 0
+            call cat_word_starts
+            if answer is 0
+              answer 0
+            end
+          end
+        end
+      end
+    end
+  end
+  answer 1
+end
+
+# The letters that stand in front of an open o before an n: b for bon and
+# bona, d for dona and dones. This is the list to add a word to when the word
+# ends in -on or -ona, and adding one is one more test here.
+rule cat_open_on_head takes 1 from glob.obj
+  bare
+  call test_string_s 1 1 sym cat_letter_b
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_d
+end
+
+# Whether the letter the scan is on is a g or a j, which after an n is the
+# same sound spelt two ways: taronja and taronges are one word.
+rule cat_soft_gj takes 1 from glob.obj
+  bare
+  call test_string_s 1 1 sym cat_letter_g
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_j
+end
+
+# Whether the word starts where the scan is standing, which is the same
+# question the r rule asks at the other end: what comes before the first
+# letter of a word is not a letter.
+rule cat_word_starts takes 1 from glob.obj
+  bare
+  call ZZtestFldeq1_3_1
+  if answer is not 0
+    answer 0
+  end
+  answer 1
+end
+
+# The three infinitives a word-final r goes from that the walk cannot find.
+# apply_span_r_rules drops the r of a word with a second vowel in it -- passar
+# is [p @ s a], carrer [k @ R e] -- and fer, dir and ser have one vowel each,
+# so they came out with the r on. What keeps clar, cor, mar and por is exactly
+# the test they fail, so there is nothing to loosen: it is these three words
+# and no rule above them, and they are written down as themselves.
+#
+# The vowel is asked about as well as the consonant, and that is what keeps
+# far, dur and sor: f-e-r, s-e-r and d-i-r are the only Catalan words of those
+# three shapes. The caller has set the scan leftwards and stepped over the
+# vowel is what the other arm does; this steps over it itself, since a test
+# that matches moves the scan and a field test does not.
+rule cat_mono_infinitive takes 1 from glob.obj
+  bare
+  call test_string_s 1 1 sym cat_letter_e
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_f
+    if answer is 0
+      call cat_word_starts
+      if answer is 0
+        answer 0
+      end
+      answer 1
+    end
+    call test_string_s 1 1 sym cat_letter_s
+    if answer is 0
+      call cat_word_starts
+      if answer is 0
+        answer 0
+      end
+      answer 1
+    end
+    answer 1
+  end
+  call test_string_s 1 1 sym cat_letter_i
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_d
+    if answer is 0
+      call cat_word_starts
+      if answer is 0
+        answer 0
+      end
+      answer 1
+    end
+    answer 1
+  end
+  # por and dur, which are not infinitives and go the same way. cor and mar
+  # keep their r and clar and rar with them, so this is four words asked
+  # about by both their letters and not an ending.
+  call test_string_s 1 1 sym cat_letter_o
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_p
+    if answer is 0
+      call cat_word_starts
+      if answer is 0
+        answer 0
+      end
+      answer 1
+    end
+    answer 1
+  end
+  call test_string_s 1 1 sym cat_letter_u
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_d
+    if answer is 0
+      call cat_word_starts
+      if answer is 0
+        answer 0
+      end
+      answer 1
+    end
+  end
+  answer 1
+end
+
+# Whether the word this letter is in has ended, and the step over the boundary
+# if it has. What stands between two words is a token that is not a letter, so
+# the step is the same one the walks inside a word take.
+rule cat_step_over_boundary takes 1 from glob.obj
+  bare
+  call ZZtestFldeq1_3_1                        # still inside this word?
+  if answer is 0
+    answer 1
+  end
+  call advance_tok                             # over the boundary
+  if answer is not 0
+    answer 1
+  end
+  call ZZtestFldeq1_3_1                        # and a letter after it?
+  if answer is not 0
+    answer 1
+  end
+  answer 0
+end
+
+# Whether the sound that begins the next word is voiced.
+#
+# Two tests rather than one, and the reason is the whole of what this took.
+# A field test reads the token the scan is standing on and a string test reads
+# the characters through the scan itself, and advance_tok moves the first and
+# not the second: after the step over the boundary, asking whether the letter
+# is a vowel answers about the next word and asking whether it is a d answers
+# about nothing. So the caller saves where the scan got to and sets it again
+# from there, and both kinds of test then agree. Nothing in IBM's Spanish ever
+# stepped past the end of the word it was reading, which is why no rule here
+# had shown it.
+rule cat_next_word_voiced takes 1 from glob.obj
+  bare
+  call ZZtestFldeq1_4_1                        # a vowel begins the word
+  if answer is 0
+    answer 0
+  end
+  call cat_voiced_cons
+end
+
+# Whether a vowel begins the next word, an h in front of it counting for
+# nothing. The caller has stepped over the boundary and set the scan again.
+# h is silent in Catalan, so amb homes has a vowel after amb exactly as amb
+# ells does, and it is the only letter that has to be seen through.
+rule cat_next_word_vowel takes 1 from glob.obj
+  bare
+  call ZZtestFldeq1_4_1
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_h
+  if answer is not 0
+    answer 1
+  end
+  call ZZtestFldeq1_4_1
+  if answer is 0
+    answer 0
+  end
+  answer 1
+end
+
+# The letters Catalan begins a word with that carry voice. h is in because it
+# says nothing: amb homes is amb followed by a vowel. The voiceless ones --
+# c, f, p, q, s, t, x -- and the vowels are asked about elsewhere.
+rule cat_voiced_cons takes 1 from glob.obj
+  bare
+  call test_string_s 1 1 sym cat_letter_b
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_d
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_g
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_j
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_l
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_m
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_n
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_r
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_v
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_z
+end
+
+# The m a word-final b after an m is said as. st_phone.up says why it is this
+# rather than the mute phone or nothing at all.
+rule cat_insert_m takes 3 from glob.obj
+  bare
+  call lpta_rpta_loadp arg 1 arg 2
+  call insert_2pt_s 4 1 sym cat_ph_m 0
+end
+
 rule cat_insert_eopen takes 3 from glob.obj
   bare
   call lpta_rpta_loadp arg 1 arg 2
@@ -274,6 +720,18 @@ end
 
 # Whether the phone the scan is on is the n a Catalan word ends with, which
 # is the interdental's code wearing an n's record. ss_val.up says why.
+# And the voiced s, for the same reason one letter along. st_phone.up voices
+# a word-final s in front of the next word, and assign_span_stress asks what
+# the last phone is by its code: an s with a vowel before it takes the
+# penultimate syllable and a z is not that code, so escoles said on its own
+# was [@ s k O l @ s] and escoles i taules was [@ s k u l e z], which is a
+# different word. It is the same trap the final n fell into and it is caught
+# in the same place, st_strss.up.
+rule cat_test_final_z takes 1 from glob.obj
+  bare
+  call test_string_s 4 1 sym cat_ph_z
+end
+
 rule cat_test_final_n takes 1 from glob.obj
   bare
   call test_string_s 4 1 sym cat_ph_final_n

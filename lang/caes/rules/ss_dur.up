@@ -12,7 +12,7 @@ end
 # lengthening a lost r really leaves and no more.
 rule span_ph_j_dur takes 1 from ss_dur.obj
   call ZZfence_null
-  set global half 2074 to 20
+  set global half 2074 to 0
   match
 end
 

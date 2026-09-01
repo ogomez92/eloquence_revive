@@ -123,6 +123,12 @@ def write_store(tag, out, constants):
     return at
 
 
+# What write_symbols puts over its own lines, and takes out again
+# before it writes them.
+SAID = ("# And the constants of our own, out of rules/constants by"
+        " tools/delta-consts.py.")
+
+
 def write_symbols(path, tag, at):
     """The lines that say where an authored name falls, beside the lifted ones.
 
@@ -136,11 +142,14 @@ def write_symbols(path, tag, at):
             if line.split()[:1] != ["store"] or line.split()[1] != store]
     kept = [line for line in kept
             if line.split()[:2] != ["at", ANY]]
+    # The heading this writes below goes as well, or every run leaves another
+    # copy of it: the store line and the names were being taken out and the
+    # sentence over them was not, so a day of rebuilding put nineteen of them
+    # in the file.
+    kept = [line for line in kept if line != SAID]
     out = kept
     if at:
-        out = out + ["", "# And the constants of our own, out of"
-                         " rules/constants by tools/delta-consts.py.",
-                     "store %s" % store]
+        out = out + ["", SAID, "store %s" % store]
         out += ["at %s %s %s %d" % (ANY, name, store, off)
                 for name, off in at]
     open(path, "w").write("\n".join(out).rstrip("\n") + "\n")

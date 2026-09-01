@@ -426,9 +426,10 @@ end
 rule apply_span_s_rules takes 3 from st_phone.obj
   local left bytes 8
   local right bytes 8
+  local next bytes 8
   call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
   call ZZfenceZZstring109
-  plant test between_vowels
+  plant test aquest
   call ZZlpta_load__setscan_r__1 addr right
   if answer is 0
     call ZZtest_string_s_1_1_ZZstring96                                # s?
@@ -441,8 +442,41 @@ rule apply_span_s_rules takes 3 from st_phone.obj
     end
   end
   backtrack
+place aquest
+  # aquest is said aquet: the s goes and the t stays. It is one word and its
+  # plural, asked about by the three letters in front of the s, since quest is
+  # a run no other Catalan word has.
+  #
+  # Nothing is laid down, which is safe here where it was not for the b of
+  # amb: a t follows, so the word does not end on this letter and the span
+  # this rule hands back is not empty.
+  plant test between_vowels
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_t
+    if answer is 0
+      call cat_after_one_more                          # aquest, and aquests
+      if answer is 0
+        call ZZlpta_load__setscan_l__1 addr left
+        if answer is 0
+          call test_string_s 1 1 sym cat_letter_e
+          if answer is 0
+            call test_string_s 1 1 sym cat_letter_u
+            if answer is 0
+              call test_string_s 1 1 sym cat_letter_q
+              if answer is 0
+                go to said
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  backtrack
+
 place between_vowels
-  plant test plain
+  plant test before_voiced
   call ZZlpta_load__setscan_l__1 addr left
   if answer is 0
     call ZZtestFldeq1_4_1                                              # vowel before?
@@ -450,6 +484,31 @@ place between_vowels
       call ZZlpta_load__setscan_r__1 addr right
       if answer is 0
         call ZZtestFldeq1_4_1                                          # and after?
+        if answer is 0
+          call ZZlprp_load__insert_2pt_s_4_1_ZZstring48 addr left addr right  # z
+          if answer is 0
+            go to said
+          end
+        end
+      end
+    end
+  end
+  backtrack
+place before_voiced
+  # And an s at the end of a word voices in front of whatever the next word
+  # begins with, when that is voiced: les dones is [l @ z d O n @ s], cas
+  # antic [k a z @ n t i k], cavas gran [k @ B a z g r a n]. Castilian does
+  # not do it and no letter rule here had ever looked past the word it was
+  # reading; glob.up says how the step over the boundary is taken.
+  plant test plain
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call cat_step_over_boundary
+    if answer is 0
+      call ZZsavescptr2 addr next
+      call ZZlpta_load__setscan_r__1 addr next
+      if answer is 0
+        call cat_next_word_voiced
         if answer is 0
           call ZZlprp_load__insert_2pt_s_4_1_ZZstring48 addr left addr right  # z
           if answer is 0
@@ -711,29 +770,414 @@ rule apply_span_a_rules takes 3 from st_phone.obj
   answer 0
 end
 
+# The e is the same two vowels the o is, and the writing says even less about
+# it: the grammars' own lists for the unaccented stressed e are endings that
+# contradict each other -- setze is open and tretze is close and they rhyme.
+# So there is one arm and it is one word, which is the honest description of
+# it. It is here because the number is: sixteen said with a close e is the
+# vowel of tretze, and a listener asked for it.
 rule apply_span_e_rules takes 3 from st_phone.obj
   local left bytes 8
   local right bytes 8
   call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
   call ZZfenceZZstring109
+  plant test set
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_t
+    if answer is 0
+      call test_string_s 1 1 sym cat_letter_z
+      if answer is 0
+        call ZZlpta_load__setscan_l__1 addr left
+        if answer is 0
+          call test_string_s 1 1 sym cat_letter_s
+          if answer is 0
+            call cat_word_starts
+            if answer is 0
+              call cat_insert_eopen addr left addr right
+              if answer is 0
+                go to said
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  backtrack
+place set
+  # set, the number, which is open where fet and gest are close. Another word
+  # asked about by its own letters; the digit is spelt with the grave in
+  # rules/constants and this is the word typed out.
+  plant test ple
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_t
+    if answer is 0
+      call cat_after_one_more
+      if answer is 0
+        call ZZlpta_load__setscan_l__1 addr left
+        if answer is 0
+          call test_string_s 1 1 sym cat_letter_s
+          if answer is 0
+            call cat_word_starts
+            if answer is 0
+              call cat_insert_eopen addr left addr right
+              if answer is 0
+                go to said
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  backtrack
+
+place ple
+  # ple, which is one word and is asked about as one.
+  #
+  # A rule for a monosyllable ending in its e was tried first and is wrong:
+  # be, te, se and ve are close and look identical here, because the acute is
+  # flattened on the way in -- caes.codepoints keeps the grave and not the
+  # acute -- so by the time a letter rule sees them there is nothing to tell
+  # be from ple. Asking for the l is what separates them. fe and re are open
+  # too and are not covered; the clitics que, de, me, te and se carry no
+  # stress and are schwas before this could matter.
+  plant test eix
+  call cat_word_end addr right
+  if answer is 0
+    call ZZlpta_load__setscan_l__1 addr left
+    if answer is 0
+      call test_string_s 1 1 sym cat_letter_l
+      if answer is 0
+        call cat_more_vowels_left
+        if answer is not 0
+          call cat_insert_eopen addr left addr right
+          if answer is 0
+            go to said
+          end
+        end
+      end
+    end
+  end
+  backtrack
+
+place eix
+  # -eix is open where the word has another vowel in it and close where it has
+  # not. It is the one shape here that splits on the length of the word rather
+  # than on its letters: eix, peix, feix and neix are close, and llegeix,
+  # coneix and farceix -- the inchoative verbs, which is where most of the
+  # language's -eix words are -- are open.
+  #
+  # Asking whether a second vowel stands to the left is what the r rule asks
+  # to tell passar from clar, and cat_more_vowels_left is its walk. deixar and
+  # coneixement reach this too and cost nothing either way, their e being
+  # unstressed and so a schwa by the time it is spoken.
+  plant test ema
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_i
+    if answer is 0
+      call test_string_s 1 1 sym cat_letter_x
+      if answer is 0
+        call ZZlpta_load__setscan_l__1 addr left
+        if answer is 0
+          call cat_more_vowels_left
+          if answer is 0
+            call cat_insert_eopen addr left addr right
+            if answer is 0
+              go to said
+            end
+          end
+        end
+      end
+    end
+  end
+  backtrack
+
+place ema
+  # -ema is open: problema, sistema, tema, poema, esquema, crema. The stem has
+  # to end in a vowel after the m, which takes problemes with it and keeps
+  # every other word with an em in it out.
+  plant test tres
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_m
+    if answer is 0
+      call cat_stem_ends_vowel
+      if answer is 0
+        call cat_insert_eopen addr left addr right
+        if answer is 0
+          go to said
+        end
+      end
+    end
+  end
+  backtrack
+place tres
+  # tres, res and gres: an e the word ends on after an s, with an r in front
+  # of it. mes and pes are close and have no r, and every plural of a word in
+  # -re -- pares, llibres, sobres -- has the e unstressed, where an open e is
+  # a schwa by the time it is spoken and costs nothing.
+  plant test eu
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_s
+    if answer is 0
+      call ZZtestFldeq1_3_1
+      if answer is not 0
+        call ZZlpta_load__setscan_l__1 addr left
+        if answer is 0
+          call test_string_s 1 1 sym cat_letter_r
+          if answer is 0
+            call cat_insert_eopen addr left addr right
+            if answer is 0
+              go to said
+            end
+          end
+        end
+      end
+    end
+  end
+  backtrack
+
+place eu
+  # The eu diphthong, which is open: deu, peu, neu, creu, beu, veu, preu, and
+  # every second person plural the language has -- canteu, beveu, veieu. The
+  # three that are close are meu, teu and seu, and glob.up says how they are
+  # told from canteu. The o's diphthong arm is the same shape and needs no
+  # such list, ou and oi being open wherever they fall.
+  plant test tren
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_u
+    if answer is 0
+      call cat_after_one_more                          # deu, and deus
+      if answer is 0
+        call ZZlpta_load__setscan_l__1 addr left
+        if answer is 0
+          call cat_close_eu_head
+          if answer is not 0
+            call cat_insert_eopen addr left addr right
+            if answer is 0
+              go to said
+            end
+          end
+        end
+      end
+    end
+  end
+  backtrack
+place tren
+  # tren, whose e is open where the -ent words' is not: gent, cent and vent
+  # are e-n-t and this asks for a word that ends at the n. The letter in front
+  # is asked about for the same reason the -on arm asks: ben is close. Every
+  # verb that ends in -ren -- corren, obren, entren -- has the e unstressed
+  # there, and an unstressed open e is a schwa by the time it is spoken, so
+  # they cost nothing.
+  plant test close
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_n
+    if answer is 0
+      call cat_after_one_more                          # tren, and trens
+      if answer is 0
+        call ZZlpta_load__setscan_l__1 addr left
+        if answer is 0
+          call test_string_s 1 1 sym cat_letter_r
+          if answer is 0
+            call cat_insert_eopen addr left addr right
+            if answer is 0
+              go to said
+            end
+          end
+        end
+      end
+    end
+  end
+  backtrack
+place close
   call ZZlprp_load__insert_2pt_s_4_1_ZZstring114 addr left addr right   # e
   if answer is not 0
-    give up
+    backtrack
   end
+place said
   call succeed
   put cell right value into arg 2 at 4
   answer 0
 end
 
+# o is two vowels, and this is the half of them the writing does say.
+#
+# Catalan has an open o and a close one and the letter is the same for both:
+# groc is [g r O k] and tot is [t o t]. Where the word carries a grave the
+# rule above settles it, and where it does not the writing is silent -- which
+# is what the grammars say too, and why the accent exists. So there is no
+# reading of the letter alone that gets it right, and what can be had is the
+# contexts that are near enough exceptionless.
+#
+# This is the first of them, and the strongest: an o with a u or an i after it
+# is open. That is the diphthong -- nou, bou, prou, plou, dijous, noia, boira,
+# coure, sou -- and the grammars give it as a rule rather than a tendency.
+# The other contexts, the endings, are the arm below it.
+#
+# The scan is set rightwards from the right-hand end, which is the letter
+# after the o, exactly as the stop rules ask whether a word has ended.
 rule apply_span_o_rules takes 3 from st_phone.obj
   local left bytes 8
   local right bytes 8
   call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
   call ZZfenceZZstring109
+  plant test ending
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call cat_glide_letter                                  # a u or an i?
+    if answer is 0
+      call cat_insert_oopen addr left addr right
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place ending
+  # And the endings. An o before a c or an l that the word ends on is open --
+  # groc, poc, foc, joc; sol, vol, col, gol -- and so is the same o before the
+  # feminine and the plural, which is escola, escoles and bola. glob.up says
+  # which consonants are in and why the rest of the grammars' list is out.
+  plant test word_list
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call cat_open_o_cons
+    if answer is 0
+      call cat_stem_ends
+      if answer is 0
+        call cat_insert_oopen addr left addr right
+        if answer is 0
+          go to said
+        end
+      end
+    end
+  end
+  backtrack
+place word_list
+  # And the words a list is the only way to reach. glob.up is the list.
+  plant test before_sa
+  call cat_open_o_word addr left addr right
+  if answer is 0
+    call cat_insert_oopen addr left addr right
+    if answer is 0
+      go to said
+    end
+  end
+  backtrack
+place before_sa
+  # An o before a single s that the stem ends in a vowel after: rosa, roses,
+  # cosa, coses, esposa, famosa, preciosa, posa. It is the alternation the
+  # language turns on -- famos is close and famosa is open -- and the two
+  # things it must not take are exactly the two the test keeps out. A bare -os
+  # is close, which is cos, gos, os, dos, tros and mos, so the stem has to end
+  # in a vowel. And a doubled s is close, which is gossa, rossa, bossa and
+  # grossa; those need nothing of their own, since the letter after the o is
+  # an s and the letter after that is another, and a stem does not end there.
+  plant test before_nj
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_s
+    if answer is 0
+      call cat_stem_ends_vowel
+      if answer is 0
+        call cat_insert_oopen addr left addr right
+        if answer is 0
+          go to said
+        end
+      end
+    end
+  end
+  backtrack
+place before_nj
+  # An o before an n and a soft g or j: taronja, taronges, monja, esponja,
+  # llonja. The two spellings are one sound and the plural is where the g
+  # turns up, so both letters are asked about.
+  plant test before_bl
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_n
+    if answer is 0
+      call cat_soft_gj
+      if answer is 0
+        call cat_insert_oopen addr left addr right
+        if answer is 0
+          go to said
+        end
+      end
+    end
+  end
+  backtrack
+place before_bl
+  # An o before bl, which is poble and noble -- and doble, which is the close
+  # one and is taken out by asking what stands in front of the o. Three words
+  # is not a rule and this does not pretend to be one; it is here because the
+  # first two are common and there is no dictionary to put them in.
+  plant test bon
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_b
+    if answer is 0
+      call test_string_s 1 1 sym cat_letter_l
+      if answer is 0
+        call ZZlpta_load__setscan_l__1 addr left
+        if answer is 0
+          call test_string_s 1 1 sym cat_letter_d          # doble stays close
+          if answer is not 0
+            call cat_insert_oopen addr left addr right
+            if answer is 0
+              go to said
+            end
+          end
+        end
+      end
+    end
+  end
+  backtrack
+place bon
+  # And bon, bona, bons, bones, dona, dones: an o before an n that the stem
+  # ends after, when the letter in front of the o is a b or a d.
+  #
+  # The head is what makes this a list of words rather than an ending, and it
+  # has to be. -ona is open often enough to look like a rule -- dona, bona,
+  # mona -- and it is not one: Barcelona, persona, corona and estona are all
+  # close, and Barcelona is in the cases. So the arm asks which word it is,
+  # and a word is added to it by adding a letter here. -on is the same story
+  # from the other side: bon is open where son and front are close.
+  plant test close
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_n
+    if answer is 0
+      call cat_stem_ends
+      if answer is 0
+        call ZZlpta_load__setscan_l__1 addr left
+        if answer is 0
+          call cat_open_on_head
+          if answer is 0
+            call cat_insert_oopen addr left addr right
+            if answer is 0
+              go to said
+            end
+          end
+        end
+      end
+    end
+  end
+  backtrack
+place close
   call ZZlprp_load__insert_2pt_s_4_1_ZZstring116 addr left addr right   # o
   if answer is not 0
-    give up
+    backtrack
   end
+place said
   call succeed
   put cell right value into arg 2 at 4
   answer 0
@@ -752,8 +1196,130 @@ end
 rule apply_span_b_rules takes 3 from st_phone.obj
   local left bytes 8
   local right bytes 8
+  local next bytes 8
   call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
   call ZZfenceZZstring109
+  # A b that a word ends on after an m is not said at all: amb is [@ m], tomb
+  # [t o m], romb [r o m]. Castilian has no word ending in mb and Catalan's
+  # rule is not the devoicing below it -- the b does not become a p, it goes.
+  # Except in front of a vowel, where it comes back and is a b: amb ell is
+  # [@ m b e L] and amb mi is [@ m m i], which is what em mi sounds like and
+  # is the whole of the test a listener applies to it.
+  # The b is said as an m, which is what Catalan says: amb mi is [@ m m i],
+  # two m's running together, and that is the sound a listener asked for when
+  # they said it should be em mi.
+  #
+  # It is not the mute phone the lost r uses, and the difference is audible.
+  # The mute is a segment that lays down no formants and no voice, so what
+  # comes out is a silence of its own length -- and between the m of amb and
+  # the m of mi a silence is a stop closure, which is exactly the b that was
+  # still being heard. Measured, amb mi had fifty milliseconds of near-silence
+  # in the middle where em mi has none, and shortening the mute to nothing did
+  # not close it.
+  #
+  # Nor is it nothing at all, which was tried and crashes: a letter rule that
+  # lays no phone down leaves an empty span behind it, and amb or tomb said on
+  # its own with nothing after it takes the engine down with a segmentation
+  # fault. A real phone is what the rule owes its caller.
+  #
+  # -ble is said -ple. Catalan geminates the stop of a final -ble and what
+  # comes out is voiceless: poble is [p O p l @], doble [d o p l @], estable
+  # [@ s t a p l @], noble, amable, possible. Asking for the whole ending is
+  # what keeps blau, oblidar and problema out of it, none of which ends there.
+  plant test amb
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_l
+    if answer is 0
+      call test_string_s 1 1 sym cat_letter_e
+      if answer is 0
+        call cat_after_one_more                        # poble, and pobles
+        if answer is 0
+          call ZZlprp_load__insert_2pt_s_4_1_ZZstring5 addr left addr right  # p
+          if answer is 0
+            go to said
+          end
+        end
+      end
+    end
+  end
+  backtrack
+place amb
+  plant test amb_m
+  call cat_word_end addr right
+  if answer is 0
+    call ZZlpta_load__setscan_l__1 addr left
+    if answer is 0
+      call test_string_s 1 1 sym cat_letter_m
+      if answer is 0
+        call cat_insert_m addr left addr right
+        if answer is 0
+          go to said
+        end
+      end
+    end
+  end
+  backtrack
+place amb_m
+  # A next word that does not begin with a vowel: the b says nothing at all.
+  #
+  # Nothing, and not the mute phone the lost r uses. The mute is a segment
+  # that lays down no formants and no voice, so what comes out is a silence of
+  # its own length, and between the m of amb and the m of mi a silence is a
+  # stop closure -- which is exactly the b that could still be heard. amb mi
+  # and em mi are the same wave to the byte now, which is the test that was
+  # asked for.
+  plant test amb_end
+  call cat_word_end addr right
+  if answer is 0
+    call ZZlpta_load__setscan_l__1 addr left
+    if answer is 0
+      call test_string_s 1 1 sym cat_letter_m
+      if answer is 0
+        call ZZlpta_load__setscan_r__1 addr right
+        if answer is 0
+          call cat_step_over_boundary
+          if answer is 0
+            call ZZsavescptr2 addr next
+            call ZZlpta_load__setscan_r__1 addr next
+            if answer is 0
+              call cat_next_word_vowel
+              if answer is 0
+                call ZZlprp_load__insert_2pt_s_4_1_ZZstring121 addr left addr right  # b
+                if answer is 0
+                  go to said
+                end
+              end
+            end
+            go to said
+          end
+        end
+      end
+    end
+  end
+  backtrack
+place amb_end
+  # And where nothing follows at all, an m, because nothing will not do there:
+  # a letter rule that lays no phone down leaves an empty span, and amb, tomb,
+  # amb. and hola amb all took the engine down with a segmentation fault while
+  # amb mi was fine. tomb said on its own is [t o m], so the m is what the
+  # word wants anyway.
+  plant test devoice
+  call cat_word_end addr right
+  if answer is 0
+    call ZZlpta_load__setscan_l__1 addr left
+    if answer is 0
+      call test_string_s 1 1 sym cat_letter_m
+      if answer is 0
+        call cat_insert_m addr left addr right
+        if answer is 0
+          go to said
+        end
+      end
+    end
+  end
+  backtrack
+place devoice
   plant test plain
   call ZZlpta_load__setscan_r__1 addr right
   if answer is 0
@@ -830,7 +1396,7 @@ rule apply_span_r_rules takes 3 from st_phone.obj
   local right bytes 8
   call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
   call ZZfenceZZstring109
-  plant test rr
+  plant test mono
   call cat_word_end addr right
   if answer is 0
     call ZZlpta_load__setscan_l__1 addr left
@@ -846,6 +1412,25 @@ rule apply_span_r_rules takes 3 from st_phone.obj
               go to said
             end
           end
+        end
+      end
+    end
+  end
+  backtrack
+place mono
+  # fer, dir and ser, which have one vowel each and so are invisible to the
+  # walk above. glob.up says why they are written down as words rather than
+  # reached by loosening it.
+  plant test rr
+  call cat_word_end addr right
+  if answer is 0
+    call ZZlpta_load__setscan_l__1 addr left
+    if answer is 0
+      call cat_mono_infinitive
+      if answer is 0
+        call cat_insert_mute addr left addr right
+        if answer is 0
+          go to said
         end
       end
     end

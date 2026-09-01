@@ -130,15 +130,25 @@ void *evv_land_planted(uintptr_t name)
 #define EVV_A2 "%esi"
 #endif
 
+/* Mach-O writes an underscore in front of every C name and ELF does not, so
+   the two lines below and the two labels have to say which. Without it the
+   assembler defines a name the linker never asks for, and a Mac build gets as
+   far as linking and then cannot find either of them. */
+#if defined(__APPLE__)
+#define EVV_SYM(n) "_" n
+#else
+#define EVV_SYM(n) n
+#endif
+
 __asm__(
 ".text\n"
-".globl evv_land_save\n"
-".globl evv_land_jump\n"
+".globl " EVV_SYM("evv_land_save") "\n"
+".globl " EVV_SYM("evv_land_jump") "\n"
 
 /* Answers nought. The stack pointer stored is the one this will have after it
    returns, and the address stored is where it returns to, so landing on it
    later arrives exactly where the save did. */
-"evv_land_save:\n"
+EVV_SYM("evv_land_save") ":\n"
 "    mov " EVV_A1 ", %rax\n"
 "    mov %rbx,   0(%rax)\n"
 "    mov %rbp,   8(%rax)\n"
@@ -157,7 +167,7 @@ __asm__(
 
 /* Puts them back and goes there, and the save appears to answer with the
    value. It never returns to its own caller. */
-"evv_land_jump:\n"
+EVV_SYM("evv_land_jump") ":\n"
 "    mov " EVV_A1 ", %rax\n"
 "    mov " EVV_A2 ", %r10d\n"
 "    mov   0(%rax), %rbx\n"

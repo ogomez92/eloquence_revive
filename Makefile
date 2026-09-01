@@ -214,10 +214,32 @@ else
 LOW := -DEVV_ARENA=1
 endif
 
+# And a Mac has to be told twice, because it puts something there already.
+#
+# Every Mach-O process begins with __PAGEZERO, an unmapped region that catches
+# a null dereference, and on a sixty-four bit binary it is four gigabytes --
+# the whole of the space the arena has to live in. So mmap answers nothing
+# below two gigabytes however it is asked, and the engine aborts at startup
+# saying exactly that. The linker will make it smaller, which is the first
+# flag, and then the low addresses are free.
+#
+# On Apple Silicon that is not enough: the kernel refuses to exec an arm64
+# binary whose page zero has been shrunk -- it dies on the spot with no
+# message, which is signal 9 and no output. An x86_64 one it accepts, and
+# Rosetta runs it, so that is what a Mac with an arm in it builds. Nothing
+# about the engine minds: it is the same C, and the arena is what makes an
+# address thirty-two bits wide rather than the instruction set.
+ifeq ($(shell uname -s),Darwin)
+LDLOW := -Wl,-pagezero_size,0x100000
+ifeq ($(shell uname -m),arm64)
+ARCH  := -arch x86_64
+endif
+endif
+
 OPT        ?= -O2
 INCS       := -I$(SRC) $(addprefix -I,$(LANGS)) \
               $(foreach l,$(LANGS),-Irom/$(notdir $(l)))
-ALL_CFLAGS := $(OPT) -std=gnu99 $(INCS) $(WARN) $(LOW) $(TRIM) $(ROMDEFS) \
+ALL_CFLAGS := $(OPT) -std=gnu99 $(INCS) $(WARN) $(LOW) $(ARCH) $(TRIM) $(ROMDEFS) \
               $(CFLAGS)
 
 # One directory per build, where a build is which form the rules are in and
@@ -232,13 +254,13 @@ OBJECTS := $(patsubst %.c,$(OBJDIR)/%.o,$(notdir $(SOURCES)))
 all: $(BUILD)/evv
 
 $(BUILD)/evv: cli/evv.c $(BUILD)/libevv$(SUF).a $(RULESTAMP)
-	@$(CC) $(ALL_CFLAGS) cli/evv.c $(BUILD)/libevv$(SUF).a -lpthread -lm -o $@
+	@$(CC) $(ALL_CFLAGS) cli/evv.c $(BUILD)/libevv$(SUF).a -lpthread -lm $(LDLOW) -o $@
 	@echo "built $@"
 
 probe: $(BUILD)/probe$(SUF)
 
 $(BUILD)/probe$(SUF): cli/probe.c $(BUILD)/libevv$(SUF).a
-	@$(CC) $(ALL_CFLAGS) cli/probe.c $(BUILD)/libevv$(SUF).a -lpthread -lm -o $@
+	@$(CC) $(ALL_CFLAGS) cli/probe.c $(BUILD)/libevv$(SUF).a -lpthread -lm $(LDLOW) -o $@
 	@echo "built $@"
 
 # An instance made and thrown away over and over, which the suite never does:
@@ -247,7 +269,7 @@ $(BUILD)/probe$(SUF): cli/probe.c $(BUILD)/libevv$(SUF).a
 instances: $(BUILD)/instances
 
 $(BUILD)/instances: test/instances.c $(BUILD)/libevv.a
-	@$(CC) $(ALL_CFLAGS) test/instances.c $(BUILD)/libevv.a -lpthread -lm -o $@
+	@$(CC) $(ALL_CFLAGS) test/instances.c $(BUILD)/libevv.a -lpthread -lm $(LDLOW) -o $@
 	@echo "built $@"
 
 # An utterance interrupted and another asked for, on one instance, over and
@@ -255,7 +277,7 @@ $(BUILD)/instances: test/instances.c $(BUILD)/libevv.a
 interrupt: $(BUILD)/interrupt
 
 $(BUILD)/interrupt: test/interrupt.c $(BUILD)/libevv.a
-	@$(CC) $(ALL_CFLAGS) test/interrupt.c $(BUILD)/libevv.a -lpthread -lm -o $@
+	@$(CC) $(ALL_CFLAGS) test/interrupt.c $(BUILD)/libevv.a -lpthread -lm $(LDLOW) -o $@
 	@echo "built $@"
 
 # The sample rate changed on an instance that speaks into a buffer, which the
@@ -265,7 +287,7 @@ rate: $(BUILD)/rate
 	@$(BUILD)/rate
 
 $(BUILD)/rate: test/rate.c $(BUILD)/libevv.a
-	@$(CC) $(ALL_CFLAGS) test/rate.c $(BUILD)/libevv.a -lpthread -lm -o $@
+	@$(CC) $(ALL_CFLAGS) test/rate.c $(BUILD)/libevv.a -lpthread -lm $(LDLOW) -o $@
 	@echo "built $@"
 
 # A romanizer with no language in it, replaying what IBM's romanizer answered.
@@ -279,7 +301,7 @@ $(BUILD)/rate: test/rate.c $(BUILD)/libevv.a
 romcan: $(BUILD)/romcan$(SUF)
 
 $(BUILD)/romcan$(SUF): test/romcan.c $(BUILD)/libevv$(SUF).a
-	@$(CC) $(ALL_CFLAGS) test/romcan.c $(BUILD)/libevv$(SUF).a -lpthread -lm -o $@
+	@$(CC) $(ALL_CFLAGS) test/romcan.c $(BUILD)/libevv$(SUF).a -lpthread -lm $(LDLOW) -o $@
 	@echo "built $@"
 
 # The romanizer's converters, ours against IBM's, one call at a time. The same
@@ -290,7 +312,7 @@ romprims: $(BUILD)/romprims$(SUF)
 
 $(BUILD)/romprims$(SUF): test/romprims.c $(BUILD)/libevv$(SUF).a
 	@$(CC) $(ALL_CFLAGS) -DEVV_ROMPRIMS_OURS test/romprims.c \
-	  $(BUILD)/libevv$(SUF).a -lpthread -lm -o $@
+	  $(BUILD)/libevv$(SUF).a -lpthread -lm $(LDLOW) -o $@
 	@echo "built $@"
 
 # One text spoken whole and then in pieces, which is what the add-on does with
@@ -301,7 +323,7 @@ pieces: $(BUILD)/pieces
 	@$(BUILD)/pieces
 
 $(BUILD)/pieces: test/pieces.c $(BUILD)/libevv.a
-	@$(CC) $(ALL_CFLAGS) test/pieces.c $(BUILD)/libevv.a -lpthread -lm -o $@
+	@$(CC) $(ALL_CFLAGS) test/pieces.c $(BUILD)/libevv.a -lpthread -lm $(LDLOW) -o $@
 	@echo "built $@"
 
 # The eight voices the caller may edit, which the suite is blind to: nothing it
@@ -312,7 +334,7 @@ voices: $(BUILD)/voices
 	@$(BUILD)/voices
 
 $(BUILD)/voices: test/voices.c $(BUILD)/libevv.a
-	@$(CC) $(ALL_CFLAGS) test/voices.c $(BUILD)/libevv.a -lpthread -lm -o $@
+	@$(CC) $(ALL_CFLAGS) test/voices.c $(BUILD)/libevv.a -lpthread -lm $(LDLOW) -o $@
 	@echo "built $@"
 
 # A backtrack landed on from a thread that never planted it, which is how
@@ -322,7 +344,7 @@ $(BUILD)/voices: test/voices.c $(BUILD)/libevv.a
 landing: $(BUILD)/landing
 
 $(BUILD)/landing: test/landing.c $(BUILD)/libevv.a
-	@$(CC) $(ALL_CFLAGS) test/landing.c $(BUILD)/libevv.a -lpthread -lm -o $@
+	@$(CC) $(ALL_CFLAGS) test/landing.c $(BUILD)/libevv.a -lpthread -lm $(LDLOW) -o $@
 	@echo "built $@"
 
 # A stop from a thread that is not the one speaking, which is what a screen
@@ -333,7 +355,7 @@ stopthread: $(BUILD)/stopthread
 	@$(BUILD)/stopthread
 
 $(BUILD)/stopthread: test/stopthread.c $(BUILD)/libevv.a
-	@$(CC) $(ALL_CFLAGS) test/stopthread.c $(BUILD)/libevv.a -lpthread -lm -o $@
+	@$(CC) $(ALL_CFLAGS) test/stopthread.c $(BUILD)/libevv.a -lpthread -lm $(LDLOW) -o $@
 	@echo "built $@"
 
 # A key that is not in a section, which neither suite can see: the reader
@@ -344,7 +366,7 @@ inikeys: $(BUILD)/inikeys
 	@$(BUILD)/inikeys
 
 $(BUILD)/inikeys: test/inikeys.c $(BUILD)/libevv.a
-	@$(CC) $(ALL_CFLAGS) test/inikeys.c $(BUILD)/libevv.a -lpthread -lm -o $@
+	@$(CC) $(ALL_CFLAGS) test/inikeys.c $(BUILD)/libevv.a -lpthread -lm $(LDLOW) -o $@
 	@echo "built $@"
 
 # A machine primitive no rule calls, held against IBM's own. The suite cannot
@@ -356,7 +378,7 @@ prims: $(BUILD)/prims
 	@$(BUILD)/prims > /dev/null && echo "built and ran $(BUILD)/prims"
 
 $(BUILD)/prims: test/prims.c $(BUILD)/libevv.a
-	@$(CC) $(ALL_CFLAGS) -DEVV_PRIMS_OURS test/prims.c $(BUILD)/libevv.a -lpthread -lm -o $@
+	@$(CC) $(ALL_CFLAGS) -DEVV_PRIMS_OURS test/prims.c $(BUILD)/libevv.a -lpthread -lm $(LDLOW) -o $@
 	@echo "built $@"
 
 $(OBJDIR)/%.o: %.c $(HEADERS)

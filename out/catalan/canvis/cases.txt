@@ -1,0 +1,16 @@
+01-diftong|nou bou prou plou dijous noia noi boira coure sou
+02-final-oberta|groc poc foc joc bloc sol vol gol escola escoles bola got
+03-tancada|tot molt gos cos son front colze golfa Barcelona persona corona estona
+04-llista|taronja taronges monja poble noble bon bona dona dones volta revolta cor
+05-osa|rosa roses cosa coses esposa famosa gossa bossa grossa gos cos
+06-e-oberta|setze tren trens deu peu neu creu beu veu tres res problema tema set ple
+07-e-tancada|tretze meu teu seu mes pes bé té ve fet net gest doble
+08-eix|llegeix coneix farceix serveix pateix eix peix feix neix
+09-xifres|1 5 7 9 10 12 15 16 19 20 29 99
+10-essa-sonora|Les dones. Cas antic. Cavàs gran. Els gossos del carrer. Tres cases.
+11-amb|Amb mi. Em mi. Amb ell. Amb homes. Amb tu. Tomb.
+12-erra-muda|fer dir ser por dur cor mar clar passar carrer venir
+13-ble|poble pobles doble estable noble amable possible blau oblidar problema
+14-aquest|Aquest matí. Aquests dies. Aquesta casa. Vull aquest.
+15-accent|Escoles i taules. Les escoles són grans. Pobles i cases.
+16-frase|El noi de Barcelona té por. Una volta al poble amb el tren de les deu.

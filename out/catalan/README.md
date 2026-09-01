@@ -17,6 +17,9 @@ rule, an intonation number or a word, run it again, listen.
     -t        rebuild the tables too, after editing caes.statements,
               caes.settings, caes.globals or caes.dict
     -p        print the phonemes for each word, write no wave
+    -P        print them a line at a time instead, which is the only way to
+              see a function word losing its stress, an s voicing before the
+              next word, or a consonant said only before a vowel
     -m        also measure the melody of what it just said
 
     python tools/speak.py -o hola.wav "Bon dia a tothom"
@@ -28,6 +31,12 @@ rule, an intonation number or a word, run it again, listen.
 
     a sound a letter makes    lang/caes/rules/st_phone.up
     the schwa, the open e/o   lang/caes/rules/ss_ssval.up
+    which words get the       the arms of apply_span_o_rules and
+    open o or e               apply_span_e_rules in st_phone.up
+    what a letter may ask     lang/caes/rules/glob.up, with the letters it
+    about the next word       names in rules/constants
+    how dark the l is         lang/caes/rules/ss_val.dr, span_ph_l -- the
+                              second formant target, and out/catalan/dark-l
     how long a sound lasts    lang/caes/rules/ss_dur.up (consonants)
                               lang/caes/rules/ss_ssdur.up (vowels)
     which words are atonic    tools/lang-sets.py set caes <set> <word>...
@@ -75,13 +84,34 @@ each of them is, what a person does, and which way each has moved.
 16-ix.wav                caixa peix baixa deixar coneixement calaix
 17-final-sord.wav        fred verd club sang gat groc pop dissabte dubte
 18-ena-final.wav         gran tren bon un món nen banc sang canvi enfadat
-19-numeros-xifres.wav    1 2 3 4 5 8 9 10 12 15 16 19 20 25 29 30 40 50 60 70 80 90 99
+19-numeros-xifres.wav    1 5 9 12 15 19 20 21 25 26 30 31 36 45 55 66 78 91 99
 20-text-corrent.wav      Avui és dissabte i el cafè de la cantonada és ple de gent que llegeix el diari.
 21-penjat.wav            Mengen fetge d'un penjat.
 22-jotes.wav             El jove de Girona menja taronges. Penjar, menjar, àngel, mengen.
 23-melodia.wav           A statement, a question and a sentence with commas in it.
 
-veu-1 .. veu-8.wav       the eight voices
+veu-1 .. veu-8.wav       the eight voices, on "Bon dia. Em dic
+                         Eloqüència i parlo català."
+
+## canvis/
+
+The open o and the open e, the s that voices in front of the next word, amb,
+the final r, -ble as -ple, aquest as aquet, and the conjunction i: sixteen
+cases, with a README beside them saying what each is for and which of them are
+rules and which are single words.
+
+## schwa-a/
+
+The schwa and the a moved apart. They were sixty hertz and a hundred from each
+other, closer than any two of Castilian's own five vowels, and casa has both
+in it. B is what is in the tree.
+
+## dark-l/
+
+The l at eight settings of its second, third and fourth formants, over ten
+sentences that put an l in every position a Catalan l can be in. E is what is
+in the tree. `dark-l/README.md` says what the ladder was for and why the
+darkness is the second formant's alone.
 
 ## schwa/
 

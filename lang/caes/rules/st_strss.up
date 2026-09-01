@@ -11,6 +11,12 @@
 # [k @ n t e n] where Catalan says [k a n t @ n], and with it every third
 # person plural there is, which is most of the verbs anyone says.
 #
+# The voiced s is the same fault one letter along, and it arrived with the
+# rule that voices a word-final s in front of the next word: escoles on its
+# own is [@ s k O l @ s] and escoles i taules came out [@ s k u l e z], the
+# stress a syllable to the right, because the last phone was no longer the s
+# the test asks for. It is caught here beside the n.
+#
 # The test belongs in assign_span_stress, beside the ones for n and s, and it
 # cannot go there: those three are one shared wrapper apiece and the same
 # wrapper is what the velarising arm reads, so widening it would undo the very
@@ -32,6 +38,20 @@ rule span_final_str takes 1 from st_strss.obj
   call ZZlpta_load_vvg__setscan_0108l__4
   if answer is 0
     call cat_test_final_n                          # a word-final n?
+    if answer is 0
+      call ZZtestFldeq4_1_1                        # with a vowel before it?
+      if answer is 0
+        call span_penult_str
+        if answer is 0
+          match
+        end
+        give up
+      end
+    end
+  end
+  call ZZlpta_load_vvg__setscan_0108l__4
+  if answer is 0
+    call cat_test_final_z                          # or a word-final voiced s?
     if answer is 0
       call ZZtestFldeq4_1_1                        # with a vowel before it?
       if answer is 0

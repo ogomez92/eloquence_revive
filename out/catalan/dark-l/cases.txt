@@ -1,0 +1,10 @@
+01-llum-sol	La llum del sol al poble.
+02-final	mal sal sol cel mil tal
+03-inicial	lila lent lògic litre luxe
+04-grups	clar blau plaça flor glaç plou
+05-entre-vocals	escola tela pilota bala fila
+06-geminada	il·lusió novel·la col·legi
+07-frase	Els alumnes de l'escola llegeixen el llibre al vespre.
+08-palla-pala	la palla i la pala
+09-barcelona	Barcelona és la capital de Catalunya.
+10-el-poble	El poble vell de la vall és molt bell.

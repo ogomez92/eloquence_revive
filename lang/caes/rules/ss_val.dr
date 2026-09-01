@@ -4428,8 +4428,40 @@ label L0 was B0
   popreg r1
   popreg r1
   branch jne to L1
-  store movw imm 1440 statefld 2938
-  store movw imm 1440 statefld 2942
+# The l is dark, which is one number.
+#
+# Castilian's l is clear -- the tongue front against the ridge and nothing
+# behind it -- and Catalan's is velarised in every position, which is one of
+# the two or three things a listener hears first. This rule is where that
+# lives: the second formant below is the target the whole of the rest of it
+# then moves for the sounds either side, so lowering it here darkens the l
+# everywhere without touching a single context test. Castilian's was 1440.
+#
+# The third and fourth formants are Castilian's still, and that is the point
+# of the number rather than an omission. American English has the same dark l
+# and IBM's own numbers for it are f2 800 and f3 3000 -- eng_lat_Fv in
+# lang/enus/rules/es_val.dr -- and taking both moved the third formant up
+# under this module's fourth, which sits at 3000 and stays there. Two
+# resonances three hundred hertz apart ring, and a listener heard it as a beep
+# over the top of the l. So the darkness is f2's alone: at 1150 the second
+# formant leans on the first and the top of the spectrum is left as flat as
+# Castilian left it.
+#
+# What is not touched is the 65534 further down. That is not a formant, it is
+# the rule saying it has no target here and the neighbour's is to carry
+# through, which is how an l beside another l is spoken; overwriting it with
+# a number would change what the l does beside its neighbours rather than
+# what it sounds like.
+#
+# out/catalan/dark-l holds the ladder this was chosen off, ten cases apiece:
+# 1440/2500 as Castilian had it, then 1150/2700, 950/2850 and 800/3000, and
+# then the four that separate the second formant from the third and fourth,
+# which is what the beep asked for.
+#
+# A lift of ss_val.obj for caes would put Castilian's number back. It is the
+# only edit in this file that is not IBM's.
+  store movw imm 1150 statefld 2938
+  store movw imm 1150 statefld 2942
 label L1 was B1
   load movl imm -400 into r3
   load movl imm -300 into r7

@@ -13,6 +13,7 @@ letter-to-sound before anybody argues about it.
     python tools/speak.py -n "Bon dia"            do not rebuild, just speak
     python tools/speak.py -t "Bon dia"            rebuild the tables too
     python tools/speak.py -p "casa dia caixa"     the phonemes, and no wave
+    python tools/speak.py -P "del tot"            the phonemes of a whole line
     python tools/speak.py -m "La casa es gran."   what the melody measures
 
 The text is written out as UTF-8, which is what the accents want: the grave
@@ -24,6 +25,10 @@ file before the engine sees it.
     -t         run tables-write first, which is what a change to <tag>.statements,
                <tag>.settings, <tag>.globals or <tag>.dict needs
     -n         skip the build entirely
+    -P         the phonemes a line at a time rather than a word at a time,
+               which is where a function word losing its stress, an s voicing
+               before the next word and a consonant said only before a vowel
+               can be seen at all
     -j <n>     how many compiler jobs, eight by default
 
 What it rebuilds without being asked: the authored constants out of
@@ -218,6 +223,7 @@ def main():
     ap.add_argument("-n", "--no-build", action="store_true")
     ap.add_argument("-t", "--tables", action="store_true")
     ap.add_argument("-p", "--phonemes", action="store_true")
+    ap.add_argument("-P", "--phrase", action="store_true")
     ap.add_argument("-m", "--melody", action="store_true")
     a = ap.parse_args()
 
@@ -239,6 +245,19 @@ def main():
             for word in line.split():
                 p = write_text(word)
                 print("%-18s %s" % (word, phonemes(exe, p)))
+        return 0
+
+    # A line at a time rather than a word at a time, which is a different
+    # question and usually the one being asked of a phrase. Everything that
+    # happens between two words -- a function word losing its stress, an s
+    # voicing before the next word's d, a final consonant that is only said
+    # before a vowel -- is invisible to -p, because a word handed over on its
+    # own is a whole utterance and carries a stress by being one. -p says what
+    # a word is; -P says what the phrase does to it.
+    if a.phrase:
+        for line in text.splitlines() or [text]:
+            if line.strip():
+                print("%s\n   %s" % (line, phonemes(exe, write_text(line))))
         return 0
 
     out = a.out if os.path.isabs(a.out) else os.path.join(ROOT, a.out)

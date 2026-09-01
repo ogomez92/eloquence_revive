@@ -67,19 +67,34 @@ end
 # formant once and the second and third twice each, because the transition
 # into a vowel and the one out of it are separate targets -- and several
 # hundred lines of context tests that move them for the consonants around.
-# This is the five. Spanish's own a is 660, 1400 and 2450 and its e is 480,
-# 1800 and 2650, and the schwa sits between them and further in: mid, central,
-# and the mouth nearer to rest than for either.
+# This is the five. Spanish's own e is 480, 1800 and 2650, and the schwa sits
+# below it and further in: mid, central, and the mouth nearer to rest.
 #
-# It needs no amplitude of its own, and the two below do, for the reason their
-# comment gives: the schwa is never a phone code at all. Nothing lays code 37
-# down -- the reduction happens here, on the a or the e the letter rules
-# already wrote -- so every rule downstream still sees a vowel Spanish knows.
+# It is 560 and 1550 rather than the 600 and 1500 it was, and the a has moved
+# the other way at the same time, because the two of them were too near each
+# other to be told apart. Castilian's a was 660 and 1400, which is sixty hertz
+# and a hundred from where the schwa stood -- closer than any two of IBM's own
+# five are to each other, and casa has both vowels in it. Measured on the a
+# and the schwa of casa the second formants were fifty hertz apart as they
+# were and are two hundred and twenty-five apart now. out/catalan/schwa-a is
+# the four settings that came off, and what moved is the pair rather than
+# either: the schwa in towards rest and the a further open.
+#
+# It sets an amplitude, and for a while it did not, on the reasoning that it
+# is never a phone code at all: nothing lays code 37 down, the reduction
+# happens here on the a or the e the letter rules already wrote, and every
+# rule downstream still sees a vowel Spanish knows. Which is true and is the
+# reason it had to. get_stanspan_nuc_AV gives an a 50 and an e 53, so the
+# schwa of amb came out three decibels under the schwa of em and the two words
+# were not the same sound -- audible when they were put side by side, and the
+# last thing between them once the b of amb was gone. 53 is what the chain
+# gives by default and what an e already had.
 rule cat_ph_schwa_vals takes 1 from ss_ssval.obj
   call ZZfence_null
-  set global half 2930 to 600
-  set global half 2938 to 1500
-  set global half 2942 to 1500
+  set global half 2722 to 53
+  set global half 2930 to 580
+  set global half 2938 to 1520
+  set global half 2942 to 1520
   set global half 2946 to 2450
   set global half 2950 to 2450
   match
@@ -132,6 +147,20 @@ rule cat_ph_oopen_vals takes 1 from ss_ssval.obj
   match
 end
 
+# The amplitude of voicing a reduced vowel is given.
+#
+# It has to be said here for the reason the open pair's own rules say it: the
+# chain that sets it, get_stanspan_nuc_AV, dispatches on the phone code, and
+# codes 38 and 39 have no arm in it, so whatever the consonant before left
+# there stands. A stressed open vowel sets its own; an unstressed one is
+# spoken as a schwa or as a u, and 53 is what IBM's own chain gives by
+# default, its five running 50 for a to 55 for i.
+rule cat_reduced_AV takes 1 from ss_ssval.obj
+  call ZZfence_null
+  set global half 2722 to 53
+  match
+end
+
 # The vowel chain, with an eighth arm and the reduction in it.
 #
 # Central Catalan neutralises every unstressed a and e to the schwa and every
@@ -143,6 +172,14 @@ end
 # It is done here rather than in the letter rules because stress is not known
 # when a letter is read: the syllables have not been counted and the accent
 # has not been placed. By the time the value chain runs, both have.
+#
+# Which is also why the two open arms ask it now. They did not have to while
+# the only way to reach an open vowel was to write a grave, since a grave
+# carries the stress by being one. st_phone.up lays them down from the letters
+# as well now -- an o before a u or an i, and an o the word ends on after a c
+# or an l -- and those can land anywhere: noiet is [n u y E t] and bouer
+# [b u e], with the o unstressed and no accent to say so. Without this they
+# came out open and unreduced, which is a vowel Catalan does not have there.
 rule stanspan_vals takes 1 from ss_ssval.obj
   call ZZfence_null
   plant test try_e
@@ -231,6 +268,12 @@ place try_eopen
   if answer is 0
     call cat_test_eopen                                       # the open e
     if answer is 0
+      call cat_unstressed
+      if answer is 0
+        call cat_ph_schwa_vals
+        call cat_reduced_AV
+        go to tail
+      end
       call cat_ph_eopen_vals
       go to tail
     end
@@ -242,6 +285,12 @@ place try_oopen
   if answer is 0
     call cat_test_oopen                                       # the open o
     if answer is 0
+      call cat_unstressed
+      if answer is 0
+        call stanspan_ph_u
+        call cat_reduced_AV
+        go to tail
+      end
       call cat_ph_oopen_vals
       go to tail
     end

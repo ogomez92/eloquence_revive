@@ -33,6 +33,42 @@ bytes cat_ph_schwa 25
 # flattened to a plain vowel on the way in.
 bytes cat_letter_egrave 62   # e with a grave, by its code in the alphabet
 bytes cat_letter_ograve 64   # o with a grave
+# The letters a rule of ours asks about by name. Castilian's own rules ask
+# through a wrapper apiece -- ZZstring94 is an r, ZZstring96 an s -- and those
+# are the strings IBM happened to compile; a letter it never had a reason to
+# ask about has no wrapper to borrow. These are the same question asked of our
+# own bytes, which is what apply_span_enye_rules already does with the graves.
+bytes cat_letter_a 01
+bytes cat_letter_b 0b
+bytes cat_letter_d 0d
+bytes cat_letter_e 02
+bytes cat_letter_g 0f
+bytes cat_letter_h 10
+bytes cat_letter_j 11
+bytes cat_letter_n 15
+bytes cat_letter_o 04
+bytes cat_letter_p 16
+bytes cat_letter_q 17
+bytes cat_letter_x 1d
+bytes cat_letter_z 1f
+
+# Whole tails, for the words whose open o no ending reaches. A test may take
+# more than one character at a time -- the length is the second number in
+# test_string_s -- so a word is one line here and one test in the rule.
+bytes cat_tail_lta 13 1a 01              # volta, revolta
+bytes cat_tail_r   18                    # cor, por
+bytes cat_tail_t   1a                    # got
+bytes cat_letter_i 03
+bytes cat_letter_u 05
+bytes cat_letter_c 0c
+bytes cat_letter_f 0e
+bytes cat_letter_l 13
+bytes cat_letter_m 14
+bytes cat_letter_r 18
+bytes cat_letter_v 1b
+bytes cat_letter_s 19
+bytes cat_letter_t 1a
+
 bytes cat_ph_eopen 26        # the open e, phone 38
 bytes cat_ph_oopen 27        # the open o, phone 39
 
@@ -54,23 +90,23 @@ bytes cat_num_tres    1a 18 02 19         # tres
 bytes cat_num_quatre  17 05 01 1a 18 02   # quatre
 bytes cat_num_cinc    0c 03 15 0c         # cinc
 bytes cat_num_sis     19 19 03 19            # sis
-bytes cat_num_set     19 19 02 1a            # set
+bytes cat_num_set     19 19 62 1a            # set, with the grave: open e
 bytes cat_num_vuit    1b 05 03 1a         # vuit
-bytes cat_num_nou     15 04 05            # nou
+bytes cat_num_nou     15 64 05            # nou, with the grave: open o
 
 # And the teens, which Catalan makes its own way: ten is deu, and eleven to
 # sixteen are one word each where seventeen to nineteen are dis- and di- on
 # the front of seven, eight and nine.
-bytes cat_num_deu     0d 02 05                  # deu
+bytes cat_num_deu     0d 62 05                  # deu, with the grave: open e
 bytes cat_num_onze    04 15 1f 02               # onze
 bytes cat_num_dotze   0d 04 1a 1f 02            # dotze
 bytes cat_num_tretze  1a 18 02 1a 1f 02         # tretze
 bytes cat_num_catorze 0c 01 1a 04 18 1f 02      # catorze
 bytes cat_num_quinze  17 05 03 15 1f 02         # quinze
-bytes cat_num_setze   19 02 1a 1f 02            # setze
+bytes cat_num_setze   19 62 1a 1f 02            # setze, with the grave: open e
 bytes cat_num_disset  0d 03 19 19 02 1a         # disset
 bytes cat_num_divuit  0d 03 1b 05 03 1a         # divuit
-bytes cat_num_dinou   0d 03 15 04 05            # dinou
+bytes cat_num_dinou   0d 03 15 64 05            # dinou, the same o
 
 # Twenty to twenty-nine. Catalan runs a compound number together into one
 # word -- vinticinc, not vint i cinc -- so these carry no spaces.
@@ -90,7 +126,7 @@ bytes cat_num_vinticinc    1b 03 15 1a 03 0c 03 15 0c
 bytes cat_num_vintisis     1b 03 15 1a 03 19 19 03 19
 bytes cat_num_vintiset     1b 03 15 1a 03 19 19 02 1a
 bytes cat_num_vintivuit    1b 03 15 1a 03 1b 05 03 1a
-bytes cat_num_vintinou     1b 03 15 1a 03 15 04 05
+bytes cat_num_vintinou     1b 03 15 1a 03 15 64 05
 
 # The tens that fit where Castilian's stand. convert_span_double pushes a
 # symbol and inserts a fixed number of characters from it, so a Catalan word
@@ -135,6 +171,8 @@ bytes cat_ph_final_n 0f
 # front of it. j and g before e and i lay one down or the other, and a rule of
 # ours has to name both by address to choose between them: glob.up says which
 # is said where.
+bytes cat_ph_m 16         # the m, phone 22
+bytes cat_ph_z 0e         # the voiced s, phone 14
 bytes cat_ph_zz 12
 
 # The glide and the fricative that ix says, as one insertion.

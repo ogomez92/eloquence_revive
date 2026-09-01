@@ -2858,6 +2858,14 @@ label L25 was B25
   load movl sym sym_271 into r6
   jump to L154
 label L26 was B26
+  push imm 160
+  push reg r7
+  call starttest arity 2 depth 2
+  load movw ind reg r7 1594 into r0w
+  cmp cmpw ind reg r7 1590 reg r0w
+  popreg r1
+  popreg r1
+  branch je to L160
   load movl imm 258 into r0
   load movl sym sym_272 into r6
   jump to L154
