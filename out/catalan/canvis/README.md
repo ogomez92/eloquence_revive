@@ -46,9 +46,8 @@ escoles and pobles, which the voicing rule had moved.
 
 ## What is not here
 
-fe and re are open and are not covered; ple is, and only because it has an l
-in front of its e. The acute is flattened on the way in, so be and te look
-exactly like ple to a letter rule and the l is the only thing between them.
--ot, -ort and -ost are left out of the o's endings because tot is close. This
-is a list that grows by ear, and `lang/caes/rules/glob.up` says how to add to
-it.
+-ot, -ort and -ost are left out of the o's endings because tot is close, and
+there is nowhere to keep one exception. This is a list that grows by ear, and
+`lang/caes/rules/glob.up` says how to add to it: a tail in `rules/constants`
+and a test beside the others, with the letter in front where the tail alone
+names too many words.

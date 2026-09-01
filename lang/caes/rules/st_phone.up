@@ -835,22 +835,21 @@ place set
   backtrack
 
 place ple
-  # ple, which is one word and is asked about as one.
+  # A word of one syllable that ends on its e: ple, fe, re.
   #
-  # A rule for a monosyllable ending in its e was tried first and is wrong:
-  # be, te, se and ve are close and look identical here, because the acute is
+  # Which of them are open cannot be read off the letter, because the acute is
   # flattened on the way in -- caes.codepoints keeps the grave and not the
-  # acute -- so by the time a letter rule sees them there is nothing to tell
-  # be from ple. Asking for the l is what separates them. fe and re are open
-  # too and are not covered; the clitics que, de, me, te and se carry no
-  # stress and are schwas before this could matter.
+  # acute -- so be, te, se and ve arrive looking exactly like fe and re. So it
+  # is asked the other way round: glob.up holds the letters that keep it
+  # close, and everything else is open. The same shape the eu diphthong uses
+  # for meu, teu and seu.
   plant test eix
   call cat_word_end addr right
   if answer is 0
     call ZZlpta_load__setscan_l__1 addr left
     if answer is 0
-      call test_string_s 1 1 sym cat_letter_l
-      if answer is 0
+      call cat_close_final_e_head
+      if answer is not 0
         call cat_more_vowels_left
         if answer is not 0
           call cat_insert_eopen addr left addr right

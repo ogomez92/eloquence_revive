@@ -17362,13 +17362,22 @@ int32_t caes_cat_after_one_more(int32_t a0)
                           &caes_delta_rules[1738], a, 1);
 }
 
-int32_t caes_cat_close_eu_head(int32_t a0)
+int32_t caes_cat_close_final_e_head(int32_t a0)
 {
     int32_t a[1];
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
                           &caes_delta_rules[1739], a, 1);
+}
+
+int32_t caes_cat_close_eu_head(int32_t a0)
+{
+    int32_t a[1];
+
+    a[0] = a0;
+    return delta_run_rule((void *)(intptr_t)a0,
+                          &caes_delta_rules[1740], a, 1);
 }
 
 int32_t caes_cat_open_o_word(int32_t a0, int32_t a1, int32_t a2)
@@ -17379,7 +17388,7 @@ int32_t caes_cat_open_o_word(int32_t a0, int32_t a1, int32_t a2)
     a[1] = a1;
     a[2] = a2;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1740], a, 3);
+                          &caes_delta_rules[1741], a, 3);
 }
 
 int32_t caes_cat_open_on_head(int32_t a0)
@@ -17388,7 +17397,7 @@ int32_t caes_cat_open_on_head(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1741], a, 1);
+                          &caes_delta_rules[1742], a, 1);
 }
 
 int32_t caes_cat_soft_gj(int32_t a0)
@@ -17397,7 +17406,7 @@ int32_t caes_cat_soft_gj(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1742], a, 1);
+                          &caes_delta_rules[1743], a, 1);
 }
 
 int32_t caes_cat_word_starts(int32_t a0)
@@ -17406,7 +17415,7 @@ int32_t caes_cat_word_starts(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1743], a, 1);
+                          &caes_delta_rules[1744], a, 1);
 }
 
 int32_t caes_cat_mono_infinitive(int32_t a0)
@@ -17415,7 +17424,7 @@ int32_t caes_cat_mono_infinitive(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1744], a, 1);
+                          &caes_delta_rules[1745], a, 1);
 }
 
 int32_t caes_cat_step_over_boundary(int32_t a0)
@@ -17424,7 +17433,7 @@ int32_t caes_cat_step_over_boundary(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1745], a, 1);
+                          &caes_delta_rules[1746], a, 1);
 }
 
 int32_t caes_cat_next_word_voiced(int32_t a0)
@@ -17433,7 +17442,7 @@ int32_t caes_cat_next_word_voiced(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1746], a, 1);
+                          &caes_delta_rules[1747], a, 1);
 }
 
 int32_t caes_cat_next_word_vowel(int32_t a0)
@@ -17442,7 +17451,7 @@ int32_t caes_cat_next_word_vowel(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1747], a, 1);
+                          &caes_delta_rules[1748], a, 1);
 }
 
 int32_t caes_cat_voiced_cons(int32_t a0)
@@ -17451,7 +17460,7 @@ int32_t caes_cat_voiced_cons(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1748], a, 1);
+                          &caes_delta_rules[1749], a, 1);
 }
 
 int32_t caes_cat_insert_m(int32_t a0, int32_t a1, int32_t a2)
@@ -17462,7 +17471,7 @@ int32_t caes_cat_insert_m(int32_t a0, int32_t a1, int32_t a2)
     a[1] = a1;
     a[2] = a2;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1749], a, 3);
+                          &caes_delta_rules[1750], a, 3);
 }
 
 int32_t caes_cat_insert_eopen(int32_t a0, int32_t a1, int32_t a2)
@@ -17473,7 +17482,7 @@ int32_t caes_cat_insert_eopen(int32_t a0, int32_t a1, int32_t a2)
     a[1] = a1;
     a[2] = a2;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1750], a, 3);
+                          &caes_delta_rules[1751], a, 3);
 }
 
 int32_t caes_cat_insert_oopen(int32_t a0, int32_t a1, int32_t a2)
@@ -17484,7 +17493,7 @@ int32_t caes_cat_insert_oopen(int32_t a0, int32_t a1, int32_t a2)
     a[1] = a1;
     a[2] = a2;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1751], a, 3);
+                          &caes_delta_rules[1752], a, 3);
 }
 
 int32_t caes_cat_voiceless_follows(int32_t a0)
@@ -17493,7 +17502,7 @@ int32_t caes_cat_voiceless_follows(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1752], a, 1);
+                          &caes_delta_rules[1753], a, 1);
 }
 
 int32_t caes_cat_insert_join(int32_t a0)
@@ -17502,7 +17511,7 @@ int32_t caes_cat_insert_join(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1753], a, 1);
+                          &caes_delta_rules[1754], a, 1);
 }
 
 int32_t caes_cat_insert_nothing_given(int32_t a0, int32_t a1)
@@ -17512,7 +17521,7 @@ int32_t caes_cat_insert_nothing_given(int32_t a0, int32_t a1)
     a[0] = a0;
     a[1] = a1;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1754], a, 2);
+                          &caes_delta_rules[1755], a, 2);
 }
 
 int32_t caes_cat_word_end(int32_t a0, int32_t a1)
@@ -17522,7 +17531,7 @@ int32_t caes_cat_word_end(int32_t a0, int32_t a1)
     a[0] = a0;
     a[1] = a1;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1755], a, 2);
+                          &caes_delta_rules[1756], a, 2);
 }
 
 int32_t caes_cat_vowel_step(int32_t a0)
@@ -17531,7 +17540,7 @@ int32_t caes_cat_vowel_step(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1756], a, 1);
+                          &caes_delta_rules[1757], a, 1);
 }
 
 int32_t caes_cat_more_vowels_left(int32_t a0)
@@ -17540,7 +17549,7 @@ int32_t caes_cat_more_vowels_left(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1757], a, 1);
+                          &caes_delta_rules[1758], a, 1);
 }
 
 int32_t caes_cat_insert_mute(int32_t a0, int32_t a1, int32_t a2)
@@ -17551,7 +17560,7 @@ int32_t caes_cat_insert_mute(int32_t a0, int32_t a1, int32_t a2)
     a[1] = a1;
     a[2] = a2;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1758], a, 3);
+                          &caes_delta_rules[1759], a, 3);
 }
 
 int32_t caes_cat_test_final_z(int32_t a0)
@@ -17560,7 +17569,7 @@ int32_t caes_cat_test_final_z(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1759], a, 1);
+                          &caes_delta_rules[1760], a, 1);
 }
 
 int32_t caes_cat_test_final_n(int32_t a0)
@@ -17569,7 +17578,7 @@ int32_t caes_cat_test_final_n(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1760], a, 1);
+                          &caes_delta_rules[1761], a, 1);
 }
 
 int32_t caes_cat_nasal_lateral_here(int32_t a0)
@@ -17578,7 +17587,7 @@ int32_t caes_cat_nasal_lateral_here(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1761], a, 1);
+                          &caes_delta_rules[1762], a, 1);
 }
 
 int32_t caes_cat_insert_zz(int32_t a0, int32_t a1, int32_t a2)
@@ -17589,7 +17598,7 @@ int32_t caes_cat_insert_zz(int32_t a0, int32_t a1, int32_t a2)
     a[1] = a1;
     a[2] = a2;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1762], a, 3);
+                          &caes_delta_rules[1763], a, 3);
 }
 
 int32_t caes_cat_palatal_follows(int32_t a0)
@@ -17598,6 +17607,6 @@ int32_t caes_cat_palatal_follows(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1763], a, 1);
+                          &caes_delta_rules[1764], a, 1);
 }
 

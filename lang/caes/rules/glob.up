@@ -194,6 +194,34 @@ rule cat_after_one_more takes 1 from glob.obj
   answer 1
 end
 
+# The letters in front of a one-syllable e that keep it close: be, te, se, ve
+# and he. Everything else the language ends that way is open -- ple, fe, re --
+# and the reason it has to be asked this way round is the acute. caes.codepoints
+# keeps the grave and flattens the acute, so be and te reach the letter rules
+# as a plain e and there is nothing in the letter itself to tell them from fe.
+# The clitics que, de, me, te and se carry no stress and are schwas long before
+# any of this could matter.
+rule cat_close_final_e_head takes 1 from glob.obj
+  bare
+  call test_string_s 1 1 sym cat_letter_b
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_t
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_s
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_v
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_h
+end
+
 # The three words whose eu is the close vowel: meu, teu, seu. Everything else
 # the language ends in -eu is open -- deu, peu, neu, creu, beu, veu, preu --
 # and so is every second person plural in -eu, canteu and beveu and veieu.
@@ -237,7 +265,9 @@ end
 # not asked about at all where the tail is enough to name the word.
 #
 # volta and revolta are open where molt is close, which is the same shape and
-# the other vowel, and is why this list exists rather than another ending.
+# the other vowel, and is why this list exists rather than another ending. The
+# v is asked about as well as the tail, because escolta ends in -lta too and
+# is the close one.
 rule cat_open_o_word takes 3 from glob.obj
   bare
   call ZZlpta_load__setscan_r__1 arg 2
@@ -246,7 +276,13 @@ rule cat_open_o_word takes 3 from glob.obj
     if answer is 0
       call cat_after_one_more
       if answer is 0
-        answer 0
+        call ZZlpta_load__setscan_l__1 arg 1
+        if answer is 0
+          call test_string_s 1 1 sym cat_letter_v          # volta, revolta
+          if answer is 0
+            answer 0
+          end
+        end
       end
     end
   end

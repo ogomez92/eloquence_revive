@@ -1321,6 +1321,17 @@ at glob.obj sym_1083 caes_evv_glob_data_3 252
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 # And the constants of our own, out of rules/constants by tools/delta-consts.py.
 store caes_evv_authored_data
 at * cat_ph_dzz caes_evv_authored_data 0
