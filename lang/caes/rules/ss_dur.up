@@ -55,3 +55,24 @@ place on_its_own
   set global half 2074 to 80
   match
 end
+
+# And ll lasts what a consonant lasts, not what a glide lasts.
+#
+# Castilian's ll is its y, so IBM gave span_ph_L_dur 35 milliseconds and a 20
+# millisecond transition on top -- a glide, which is what a yeista ll is. The
+# transition is the giveaway: a stop is given one and no sonorant in the
+# module is, and it is what made the vowel slide into the ll over fifty
+# milliseconds instead of meeting it.
+#
+# Catalan's ll is a consonant and its own sister says how long one lasts:
+# span_ph_N_dur gives the palatal nasal 75 flat, and ny and ll are the same
+# articulation with the velum up and down. So 75, flat, and no transition --
+# the same shape span_ph_N_dur has, which is the shape this one should have
+# had all along. It matters more here than a duration usually does: the
+# engine has no antiformant, so length is one of the few cues left for saying
+# a lateral rather than the glide it otherwise measures as.
+rule span_ph_L_dur takes 1 from ss_dur.obj
+  call ZZfence_null
+  set global half 2074 to 75
+  match
+end

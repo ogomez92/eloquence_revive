@@ -6803,7 +6803,5 @@ at glob.obj ZZstring222 enus_evv_glob_data_3 860
 at glob.obj ZZstring327 enus_evv_glob_data_3 1340
 
 # And the constants of our own, out of rules/constants by tools/delta-consts.py.
-
-# And the constants of our own, out of rules/constants by tools/delta-consts.py.
 store enus_evv_authored_data
 at * lex_prefix_re enus_evv_authored_data 0

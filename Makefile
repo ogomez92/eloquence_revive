@@ -523,9 +523,17 @@ rules: $(GENERATED)
 # pattern rule may only have the one stem. EVV_LANG_DIR is how the decompiler
 # is told which language to read; without it, `make LANG=lang/dede rules'
 # would write English out into lang/dede.
+#
+# The bytecode is a prerequisite as much as the decompiler is, and
+# leaving it out is a trap rather than a saving. This file is not in the
+# tree, C is the default, and nothing else says when it is out of date --
+# so a rule edited in .up or in .dr rebuilt the bytecode, left a
+# decompilation of the rule before it lying beside it, and the default
+# build went on speaking the old sound with every test passing.
 define rules_for
 $(1)/delta_rules_c_$(notdir $(1)).c: tools/delta-decompile.py \
-                                     tools/delta-census.py
+                                     tools/delta-census.py \
+                                     $(1)/delta_rules_$(notdir $(1)).c
 	@EVV_LANG_DIR=$(1) python3 tools/delta-decompile.py all
 endef
 $(foreach l,$(LANGS),$(eval $(call rules_for,$(l))))

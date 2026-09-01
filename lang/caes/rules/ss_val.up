@@ -35,3 +35,75 @@ rule span_ph_j takes 1 from ss_val.obj
   call ZZfence_null
   match
 end
+
+# ---- ll, which is a lateral and was coming out a y -----------------------
+#
+# Castilian is yeista: its ll is the palatal fricative /ʝ/, the sound of yo,
+# and IBM wrote span_ph_L as one. It lays the glide's first formant down at
+# 300, hands the source to cast_ph_L -- a voice bar and three amplitudes, all
+# of them frication -- and then asks span_high_pal_Fv for the palatal place.
+# Measured on our own output that came out indistinguishable from the y of
+# aia: 297 Hz, 2005 and 2655 in both, the only difference being that the L is
+# 7 dB quieter, which is a y and nothing else. Guillem was Guiyem.
+#
+# Catalan's ll is a lateral. It is not an accent or a refinement: llum, palla,
+# mirall, ella, Guillem, and it stands where Castilian has neither ll nor y.
+# So this rule is the sound written again as what it is -- the palatal place,
+# and the manner of an l.
+#
+# The place is span_high_pal_Fv, which is the same locus the palatal nasal
+# asks for. ll is to ny what l is to n: one lateral, one nasal, the tongue in
+# the same place for both. Calling it rather than writing six numbers keeps
+# its coarticulation, which is the whole of what a locus rule is for -- it
+# lifts the second formant beside an i and drops it beside a back vowel, and
+# a rule of ours with flat targets would throw all of that away.
+#
+# What is changed against the locus is the second formant, down 200 Hz, and
+# that number is the synthesiser's rather than the language's. Say what it is
+# not first: the published measurements do not put a Catalan /ʎ/ two hundred
+# hertz below a y. They put the two of them close -- /ʎ/ averaging about 2000
+# and a y between 2000 and 2500 -- and that closeness is the reason the sound
+# is being lost, in Catalan as it was in Castilian. What tells them apart is
+# the lateral channel, which puts a zero in the spectrum, and this engine has
+# no antiformant to put one with.
+#
+# So the contrast has to be made out of what there is, and the second formant
+# is the one thing here that can carry part of it. It cannot be made by moving
+# the y, which is a phoneme of Catalan's in its own right and already sits at
+# the bottom of the published range at 2000; so the ll goes down instead, to
+# 1800, which leaves the two about as far apart as the published averages are
+# and keeps the ll out of the y's range. It is a number to settle by ear, as
+# Polish's two sibilant loci were, and where the ear has not settled it this
+# says so.
+#
+# The manner is the four bandwidths and the amplitude of voicing that
+# span_ph_l ends on -- 80, 150, 100 and 200, against the 120, 200, 300
+# and 330 span_ph_B is given. A narrow first and third and a wide fourth is
+# what a lateral is
+# here: the fourth formant damped is this synthesiser's nearest thing to the
+# zero a lateral channel really puts there, and it is IBM's own reading of the
+# sound rather than one of ours. The amplitude of voicing has to be set at all
+# because it is reset to nought for every phone -- cast_ph_L was where L got
+# its 45 -- so dropping cast_ph_L without this would make ll silent.
+#
+# The first formant is left where IBM had it, at 300. That is already the
+# lateral's own number here -- span_ph_l sets 300 against the a's 660 -- and
+# it is inside the range the measurements give a palatal lateral, which is 300
+# to 500. It is not the cue, and moving it would be a number nothing supports.
+#
+# What is not kept is cast_ph_L. Its voice bar and its three amplitudes are
+# the frication of a Castilian /ʝ/, and a lateral has none.
+rule span_ph_L takes 1 from ss_val.obj
+  call ZZfence_null
+  set global half 2930 to 300                 # f1 in, IBM's own, unmoved
+  set global half 2934 to 300                 # f1 out
+  call span_high_pal_Fv                       # the place, and its neighbours
+  subtract 200 from global half 2938          # f2 in, off the palatal locus
+  subtract 200 from global half 2942          # f2 out
+  set global half 2754 to 50                  # the voicing a sonorant is given
+  set global half 2734 to 80                  # and the four bandwidths that
+  set global half 2738 to 150                 # make a lateral of it, which are
+  set global half 2742 to 100                 # the ones span_ph_l ends on
+  set global half 2746 to 200
+  match
+end

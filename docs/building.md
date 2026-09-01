@@ -626,7 +626,7 @@ is therefore the one to build while working on anything but the rules, and
 
     make RULES=c
 
-says the default out loud, which is worth doing in a script. `make rules` writes the file without building anything. It is not kept in the tree, because every change to the decompiler rewrites the whole of it.
+says the default out loud, which is worth doing in a script. `make rules` writes the file without building anything. It is not kept in the tree, because every change to the decompiler rewrites the whole of it. It is written again when the bytecode beside it moves, as well as when the decompiler does, and that dependency was missing until 1 September 2026: a rule edited in `.up` or in `.dr` rebuilt the bytecode and left a decompilation of the rule before it lying beside it, so the default build went on speaking the old sound with every check passing. Nothing else says when that file is stale.
 
 ## Languages
 

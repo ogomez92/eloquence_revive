@@ -1401,34 +1401,6 @@ at glob.obj ZZstring104 plpl_evv_glob_data_3 264
 at glob.obj ZZstring130 plpl_evv_glob_data_3 372
 
 # And the constants of our own, out of rules/constants by tools/delta-consts.py.
-
-# And the constants of our own, out of rules/constants by tools/delta-consts.py.
-
-# And the constants of our own, out of rules/constants by tools/delta-consts.py.
-
-# And the constants of our own, out of rules/constants by tools/delta-consts.py.
-
-# And the constants of our own, out of rules/constants by tools/delta-consts.py.
-
-# And the constants of our own, out of rules/constants by tools/delta-consts.py.
-
-# And the constants of our own, out of rules/constants by tools/delta-consts.py.
-
-# And the constants of our own, out of rules/constants by tools/delta-consts.py.
-
-# And the constants of our own, out of rules/constants by tools/delta-consts.py.
-
-# And the constants of our own, out of rules/constants by tools/delta-consts.py.
-
-# And the constants of our own, out of rules/constants by tools/delta-consts.py.
-
-# And the constants of our own, out of rules/constants by tools/delta-consts.py.
-
-# And the constants of our own, out of rules/constants by tools/delta-consts.py.
-
-# And the constants of our own, out of rules/constants by tools/delta-consts.py.
-
-# And the constants of our own, out of rules/constants by tools/delta-consts.py.
 store plpl_evv_authored_data
 at * pol_letter_aogonek plpl_evv_authored_data 0
 at * pol_letter_cacute plpl_evv_authored_data 1
