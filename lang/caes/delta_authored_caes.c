@@ -31,25 +31,25 @@ uint8_t caes_evv_authored_data[] = {
     /* cat_num_zero, 4 bytes at 9 */
     31,2,24,4,
     /* cat_num_un, 3 bytes at 13 */
-    16,5,21,
+    16,111,21,
     /* cat_num_dos, 3 bytes at 16 */
-    13,4,25,
+    13,110,25,
     /* cat_num_tres, 4 bytes at 19 */
-    26,24,2,25,
+    26,24,98,25,
     /* cat_num_quatre, 6 bytes at 23 */
     23,5,1,26,24,2,
     /* cat_num_cinc, 4 bytes at 29 */
     12,3,21,12,
     /* cat_num_sis, 4 bytes at 33 */
-    25,25,3,25,
+    25,25,109,25,
     /* cat_num_set, 4 bytes at 37 */
-    25,25,2,26,
+    25,25,98,26,
     /* cat_num_vuit, 4 bytes at 41 */
-    27,5,3,26,
+    27,111,3,26,
     /* cat_num_nou, 3 bytes at 45 */
-    21,4,5,
+    21,100,5,
     /* cat_num_deu, 3 bytes at 48 */
-    13,2,5,
+    13,98,5,
     /* cat_num_onze, 4 bytes at 51 */
     4,21,31,2,
     /* cat_num_dotze, 5 bytes at 55 */
@@ -61,33 +61,33 @@ uint8_t caes_evv_authored_data[] = {
     /* cat_num_quinze, 6 bytes at 73 */
     23,5,3,21,31,2,
     /* cat_num_setze, 5 bytes at 79 */
-    25,2,26,31,2,
+    25,98,26,31,2,
     /* cat_num_disset, 6 bytes at 84 */
-    13,3,25,25,2,26,
+    13,3,25,25,98,26,
     /* cat_num_divuit, 6 bytes at 90 */
     13,3,27,5,3,26,
     /* cat_num_dinou, 5 bytes at 96 */
-    13,3,21,4,5,
+    13,3,21,100,5,
     /* cat_num_vint, 4 bytes at 101 */
     27,3,21,26,
     /* cat_num_vintiun, 8 bytes at 105 */
-    27,3,21,26,3,16,5,21,
+    27,3,21,26,3,16,111,21,
     /* cat_num_vintidos, 8 bytes at 113 */
-    27,3,21,26,3,13,4,25,
+    27,3,21,26,3,13,110,25,
     /* cat_num_vintitres, 9 bytes at 121 */
-    27,3,21,26,3,26,24,2,25,
+    27,3,21,26,3,26,24,98,25,
     /* cat_num_vintiquatre, 11 bytes at 130 */
     27,3,21,26,3,23,5,1,26,24,2,
     /* cat_num_vinticinc, 9 bytes at 141 */
     27,3,21,26,3,12,3,21,12,
     /* cat_num_vintisis, 9 bytes at 150 */
-    27,3,21,26,3,25,25,3,25,
+    27,3,21,26,3,25,25,109,25,
     /* cat_num_vintiset, 9 bytes at 159 */
-    27,3,21,26,3,25,25,2,26,
+    27,3,21,26,3,25,25,98,26,
     /* cat_num_vintivuit, 9 bytes at 168 */
-    27,3,21,26,3,27,5,3,26,
+    27,3,21,26,3,27,111,3,26,
     /* cat_num_vintinou, 8 bytes at 177 */
-    27,3,21,26,3,21,4,5,
+    27,3,21,26,3,21,100,5,
     /* cat_num_noranta, 8 bytes at 185 */
     21,4,24,1,21,26,1,72,
     /* cat_num_quaranta, 8 bytes at 193 */
@@ -102,15 +102,17 @@ uint8_t caes_evv_authored_data[] = {
     25,2,26,1,21,26,1,72,
     /* cat_num_vuitanta, 8 bytes at 234 */
     27,5,3,26,1,21,26,1,
-    /* cat_num_join, 1 bytes at 242 */
-    199,
-    /* cat_ph_mute, 1 bytes at 243 */
+    /* cat_num_join, 2 bytes at 242 */
+    199,72,
+    /* cat_ph_d, 1 bytes at 244 */
+    5,
+    /* cat_ph_mute, 1 bytes at 245 */
     16,
-    /* cat_ph_final_n, 1 bytes at 244 */
+    /* cat_ph_final_n, 1 bytes at 246 */
     15,
-    /* cat_ph_zz, 1 bytes at 245 */
+    /* cat_ph_zz, 1 bytes at 247 */
     18,
-    /* cat_ph_ysh, 2 bytes at 246 */
+    /* cat_ph_ysh, 2 bytes at 248 */
     29,17,
 };
 

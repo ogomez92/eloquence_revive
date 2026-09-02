@@ -76,3 +76,35 @@ rule span_ph_L_dur takes 1 from ss_dur.obj
   set global half 2074 to 75
   match
 end
+
+# And the voiced postalveolar lasts what a fricative lasts too.
+#
+# Castilian declares Z and never reaches it either, and the number IBM left
+# in span_ph_Z_dur was 20, flat -- the release of an affricate, if it was
+# ever meant for anything, and not a fricative. Catalan reaches it in every
+# j and every g before e and i, and 20 milliseconds of it between vowels is
+# a flick rather than a sound: dijous, pluja and llegeix had a fricative a
+# third the length of the z of casa, which is 60.
+#
+# 70 is where it belongs on its own: longer than the z, as the postalveolar S
+# is longer than the s at 80 against 65, and voiced fricatives run shorter
+# than their voiceless pairs. What is kept is the one context that wants the
+# short one, the Z of an affricate -- j at the start of a word, after a
+# consonant, and the tg and tj of metge and platja all lay a d down in front
+# of it -- which takes 40, exactly what the S of tx takes after its t.
+rule span_ph_Z_dur takes 1 from ss_dur.obj
+  call ZZfence_null
+  plant test on_its_own
+  call ZZlpta_load_vvg__setscan_0103l__4
+  if answer is 0
+    call test_string_s 4 1 sym cat_ph_d                       # a d before it?
+    if answer is 0
+      set global half 2074 to 40
+      match
+    end
+  end
+  backtrack
+place on_its_own
+  set global half 2074 to 70
+  match
+end

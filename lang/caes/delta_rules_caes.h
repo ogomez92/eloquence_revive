@@ -1887,7 +1887,6 @@ enum {
     DELTA_ENTRY_test_string_i = 1836,
     DELTA_ENTRY_test_synch = 1837,
     DELTA_ENTRY_cat_vowel_step = 1838,
-    DELTA_ENTRY_cat_nasal_lateral_here = 1839,
 };
 
 /* The largest frame any rule asks for, base and arguments

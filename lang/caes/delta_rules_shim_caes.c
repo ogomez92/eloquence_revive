@@ -17406,15 +17406,6 @@ int32_t caes_cat_test_final_n(int32_t a0)
                           &caes_delta_rules[1742], a, 1);
 }
 
-int32_t caes_cat_nasal_lateral_here(int32_t a0)
-{
-    int32_t a[1];
-
-    a[0] = a0;
-    return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1743], a, 1);
-}
-
 int32_t caes_cat_insert_zz(int32_t a0, int32_t a1, int32_t a2)
 {
     int32_t a[3];
@@ -17423,7 +17414,7 @@ int32_t caes_cat_insert_zz(int32_t a0, int32_t a1, int32_t a2)
     a[1] = a1;
     a[2] = a2;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1744], a, 3);
+                          &caes_delta_rules[1743], a, 3);
 }
 
 int32_t caes_cat_palatal_follows(int32_t a0)
@@ -17432,6 +17423,6 @@ int32_t caes_cat_palatal_follows(int32_t a0)
 
     a[0] = a0;
     return delta_run_rule((void *)(intptr_t)a0,
-                          &caes_delta_rules[1745], a, 1);
+                          &caes_delta_rules[1744], a, 1);
 }
 

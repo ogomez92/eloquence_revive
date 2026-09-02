@@ -47,50 +47,71 @@ bytes cat_ph_oopen 27        # the open o, phone 39
 # what delta-dict.py writes is reached by an address the arena does not know.
 # So the digits are laid down by a rule instead, out of bytes of ours, which
 # is a store the arena is told about.
+#
+# Most are spelled with an accent, and the accent does two jobs. A vowel
+# that carries one takes the word's stress, which is what puts vintiun's
+# stress on the un and vintissis's on the sis, where the stress rule, reading
+# the last letter, put both a syllable back. And the accent says which of
+# the two mid vowels it is: set is [s E t] and nou [n O w], open, so they
+# carry a grave, and dos is [d o s], close, so it carries an acute. On its
+# own each digit is one syllable and the accent changes nothing but the
+# vowel; in a compound it is the stress.
+#
+# Two are left plain, because their accented spelling reads wrong here and
+# the stress rule already puts them right: quatre ends in a vowel and takes
+# the penultimate, cinc ends in a consonant and takes the last, alone and
+# after vinti alike. An a with a grave is dropped by the letter rules, so
+# quatre with one came out [k w t r e], and a c before an i with an acute is
+# read as a k, so cinc with one came out [k i ng k].
+#
+# un is written hun, because an h says nothing and an i before a u would
+# otherwise make the u a glide: vintihun is [b i n t i u n] and not
+# [b i n t i w n]. sis and set are written with two esses, because a single s
+# between two vowels is voiced in Catalan and here it must not be: vintissis
+# is [b i n t i s i s].
 bytes cat_num_zero    1f 02 18 04         # zero
-bytes cat_num_un      10 05 15               # un
-bytes cat_num_dos     0d 04 19            # dos
-bytes cat_num_tres    1a 18 02 19         # tres
+bytes cat_num_un      10 6f 15            # hun, u acute
+bytes cat_num_dos     0d 6e 19            # dos, o acute
+bytes cat_num_tres    1a 18 62 19         # tres, e grave
 bytes cat_num_quatre  17 05 01 1a 18 02   # quatre
 bytes cat_num_cinc    0c 03 15 0c         # cinc
-bytes cat_num_sis     19 19 03 19            # sis
-bytes cat_num_set     19 19 02 1a            # set
-bytes cat_num_vuit    1b 05 03 1a         # vuit
-bytes cat_num_nou     15 04 05            # nou
+bytes cat_num_sis     19 19 6d 19         # ssis, i acute
+bytes cat_num_set     19 19 62 1a         # sset, e grave
+bytes cat_num_vuit    1b 6f 03 1a         # vuit, u acute
+bytes cat_num_nou     15 64 05            # nou, o grave
 
 # And the teens, which Catalan makes its own way: ten is deu, and eleven to
 # sixteen are one word each where seventeen to nineteen are dis- and di- on
 # the front of seven, eight and nine.
-bytes cat_num_deu     0d 02 05                  # deu
+bytes cat_num_deu     0d 62 05                  # deu, e grave
 bytes cat_num_onze    04 15 1f 02               # onze
 bytes cat_num_dotze   0d 04 1a 1f 02            # dotze
 bytes cat_num_tretze  1a 18 02 1a 1f 02         # tretze
 bytes cat_num_catorze 0c 01 1a 04 18 1f 02      # catorze
 bytes cat_num_quinze  17 05 03 15 1f 02         # quinze
-bytes cat_num_setze   19 02 1a 1f 02            # setze
-bytes cat_num_disset  0d 03 19 19 02 1a         # disset
+bytes cat_num_setze   19 62 1a 1f 02            # setze, e grave
+bytes cat_num_disset  0d 03 19 19 62 1a         # disset, e grave
 bytes cat_num_divuit  0d 03 1b 05 03 1a         # divuit
-bytes cat_num_dinou   0d 03 15 04 05            # dinou
+bytes cat_num_dinou   0d 03 15 64 05            # dinou, o grave
 
-# Twenty to twenty-nine. Catalan runs a compound number together into one
-# word -- vinticinc, not vint i cinc -- so these carry no spaces.
-#
-# Two of them are spelled for the sound rather than for the page. un is
-# written hun, because an h says nothing and an i before a u would otherwise
-# make the u a glide: vintiun is [b i n t i u n] and not [b i n t i w n]. sis
-# and set are written with two esses, because a single s between two vowels is
-# voiced in Catalan and here it must not be: vintissis is [b i n t i s i s].
-# The same two spellings serve the bare digits, which come out the same.
+# Twenty to twenty-nine. Catalan writes vint-i-un as one word with the i in
+# it, and it goes in as one word here: the i cannot be a word of its own,
+# because the conjunction i is a stressed content word in this module, which
+# docs/status.md records, and a stressed i between vint and un is not a
+# number anybody says. The unit carries the accent, so the stress goes to it:
+# vintihun with the acute is [b i n t i u n] with the un stressed, where
+# without it the rule that reads the last letter put the stress on the ti.
+# The paragraph above says why the h and the double s.
 bytes cat_num_vint         1b 03 15 1a
-bytes cat_num_vintiun      1b 03 15 1a 03 10 05 15
-bytes cat_num_vintidos     1b 03 15 1a 03 0d 04 19
-bytes cat_num_vintitres    1b 03 15 1a 03 1a 18 02 19
+bytes cat_num_vintiun      1b 03 15 1a 03 10 6f 15
+bytes cat_num_vintidos     1b 03 15 1a 03 0d 6e 19
+bytes cat_num_vintitres    1b 03 15 1a 03 1a 18 62 19
 bytes cat_num_vintiquatre  1b 03 15 1a 03 17 05 01 1a 18 02
 bytes cat_num_vinticinc    1b 03 15 1a 03 0c 03 15 0c
-bytes cat_num_vintisis     1b 03 15 1a 03 19 19 03 19
-bytes cat_num_vintiset     1b 03 15 1a 03 19 19 02 1a
-bytes cat_num_vintivuit    1b 03 15 1a 03 1b 05 03 1a
-bytes cat_num_vintinou     1b 03 15 1a 03 15 04 05
+bytes cat_num_vintisis     1b 03 15 1a 03 19 19 6d 19
+bytes cat_num_vintiset     1b 03 15 1a 03 19 19 62 1a
+bytes cat_num_vintivuit    1b 03 15 1a 03 1b 6f 03 1a
+bytes cat_num_vintinou     1b 03 15 1a 03 15 64 05
 
 # The tens that fit where Castilian's stand. convert_span_double pushes a
 # symbol and inserts a fixed number of characters from it, so a Catalan word
@@ -107,13 +128,28 @@ bytes cat_num_seixanta 19 02 03 1d 01 15 1a 01      # seixanta, for sesenta
 bytes cat_num_setanta  19 02 1a 01 15 1a 01 48      # setanta, padded to eight
 bytes cat_num_vuitanta 1b 05 03 1a 01 15 1a 01      # vuitanta, for ochenta
 
-# The mark Castilian's number machinery puts between the pieces of a compound
-# number. It says nothing and it is not a letter, which is exactly what a
-# Catalan compound wants between its halves: quarantacinc is one word, but the
-# s of sis must not voice the way an s between two vowels does, and the u of
-# vintiun must stay a vowel rather than gliding after the i. A character with
-# no record in the alphabet fails both of those tests and is silent besides.
-bytes cat_num_join c7
+# What goes between the pieces of a compound number: a word boundary and a
+# space, which are two characters here. c7 is the mark IBM's own insert_space
+# lays down in front of every space it makes, and it is the mark and not the
+# space that build_words ends a word at -- a space put in on its own was
+# walked over as if it were a letter, and quaranta hun stayed one word of
+# eleven letters.
+#
+# Thirty-one to ninety-nine are said as two words, trenta and un, quaranta
+# and cinc, because the machine gives a word one stress and reduces every
+# other vowel: as one word quarantacinc came out [k w @ r @ n t @ s i ng k]
+# with the a of ranta gone to a schwa, and seixantasis put its stress on the
+# ta. Said as two words each half keeps its own vowel and its own stress,
+# which is what a Catalan compound does -- quaranta-cinc is
+# [k w @ r a n t @ s i ng k], with the secondary stress on ranta that the
+# hyphen writes. The twenties are one word each and do not come through here.
+bytes cat_num_join c7 48
+
+# The d a letter rule lays in front of the voiced postalveolar to make the
+# affricate of it. span_ph_Z_dur asks whether one stands before the Z, which
+# is how it knows the fricative is the second half of an affricate and gives
+# it the short duration.
+bytes cat_ph_d 05
 
 # The velar fricative's code, retaken. Catalan has no such sound: j and g
 # before e and i are the voiced postalveolar here, so no Catalan spelling

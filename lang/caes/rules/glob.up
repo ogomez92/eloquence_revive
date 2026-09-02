@@ -112,21 +112,20 @@ rule cat_voiceless_follows takes 1 from glob.obj
   call ZZtest_string_s_1_1_ZZstring48                  # f
 end
 
-# Nothing at all, laid down where Castilian lays down a joiner.
+# A word boundary and a space, laid down where Castilian lays down a joiner.
 #
 # Castilian writes a two-digit number as three words -- cuarenta y cinco --
 # and convert_span_double puts the space and the y in between with two calls.
-# Catalan writes the same number as one: quarantacinc, vinticinc. So the two
-# call sites in that rule are pointed at these, which take what they are given
-# and lay down nothing, and the tens word and the unit meet with no boundary
-# between them.
-#
-# The first lays down the mark alone, which joins the two halves without a
-# space and keeps the rules that ask about neighbouring letters from reading
-# across it. The second lays down nothing, which is where the y went.
+# Catalan writes quaranta-cinc and says it as a compound: two stresses, the
+# main one on the unit, and neither half's vowels reduced. The machine gives
+# one word one stress, so the two call sites in that rule are pointed at
+# these: the first lays down the boundary mark and a space, which makes two
+# words of the halves and lets each keep its stress and its vowels, and the
+# second lays down nothing, which is where the y went. rules/constants says
+# what the one-word form sounded like and why the mark is needed.
 rule cat_insert_join takes 1 from glob.obj
   bare
-  call insert_l 1 1 sym cat_num_join 0
+  call insert_l 1 2 sym cat_num_join 0
 end
 
 rule cat_insert_nothing_given takes 2 from glob.obj
@@ -280,52 +279,42 @@ rule cat_test_final_n takes 1 from glob.obj
 end
 
 
-# ---- j and g before e or i, which harden after a nasal or a lateral -------
+# ---- j and g before e or i: the affricate, except between vowels ---------
 
-# Catalan says the voiced postalveolar as a fricative on its own -- jove is
-# [Z O B @], gener [Z @ n e] -- and as an affricate directly after a nasal or
-# a lateral: penjat is [p @ N d Z a t], menjar [m @ N d Z a], mengen
-# [m e N d Z @ n], angel [a N d Z @ l]. It is the same sound tg and tj already
-# spell in metge and platja, which is why the bytes it lays down are the ones
-# rules/constants already holds for those.
+# Catalan says the voiced postalveolar two ways. Between vowels it is the
+# fricative on its own -- dijous is [d i Z o w s], pluja [p l u Z @], llegeix
+# [L @ Z e y S]. At the start of a word and after a consonant it is the
+# affricate: jove is [d Z o B @], gener [d Z @ n e], Girona [d Z i r o n @],
+# penjat [p @ N d Z a t], menjar [m @ N d Z a], angel [a N d Z @ l]. The
+# fricative at the start of a word was what a listener heard as a zh and not
+# as Catalan, and Central Catalan does say the affricate there. It is the
+# same affricate tg and tj already spell in metge and platja, which is why
+# the bytes it lays down are the ones rules/constants already holds for
+# those.
 #
 # The letter is where this can be asked, because a letter rule is handed the
-# run it is reading and the scan will walk either way from it. What it cannot
-# see is the word before, so el jove keeps the fricative where a Catalan
-# speaker would harden it; that is a phrase-level rule and this is not it.
-
-# Whether the letter the scan has been set to is one of the two that harden a
-# following j. The caller sets the scan; a test that fails leaves it where it
-# was, so the two can be asked one after the other, and answering 0 is a match
-# as test_string_s answers it.
-rule cat_nasal_lateral_here takes 1 from glob.obj
-  bare
-  call ZZtest_string_s_1_1_ZZstring84                  # an n
-  if answer is 0
-    answer 0
-  end
-  call ZZtest_string_s_1_1_ZZstring69                  # or an l
-end
+# run it is reading and the scan will walk either way from it. At the start
+# of a word the leftward scan does not fail: it lands on the boundary, and a
+# boundary is not a vowel, so the start of a word takes the affricate without
+# a test of its own. What the rule cannot see is the word before, so la jove
+# takes the affricate too, where a careful speaker keeps the fricative across
+# the boundary; most Barcelona speech hardens it there as well.
 
 # Lay the voiced postalveolar down between the two ends a letter rule was
-# handed: two phones after a nasal or a lateral and one everywhere else.
-#
-# The scan is set leftwards from the left-hand end, which is the letter before
-# the one being read. A scan that cannot be set is the start of the word, and
-# there is nothing there to harden against.
+# handed: one phone after a vowel and two everywhere else.
 rule cat_insert_zz takes 3 from glob.obj
   bare
   call ZZlpta_load__setscan_l__1 arg 1
   if answer is 0
-    call cat_nasal_lateral_here
+    call ZZtestFldeq1_4_1                                # a vowel before it?
     if answer is 0
       call lpta_rpta_loadp arg 1 arg 2
-      call insert_2pt_s 4 2 sym cat_ph_dzz 0
+      call insert_2pt_s 4 1 sym cat_ph_zz 0
       answer answer
     end
   end
   call lpta_rpta_loadp arg 1 arg 2
-  call insert_2pt_s 4 1 sym cat_ph_zz 0
+  call insert_2pt_s 4 2 sym cat_ph_dzz 0
 end
 
 

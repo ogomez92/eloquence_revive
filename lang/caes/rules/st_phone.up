@@ -31,9 +31,10 @@
 # Catalan j is the voiced postalveolar, not Spanish's velar fricative: jove is
 # not jota. g before e and i is the same sound and is below.
 #
-# After a nasal or a lateral it is the affricate rather than the fricative --
-# penjat, menjar, angel -- which is what cat_insert_zz decides; glob.up says
-# why the letter is where that can be asked and what it cannot see.
+# Between vowels it is the fricative and everywhere else -- at the start of a
+# word, after a nasal, a lateral or any other consonant -- the affricate,
+# which is what cat_insert_zz decides; glob.up says why the letter is where
+# that can be asked and what it cannot see.
 rule apply_span_j_rules takes 3 from st_phone.obj
   local left bytes 8
   local right bytes 8

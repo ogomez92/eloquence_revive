@@ -113,7 +113,8 @@ rise-then-fall can end in the same place.
 
 @ is the schwa, E and O the open e and o, Z the voiced postalveolar and S its
 voiceless pair, N the palatal nasal, L the palatal lateral, B D G the lenited
-stops, y and w the glides.
+stops, y and w the glides. A compound number from 31 up is two words, which
+is how each half keeps its vowel and its stress.
 
 casa               k a z @
 dia                d i @
@@ -121,6 +122,7 @@ cafè               k @ f E
 dòna               d O n @
 caixa              k a y S @
 dijous             d i Z o w s
+jove               d Z o B @
 quinze             k i n z @
 fred               f r e t
 dissabte           d i s a p t @
@@ -130,6 +132,6 @@ Barcelona          b @ r s @ l o n @
 5                  s i ng k
 12                 d o d z @
 25                 b i n t i s i ng k
-45                 k w @ r @ n t @ s i ng k
-66                 s @ S @ n t a s i s
+45                 k w @ r a n t @ s i ng k
+66                 s @ y S a n t @ s i s
 99                 n u r a n t @ n o w
