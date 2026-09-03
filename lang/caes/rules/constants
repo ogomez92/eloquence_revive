@@ -99,8 +99,10 @@ bytes cat_num_dinou   0d 03 15 64 05            # dinou, o grave
 # because the conjunction i is a stressed content word in this module, which
 # docs/status.md records, and a stressed i between vint and un is not a
 # number anybody says. The unit carries the accent, so the stress goes to it:
-# vintihun with the acute is [b i n t i u n] with the un stressed, where
-# without it the rule that reads the last letter put the stress on the ti.
+# vintihú with the acute is [b i n t i u] with the u stressed, where without
+# it the rule that reads the last letter put the stress on the ti. Twenty-one
+# ends in the bare u, the way Catalan counts, and cat_num_vintiu below is
+# the one the rule lays; vintiun is kept as the record of the other form.
 # The paragraph above says why the h and the double s.
 bytes cat_num_vint         1b 03 15 1a
 bytes cat_num_vintiun      1b 03 15 1a 03 10 6f 15
@@ -116,34 +118,35 @@ bytes cat_num_vintinou     1b 03 15 1a 03 15 64 05
 # The tens that fit where Castilian's stand. convert_span_double pushes a
 # symbol and inserts a fixed number of characters from it, so a Catalan word
 # of the same length goes in its place by pointing the push at bytes of ours.
-bytes cat_num_noranta   15 04 18 01 15 1a 01 48      # noranta, padded to eight
+bytes cat_num_noranta   15 04 18 01 15 1a 01         # noranta, for noventa
 bytes cat_num_quaranta  17 05 01 18 01 15 1a 01      # quaranta, for cuarenta
 bytes cat_num_cinquanta 0c 03 15 17 05 01 15 1a 01   # cinquanta, for cincuenta
 
-# Three more tens. trenta is padded to the eight characters the arm it shares
-# lays down; seixanta wants one more than sesenta did, so its call site is
-# widened by a character too; setanta is exactly as long as setenta.
-bytes cat_num_trenta   1a 18 02 15 1a 01 48 48      # trenta, padded, for treinta
+# Three more tens. Each is exactly as wide as its insert now: the arm that
+# lays down eight characters was given trenta and vuitanta a call each of
+# their own, and noranta and setanta share one of seven. They used to be
+# padded with spaces to the width of Castilian's word, and the padding was
+# harmless while the halves of a compound were two words -- a space more
+# between them changed nothing -- and is not now that they are one.
+bytes cat_num_trenta   1a 18 02 15 1a 01            # trenta, for treinta
 bytes cat_num_seixanta 19 02 03 1d 01 15 1a 01      # seixanta, for sesenta
-bytes cat_num_setanta  19 02 1a 01 15 1a 01 48      # setanta, padded to eight
+bytes cat_num_setanta  19 02 1a 01 15 1a 01         # setanta, for setenta
 bytes cat_num_vuitanta 1b 05 03 1a 01 15 1a 01      # vuitanta, for ochenta
 
-# What goes between the pieces of a compound number: a word boundary and a
-# space, which are two characters here. c7 is the mark IBM's own insert_space
-# lays down in front of every space it makes, and it is the mark and not the
-# space that build_words ends a word at -- a space put in on its own was
-# walked over as if it were a letter, and quaranta hun stayed one word of
-# eleven letters.
+# What goes between the pieces of a compound number: nothing. Castilian
+# writes a two-digit number as three words, cuarenta y cinco, and
+# convert_span_double lays down the space and the y with two calls; both call
+# sites now lay down nothing, so quaranta-cinc goes in as the one word
+# quarantacinc, and the accent the unit carries -- ssis, hun, dos -- is what
+# puts the stress on it: seixantassis is [s @ S @ n t @ s i s].
 #
-# Thirty-one to ninety-nine are said as two words, trenta and un, quaranta
-# and cinc, because the machine gives a word one stress and reduces every
-# other vowel: as one word quarantacinc came out [k w @ r @ n t @ s i ng k]
-# with the a of ranta gone to a schwa, and seixantasis put its stress on the
-# ta. Said as two words each half keeps its own vowel and its own stress,
-# which is what a Catalan compound does -- quaranta-cinc is
-# [k w @ r a n t @ s i ng k], with the secondary stress on ranta that the
-# hyphen writes. The twenties are one word each and do not come through here.
-bytes cat_num_join c7 48
+# It was two words for a while, joined by the boundary mark and a space that
+# IBM's own insert_space lays down, c7 then 48, because as one word the tens
+# lose their vowel: the machine gives a word one stress and reduces every
+# other a to the schwa, so the a of ranta goes where a Catalan speaker keeps
+# it. Said as two words each half kept its vowel and its stress, and that is
+# what was heard as two words, seixanta and then sis, and asked to be one.
+# The schwa in the tens is the price of that, and it is the smaller fault.
 
 # The d a letter rule lays in front of the voiced postalveolar to make the
 # affricate of it. span_ph_Z_dur asks whether one stands before the Z, which
@@ -155,8 +158,10 @@ bytes cat_ph_d 05
 # before e and i are the voiced postalveolar here, so no Catalan spelling
 # reaches phone 16 and the whole of the module's machinery for it -- an arm in
 # the value chain, an arm in the durations, a record every neighbour reads --
-# is standing idle. It is what a Catalan word-final r turns into, and
-# ss_val.up says what that then sounds like, which is nothing.
+# is standing idle. It is what a Catalan word-final r turns into so that the
+# stress is placed as for a word ending in a consonant, and st_phnol.up's
+# cat_drop_mute deletes it once that is done; ss_val.up says what one that
+# somehow survived would sound like, which is nothing.
 bytes cat_ph_mute 10
 
 # The phone a Catalan word ends an n with. Castilian velarises a word-final n
@@ -186,3 +191,159 @@ bytes cat_ph_zz 12
 # for and what cat_ph_dzz above already does for the affricates. The glide
 # first, then the fricative: y is 29 and S is 17.
 bytes cat_ph_ysh 1d 11
+
+# ---- the letters, as Catalan names them ---------------------------------
+#
+# A lone letter is spoken through span_char_name, the one dictionary of
+# Castilian's that was kept, because a letter with no name has nothing to say
+# and crashes. So x said ekis and h ache, which are Spanish's names for them
+# and not Catalan's. A Catalan word cannot be put in that dictionary for the
+# reason the digits found -- what delta-dict.py writes is named by an address
+# the arena does not know -- so the way past it is the way the digits took:
+# say them from a rule, out of bytes of ours.
+#
+# Six of the twenty-six are wrong to a Catalan ear, and the rest are Spanish
+# spellings of what Catalan says anyway. be, ce, de, ge, jota and zeta are
+# both languages'; efe and efa, ele and ela, eme and ema, ene and ena, erre
+# and erra, ka and ca, ku and cu come out as the same phonemes here, since an
+# unstressed a and an unstressed e are both the schwa. What is left is the
+# six below.
+#
+# u_integ.up says where they are laid down and glob.up how. A name goes in as
+# characters and the letter rules read it back, so hac is [a k] because h
+# says nothing, and essa is voiceless because a double s is.
+bytes cat_char_h      10
+bytes cat_char_bigh   25
+bytes cat_char_s      19
+bytes cat_char_bigs   2e
+bytes cat_char_v      1b
+bytes cat_char_bigv   30
+bytes cat_char_w      1c
+bytes cat_char_bigw   31
+bytes cat_char_x      1d
+bytes cat_char_bigx   32
+bytes cat_char_y      1e
+bytes cat_char_bigy   33
+
+# hac for ache, essa for ese -- which has to be spelled with two, because a
+# single s between two vowels is voiced here and the letter's name is not.
+bytes cat_name_hac    10 01 0c
+bytes cat_name_essa   02 19 19 01
+
+# ve for uve, and ve doble for uve doble. The two words are joined the way a
+# compound number's halves are, by the boundary mark and a space: c7 then 48,
+# which is what makes two words of them.
+bytes cat_name_ve     1b 02
+bytes cat_name_vedoble 1b 02 c7 48 0d 04 0b 13 02
+
+# ics for ekis, and i grega for i griega.
+bytes cat_name_ics    03 0c 19
+bytes cat_name_igrega 03 c7 48 0f 18 02 0f 01
+
+# ce trencada for ce cedilla, and jota with the open o Catalan says in it.
+# The name of c with a cedilla is the letter's own trade name here, and the
+# grave in jota is what the value chain reads to open the vowel: the letter
+# rules make a word-initial j the affricate, which is right for jove and is
+# what this name gets as well.
+bytes cat_char_cedilla    97
+bytes cat_char_bigcedilla 98
+bytes cat_char_j          11
+bytes cat_char_bigj       26
+bytes cat_name_cetrencada 0c 02 c7 48 1a 18 02 15 0c 01 0d 01
+bytes cat_name_jota       11 64 1a 01
+
+# And a bare nought, which is the one digit the number rules never see:
+# single_chars spells it as a character, so it said cero out of the same
+# Castilian dictionary the letters came from. It is the word the number
+# rules already hold.
+bytes cat_char_zero       35
+
+# ---- the hundreds, the thousands and the millions --------------------------
+#
+# These go where Castilian's words stand, the way the tens do: each of the
+# rules that says them pushes a symbol and inserts a fixed number of
+# characters from it, so a Catalan word of the same width goes in by pointing
+# the push at bytes of ours, and a word of another width by pointing the
+# insert at the wrapper for that width. The hundreds are regular in Catalan
+# where Castilian has quinientos, setecientos and novecientos, so the three
+# arms that said those are not taken any more and every digit from two to
+# nine goes the same way: the digit's word, then |cents and a space.
+#
+# Castilian lays down |cient and has the gender rules add os or as behind it
+# later, once the gender is known, and insert_span_gender finds the word to
+# add it to by its last four letters, ient. cents cannot be made that way,
+# so the whole of it goes in at once and the two endings the gender rules
+# would add are three spaces each. What is lost is dues-centes: a hundreds
+# word is masculine here whatever follows it.
+#
+# c7 on its own is the mark IBM's data puts between the pieces of one word,
+# quinient|os and nove|centésimo, and it does not end a word; c7 followed
+# by a space does. So dos|cents is one word, and cent| followed by the space
+# is a word with the rest of the number after it as another. Every string
+# insert_l lays down starts with the mark, IBM's and ours: one that did not,
+# nt after dosce, failed the insert and the rule backtracked into itself
+# until the stack ran out.
+bytes cat_num_cent_sp       48 0c 02 15 1a                          # " cent", where " cien" stood
+bytes cat_num_cent_join     48 0c 02 15 1a c7 48                    # " cent| ", where " ciento" stood
+bytes cat_num_centesim_sp   48 0c 02 15 1a 62 19 03 14 48           # " centèsim ", for " centésimo"
+bytes cat_num_centesim_join c7 0c 02 15 1a 62 19 03 14 48           # "|centèsim ", for "|centésimo"
+bytes cat_num_cents_join    c7 0c 6c 15 1a 19 48                    # "|cénts ", for "|cient"
+bytes cat_num_blank3        48 48 48                                # where os and as went
+
+# The digit in front of the hundreds. These are one word with the cents, and
+# a word has one stress, which reduces every other vowel: dos-cents came out
+# [d u s e n s] and tres-cents [t r @ s e n s], where a Catalan compound
+# keeps a stress on each half, [d o s s e n s] and [t r E s s e n s]. So
+# every one carries an accent, and so does the cénts behind it, and
+# st_phnol.up gives every accented vowel a stress rather than only the
+# first. The accent also says which mid vowel it is: très, sèt and nòu are
+# open and carry the grave, dós is close and carries the acute. The a of
+# quatre is written as the acute that the grave arrives as, rules/constants
+# says why above, and the i of cinc can carry one now that c before an
+# accented i is soft.
+bytes cat_num_dos_plain     0d 6e 19            # dós, o acute
+bytes cat_num_tres_plain    1a 18 62 19         # très, e grave
+bytes cat_num_quatre_acc    17 05 6b 1a 18 02   # quátre, for the hundreds
+bytes cat_num_cinc_plain    0c 6d 15 0c         # cínc, i acute
+bytes cat_num_sis_plain     19 6d 19            # sís, i acute
+bytes cat_num_set_plain     19 62 1a            # sèt, e grave
+bytes cat_num_vuit_plain    1b 6f 03 1a         # vúit, u acute
+bytes cat_num_nou_plain     15 64 05            # nòu, o grave
+
+# One at the end of a compound: vint-i-u, trenta-u, noranta-u, which end in
+# the bare u where the digit on its own is un. The h is the one hun has, so
+# that the vowel before it does not make the u a glide; the acute puts the
+# stress on it, the way the other units carry theirs.
+bytes cat_num_hu            10 6f                     # hú
+bytes cat_num_vintiu        1b 03 15 1a 03 10 6f      # vintihú
+
+# mil is mil in both languages and its bytes are IBM's; the ordinal is not.
+# The millions carry an accent because they end in a vowel and an s, which
+# the stress rule reads as the penultimate: milió and milions have it last.
+bytes cat_num_milesim       c7 48 14 03 13 62 19 03 14 48           # "| milèsim ", for "| milésimo"
+bytes cat_num_milionesim    c7 48 14 03 13 03 04 15 62 19 03 14 48  # "| milionèsim ", for "| millonésimo"
+bytes cat_num_milio         c7 48 14 03 13 03 6e 48 48              # "| milió  ", for "| millón "
+bytes cat_num_milions       c7 48 14 03 13 03 6e 15 19 48           # "| milións ", for "| millones"
+
+# ---- more letters ----------------------------------------------------------
+
+# n with a tilde, which Catalan does not write and Spanish names and loan
+# words bring in: Peña, España. It is the palatal nasal ny spells, and it
+# had gone silent when the arm of the letter chain that reads it was retaken
+# for the graves; the arm now asks about it as well.
+bytes cat_letter_enye       9b
+bytes cat_letter_bigenye    9c
+
+# The raised dot of the geminate l, intel·ligència, col·legi. It is a letter
+# here so that the word holds together, and the l rule reads l, dot, l as
+# one l; on its own it says nothing.
+bytes cat_letter_middot     b6
+
+# The accented e and i, so that a c or a g before one is the soft sound it
+# is before the plain letter: cèl·lula, gènere, precís.
+bytes cat_letter_eacute     6c
+bytes cat_letter_iacute     6d
+
+# a and e themselves, for the endings the open o is read from.
+bytes cat_letter_a          01
+bytes cat_letter_e          02

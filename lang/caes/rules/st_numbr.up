@@ -35,12 +35,19 @@ rule convert_span_single_digit takes 3 from st_numbr.obj
   end
   backtrack
 place d1
+  # un on its own, and u at the end of a compound: trenta-u, noranta-u.
+  # cat_after_tens says which by what stands before the digit.
   plant test d2
   call ZZlpta_load__setscan_r__1 addr left
   if answer is 0
     call ZZtest_string_s_1_1_ZZstring134
     if answer is 0
-      call ZZlprp_load__insert_2pt_s_1_3 addr left addr right sym cat_num_un
+      call cat_after_tens addr left
+      if answer is 0
+        call ZZlprp_load__insert_2pt_s_1_2 addr left addr right sym cat_num_hu
+      else
+        call ZZlprp_load__insert_2pt_s_1_3 addr left addr right sym cat_num_un
+      end
       if answer is 0
         go to d_said
       end
@@ -342,7 +349,7 @@ place v1
   if answer is 0
     call ZZtest_string_s_1_1_ZZstring134
     if answer is 0
-      call ZZlprp_load__insert_2pt_s_1_8 addr left addr right sym cat_num_vintiun
+      call ZZlprp_load__insert_2pt_s_1_7 addr left addr right sym cat_num_vintiu
       if answer is 0
         go to v_said
       end
@@ -459,6 +466,155 @@ place v_other
     backtrack
   end
 place v_said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+
+# Whether the digit being read ends a compound -- the 1 of 31, of 91 -- or
+# stands on its own. What is before it says: the tens' word, or the tens'
+# own digit if that has not been read yet, and in either case a letter or a
+# digit, where a number on its own has a space or a boundary there. A
+# compound's one is u, a bare one is un, and 101 is cent un, since a space
+# stands between the cent and the digit.
+rule cat_after_tens takes 2 from st_numbr.obj
+  bare
+  call ZZlpta_load__setscan_l__1 arg 1                 # the character before
+  if answer is not 0
+    answer 1
+  end
+  call ZZtestFldeq1_3_1                                # a letter,
+  if answer is 0
+    answer 0
+  end
+  call ZZtestFldeq1_3_2                                # or a digit
+end
+
+# The digit in front of the hundreds: dos-cents, tres-cents and the rest.
+# convert_span_hundreds asked span_char_name for it, which said the Castilian
+# word, and then laid |cient and the gender's os behind; it now asks this,
+# and lays |cénts behind, so what goes in here is the bare digit. Every one
+# carries an accent, as the cénts does, because the whole is one word and a
+# word's one stress reduced the digit's vowel -- dussents, trasents -- and
+# st_phnol.up now stresses every accented vowel, not the first alone; the
+# constants say which accent each takes. The scan is the one the digits' own
+# rule uses, rightwards from the left-hand end, and each arm lays its word
+# down whole. A digit no arm names goes to span_char_name as before.
+rule cat_hundreds_digit takes 3 from st_numbr.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfence_null
+  plant test h2
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring135
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_3 addr left addr right sym cat_num_dos_plain
+      if answer is 0
+        go to h_said
+      end
+    end
+  end
+  backtrack
+place h2
+  plant test h3
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring136
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_4 addr left addr right sym cat_num_tres_plain
+      if answer is 0
+        go to h_said
+      end
+    end
+  end
+  backtrack
+place h3
+  plant test h4
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring137
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_6 addr left addr right sym cat_num_quatre_acc
+      if answer is 0
+        go to h_said
+      end
+    end
+  end
+  backtrack
+place h4
+  plant test h5
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring138
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_4 addr left addr right sym cat_num_cinc_plain
+      if answer is 0
+        go to h_said
+      end
+    end
+  end
+  backtrack
+place h5
+  plant test h6
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring139
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_3 addr left addr right sym cat_num_sis_plain
+      if answer is 0
+        go to h_said
+      end
+    end
+  end
+  backtrack
+place h6
+  plant test h7
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring141
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_3 addr left addr right sym cat_num_set_plain
+      if answer is 0
+        go to h_said
+      end
+    end
+  end
+  backtrack
+place h7
+  plant test h8
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring142
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_4 addr left addr right sym cat_num_vuit_plain
+      if answer is 0
+        go to h_said
+      end
+    end
+  end
+  backtrack
+place h8
+  plant test h_other
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring143
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_1_3 addr left addr right sym cat_num_nou_plain
+      if answer is 0
+        go to h_said
+      end
+    end
+  end
+  backtrack
+place h_other
+  call span_char_name addr left addr right
+  if answer is not 0
+    backtrack
+  end
+place h_said
   call succeed
   put cell right value into arg 2 at 4
   answer 0

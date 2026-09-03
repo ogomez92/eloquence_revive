@@ -644,6 +644,8 @@ A build of English alone keeps the plain names -- `build/probe`, `build/libevv.a
 
 How several fit in one program is in `src/delta_lang.h`. The short of it: every module names its own tables after itself -- `enus_vstmtbl`, `dede_vstmtbl` -- because IBM gave them the same names in every language, and the engine reaches whichever is in force rather than linking to one by name. A machine remembers the language it was made for, the engine keeps one engine per language as the original does, and `eciGetAvailableLanguages` answers with all of them.
 
+Every language in the tree at once works, and two things had to be widened before it did. `REGIONS` in `src/delta_low.c` is how many stores of language data can be copied into the arena, and a language has seventy-five to ninety of its own: five hundred and twelve held five languages and not ten, and a build with all of them aborted on the way in, before it had said anything. It is two thousand now. The other is the Makefile's own doing and only bites on Windows: a recipe reaches the shell as one command line and mingw32-make cuts it at 8,190 characters without saying so, which is half a path and a syntax error somewhere in the middle of the object list -- so the three archive recipes write their object list to `objects.list` in the object directory and hand ar that with `@` instead. Ten languages is an 18,000-character list; two fitted, which is why this went unnoticed.
+
 ## Testing another language
 
 The oracle has to be built from that language's own objects, and goes somewhere of its own:

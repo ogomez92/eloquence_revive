@@ -44,8 +44,17 @@
    may have several languages in it, each with its own: English has
    seventy-five and German ninety, plus two of dictionary entries apiece. A
    language is registered the first time one of its machines is made, so a
-   program that never speaks the second one never spends its share. */
-#define REGIONS 512
+   program that never speaks the second one never spends its share.
+
+   Five hundred and twelve was enough for five languages and not for ten: a
+   build with every language in the tree aborted here on the way in, before
+   it had said anything. Two thousand covers twice as many again, and costs
+   forty-eight kilobytes of nothing whatever the build turns out to hold.
+   What it does cost is the walk in delta_low_at, which is linear -- but that
+   is over the languages a program has actually made a machine for, and a
+   screen reader speaking one or two of the ten registers one or two shares
+   of it. */
+#define REGIONS 2048
 
 static struct {
     const unsigned char *at;

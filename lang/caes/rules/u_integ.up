@@ -1,0 +1,70 @@
+# Where a letter's name is asked for, and where Catalan answers first.
+#
+# char_name is the whole of the path a lone letter takes: single_chars walks
+# the characters of a token it has decided to spell out and calls this for
+# each of them, and this looks the character up in span_char_name, the
+# language's dictionary of character names. That dictionary is Castilian's --
+# it is the one of the six that was kept, because a letter with no name has
+# nothing to say and crashes the rule that would have said it -- so x said
+# ekis and h ache.
+#
+# A Catalan name cannot be put in the dictionary. The digits found out why
+# and rules/constants records it: what tools/delta-dict.py writes is named by
+# an address the arena does not know, so a record it rewrites comes out
+# silent however carefully its length is kept. The way past it is the way the
+# digits took, which is to say the word from a rule out of bytes of ours.
+#
+# So the rule is IBM's with one call in front of the dictionary's. Everything
+# it does is done in the order it did it -- the same wrappers, the same test
+# of the two state fields, the same choice point in front of span_char_name
+# -- and cat_char_name is asked first. A letter it names is named and the
+# dictionary is never reached; a character it says nothing about, which is
+# twenty of the letters and every mark, digit and accented vowel, goes to the
+# dictionary exactly as before.
+#
+# The test the rule opens with is IBM's and is kept rather than understood:
+# two state fields held against each other, and the rule says nothing when
+# they differ. Putting our arm behind it rather than in front means a
+# character we would name is only named where Castilian would have named one.
+#
+# One letter is refused a name on purpose. Castilian's dictionary has no
+# entry for a or o, because those are words in Spanish, and a token of one
+# of them goes on to the lookup sets and is found there as a function word.
+# It has an entry for i, and so the Catalan conjunction -- pa, vi i formatge
+# -- was being named as a letter, which is a content word, and stressed in
+# every sentence it stood in. The rule now says nothing for a lone i, and
+# the token takes the path a and o take: coord_conjs holds it, and it is not
+# stressed. The letter's name is the same sound, so a spelled-out i is not
+# changed by this, only its stress when it stands alone.
+rule char_name takes 3 from u_integ.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfence_null
+  call ZZstarttest1
+  raw load movw statefld 3230 into r0w
+  if answer is not global half 3222
+    call succeed
+    answer 0
+  end
+  call ZZlpta_load__setscan_r__1 addr left             # a lone i is the
+  if answer is 0                                       # conjunction, not a
+    call ZZtest_string_s_1_1_ZZstring109               # letter to be named
+    if answer is 0
+      give up
+    end
+  end
+  call cat_char_name addr left addr right              # Catalan's own six
+  if answer is 0
+    call succeed
+    answer 0
+  end
+  call ZZstarttest2
+  call ZZbspush_ca_boa__3
+  call span_char_name addr left addr right
+  if answer is not 0
+    give up
+  end
+  call succeed
+  answer 0
+end

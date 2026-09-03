@@ -1,22 +1,323 @@
-# Catalan keeps its vowels apart where Castilian runs them together.
+# Catalan runs an unstressed i or u into the vowel after it.
 #
-# syneresis is the pass that makes two vowels into one syllable, and Castilian
-# wants it: duana is [dwana] there. Catalan says the two, and the words where
-# it does not are the ones a dictionary knows rather than a rule. With
-# Castilian's pass in, duana came out [d w a n @], suau [s w a w] and serie
-# [s E r y @], each a syllable short, and the letter rules had laid both
-# vowels down correctly before it ran.
+# syneresis is the pass that makes two vowels into one syllable. The letter
+# rules lay i and u down as vowels wherever a consonant stands before them,
+# because whether they are one is decided by the stress and the stress is
+# not known until the word has been syllabified: dia is [d i @] with the i
+# carrying the word, and Oriol is [u r y O l] with the i carrying nothing.
+# Spanish treats the two letters as weak vowels that lean on a strong one
+# unless the accent says otherwise, and Catalan speech does the same --
+# Oriol, família, gràcies, ciència, història, nació all have the glide, and
+# cua, dia, Maria, dies keep the vowel because it is the stressed one.
 #
-# So this is the same rule with the merging taken out: it takes what it is
-# given, answers where the run ends unchanged, and lays nothing down. The
-# frame and the two pointers are IBM's, because the caller passes them and
-# reads the second one back.
+# Castilian's own rule does this and cannot be kept: it is written for the
+# first word of the area and leaves the rest alone -- Oriol Oriol came out
+# with one glide -- and it runs vowels together across a word boundary,
+# which is Spanish synalepha and not Catalan. So it is written again here,
+# as a walk over every phone of the area rather than as IBM's choice points.
+#
+# What the walk asks of an i or a u: that a strong vowel stands right after
+# it -- a, e, o or one of the open two -- in the same word; that its own
+# syllable carries no stress; and that the syllable ends where it does, so
+# that the strong vowel is the next syllable's and not its own. The word is
+# read off the letters, not the word statement: a weak pronoun and the word
+# it leans on are one word there, so hi ha was [y a] and i el [y @ l], and
+# the word after each came out twice. A letter after the i or u says the
+# word goes on; a space or any other mark says it has ended. Then the
+# phone is replaced by the glide and the two syllables become one. A
+# syllable is a token of statement 7 spanning the phones it holds, so
+# joining two is deleting both and laying one across the span, and the one
+# laid down carries the mark the second had, since the first was unstressed
+# by the test that got here. Nothing is asked about what stands before the
+# i or u: a vowel there has already made it a glide in the letter rules, and
+# at the start of a word the glide is right -- iogurt, iaia.
+#
+# cua stays [k u @], vuit [b u y t] and cuina [k u y n @]: the phone after
+# the u is the stressed one in the first and a glide in the other two, and
+# neither is a strong vowel. duana is [d w a n @] and suau [s w a w], as
+# Spanish would have them; those were kept apart before and are now not,
+# which is the decision this file records. A written accent on the i or u
+# itself makes it the stressed syllable, so Lluís and veí are untouched.
 rule syneresis takes 3 from st_phnol.obj
   local left bytes 8
   local right bytes 8
+  local at bytes 8              # the sync before the phone being looked at
+  local after bytes 8           # the sync after it
+  local mark bytes 8            # the left edge of its syllable
+  local mend bytes 8            # the right edge of the syllable after it
+  local glide                   # 1 for an i, 2 for a u, 0 for anything else
+  local tonic                   # 2 until the tests pass, then the mark to lay
   call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
   call ZZfence_null
+  call cat_accent_stress addr left addr right
+  call ZZlpta_load__setscan_r__4 addr left
+  if answer is 0
+    while 1
+      call ZZlpta_loadp__test_ptr addr right           # the end of the area?
+      if answer is 0
+        leave
+      end
+      call ZZsavescptr2 addr at
+      set glide to 0
+      call ZZtestFldeq4_0_31                           # i
+      if answer is 0
+        set glide to 1
+      else
+        call ZZtestFldeq4_0_35                         # u
+        if answer is 0
+          set glide to 2
+        end
+      end
+      call advance_tok                                 # past this phone
+      if answer is not 0
+        leave
+      end
+      if glide is 0
+        again
+      end
+      call ZZsavescptr2 addr after
+      call cat_strong_vowel                            # a strong vowel next?
+      if answer is not 0
+        again
+      end
+      set tonic to 2
+      call ZZlpta_load__setscan_r__1 addr after        # the word goes on past it?
+      if answer is 0
+        call ZZtestFldeq1_3_1                          # a letter, not a space
+        if answer is 0
+          call lpta_loadp addr at                      # its own syllable
+          call lpta_ctxtl 7
+          call lpta_storep addr mark
+          call ZZlpta_load__setscan_r__7 addr mark
+          if answer is 0
+            call ZZtest_string_i_7_2_ZZstring2         # unstressed
+            if answer is 0
+              call ZZlpta_loadp__test_ptr addr after   # and ending with the phone
+              if answer is 0
+                call ZZtest_string_i_7_2_ZZstring3     # the syllable after: stressed
+                if answer is 0
+                  set tonic to 1
+                  call ZZsavescptr2 addr mend
+                else
+                  call ZZtest_string_i_7_2_ZZstring2   # or not
+                  if answer is 0
+                    set tonic to 0
+                    call ZZsavescptr2 addr mend
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+      call ZZlpta_load__setscan_r__4 addr after        # the scan back on the phones
+      if answer is not 0
+        leave
+      end
+      if tonic is 2
+        again
+      end
+      if glide is 1
+        call ZZlprp_load__insert_2pt_s_4_1_ZZstring108 addr at addr after   # y
+      else
+        call ZZlprp_load__insert_2pt_s_4_1_ZZstring112 addr at addr after   # w
+      end
+      if answer is not 0
+        give up
+      end
+      call lpta_rpta_loadp addr mark addr mend         # one syllable of the two
+      call ZZdelete_2pt7
+      if tonic is 1
+        call ZZlprp_load__insert_2pt_i_7_2_ZZstring3 addr mark addr mend
+      else
+        call ZZlprp_load__insert_2pt_i_7_2_ZZstring2 addr mark addr mend
+      end
+      if answer is not 0
+        give up
+      end
+      call ZZlpta_load__setscan_r__4 addr after
+      if answer is not 0
+        leave
+      end
+    end
+  end
+  call cat_drop_mute addr left addr right
   call succeed
   put cell right value into arg 2 at 4
   answer 0
+end
+
+# The phone that says nothing is taken out, now that it has done its work.
+#
+# st_phone.up turns a final r, and a final t after n or l, into the phone
+# nothing in Catalan reaches, so that assign_span_stress still sees a word
+# ending in a consonant: passar is stressed as passar and not as passa. That
+# is the whole of what it is for, and by the time the phrase-level rules run
+# the stress is placed and it has nothing left to do. Left in, it was not
+# silence carried on from the vowel but a hole: the amplitude of voicing is
+# reset to nought for every phone, so its fifteen or twenty milliseconds
+# were a stretch of nothing with the vowel cut off sharp on one side and the
+# next word starting sharp on the other. That is what a tap is, acoustically,
+# and pujar a was heard as puja-r-a with the r said after all -- and after an
+# l, where the lateral runs straight into the vowel, it was heard plainest.
+#
+# So every one of them is deleted here, and the vowel before it becomes the
+# last phone of its word, which is what a Catalan speaker says: pujar a is
+# [p u Z a @] with the a as long as the a of puja` would be, since the
+# duration rules now see a word-final vowel, and the two words run together
+# the way two vowels do. A word that lost its t ends in the n or l that was
+# before it. The n is the plain code and not the word-final one, and that
+# is right: the arm that velarises a final n ran before this and saw a t.
+#
+# It runs after the glide walk above and not before it, because the walk
+# reads the end of a word off the letters while it reads the vowels off the
+# phones: with the phone gone but the letter r still there, an unstressed i
+# before a lost r would have seen a letter after it and the next word's
+# vowel after that, and made a glide across the boundary.
+rule cat_drop_mute takes 3 from st_phnol.obj
+  local left bytes 8
+  local right bytes 8
+  local at bytes 8              # the sync before the phone being looked at
+  local after bytes 8           # the sync after it
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfence_null
+  call ZZlpta_load__setscan_r__4 addr left
+  if answer is 0
+    while 1
+      call ZZlpta_loadp__test_ptr addr right           # the end of the area?
+      if answer is 0
+        leave
+      end
+      call ZZsavescptr2 addr at
+      call testFldeq 4 0 16                            # the mute?
+      if answer is not 0
+        call advance_tok                               # no: past this phone
+        if answer is not 0
+          leave
+        end
+        again
+      end
+      call advance_tok
+      if answer is not 0
+        leave
+      end
+      call ZZsavescptr2 addr after
+      call lpta_rpta_loadp addr at addr after
+      call ZZdelete_2pt4
+      call lpta_loadp addr at
+      call ZZdelete_1pt4
+      call ZZlpta_load__setscan_r__4 addr after        # the scan back on the phones
+      if answer is not 0
+        leave
+      end
+    end
+  end
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# Whether the phone at the scan is one an i or a u leans on: a, e, o, or the
+# open e or o. i and u are not, which is what keeps vuit and cuina whole, and
+# the glides are not. The schwa never is a phone -- an unstressed a or e is
+# reduced where its formants are set -- so the five are all of them.
+rule cat_strong_vowel takes 1 from st_phnol.obj
+  bare
+  call ZZtestFldeq4_0_33                               # a
+  if answer is 0
+    answer 0
+  end
+  call ZZtestFldeq4_0_32                               # e
+  if answer is 0
+    answer 0
+  end
+  call ZZtestFldeq4_0_34                               # o
+  if answer is 0
+    answer 0
+  end
+  call testFldeq 4 0 38                                # open e
+  if answer is 0
+    answer 0
+  end
+  call testFldeq 4 0 39                                # open o
+end
+
+# Every written accent is a stressed syllable, not only the first.
+#
+# accented_vowel, IBM's, finds the first letter of a word that carries an
+# accent, stresses its syllable and stops. One word has one stress, and the
+# machine reduces every vowel that does not carry it. That is right for
+# every word Catalan writes with one accent and wrong for the one kind it
+# writes with two: the number rules lay dos-cents down as a single word,
+# joined by IBM's own mark that does not end a word, and the o of dos went
+# to u and the e of tres to the schwa -- dussents, trasents -- where a
+# Catalan compound keeps a stress on each half, [d o s s e n s]. So the
+# constants spell both halves with an accent, dós|cénts, très|cénts, and
+# this pass walks the letters of the area and gives the syllable of every
+# accented vowel whose syllable still carries no stress a stress of its own.
+# The pitch accent still goes to the cents: the rule that picks a word's
+# syllable for it scans from the end and takes the first stressed one it
+# meets. No ordinary word is touched, since none has a second accent.
+#
+# The join mark itself cannot be looked for: it is an instruction to the
+# insert and not a character, and the letters of dos-cents at this stage are
+# the eight of doscents. It runs before the glide walk in syneresis, from
+# there, because there is no other rule of ours at phrase level to call it
+# from.
+rule cat_accent_stress takes 3 from st_phnol.obj
+  local left bytes 8
+  local right bytes 8
+  local at bytes 8              # the sync before the letter being looked at
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfence_null
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    while 1
+      call ZZlpta_loadp__test_ptr addr right           # the end of the area?
+      if answer is 0
+        leave
+      end
+      call ZZsavescptr2 addr at
+      call ZZtestFldeq1_5_0                            # an accent on this letter?
+      if answer is 0
+        call cat_stress_here addr at                   # the sync before a vowel is in its syllable
+        call ZZlpta_load__setscan_r__1 addr at         # back on the letters
+        if answer is not 0
+          leave
+        end
+      end
+      call advance_tok
+      if answer is not 0
+        leave
+      end
+    end
+  end
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# Give the syllable holding a position the stress, where it has none. The
+# syllable is found from its left edge, its mark read, and if the mark says
+# unstressed the token is replaced across its own span by a stressed one --
+# the same operation syneresis does when it joins two, over one.
+rule cat_stress_here takes 2 from st_phnol.obj
+  bare
+  local mark bytes 8
+  local mend bytes 8
+  call lpta_loadp arg 1
+  call lpta_ctxtl 7
+  call lpta_storep addr mark
+  call ZZlpta_load__setscan_r__7 addr mark
+  if answer is not 0
+    answer 1
+  end
+  call ZZtest_string_i_7_2_ZZstring2                   # unstressed?
+  if answer is not 0
+    answer 1
+  end
+  call ZZsavescptr2 addr mend
+  call lpta_rpta_loadp addr mark addr mend
+  call ZZdelete_2pt7
+  call ZZlprp_load__insert_2pt_i_7_2_ZZstring3 addr mark addr mend
 end

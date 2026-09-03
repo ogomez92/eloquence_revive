@@ -16,8 +16,17 @@
 # wrapper is what the velarising arm reads, so widening it would undo the very
 # thing the retaking was for. What can be done is to catch it at the other
 # end. span_final_str is the arm that was wrongly taken, it is nine operations
-# long, and a word that ends in the final n with a vowel in front of it is
-# handed to span_penult_str instead.
+# long, and a word that ends in the final n with an e or an i in front of it
+# is handed to span_penult_str instead.
+#
+# Only those two vowels, not any vowel, which is where Catalan and Castilian
+# part: a Catalan word ending in -an, -on or -un is stressed on that syllable
+# unless it writes an accent to say otherwise -- Joan, Ramon, algun, Aran --
+# where -en and -in take the one before, as cantaven, examen and origen do.
+# The spelling rule says the same thing from the other side: an accent is
+# written on a final -en or -in that carries the stress, comprèn and Berlín,
+# and on a penultimate before -an, -on or -un, òrgan. With every vowel let
+# through, Joan was [d Z o @ n], the o carrying the word and the a reduced.
 #
 # The rest is IBM's rule operation for operation: the pointer the word ends
 # at, the scan set leftward over the syllables, one step, the mark, and the
@@ -33,7 +42,10 @@ rule span_final_str takes 1 from st_strss.obj
   if answer is 0
     call cat_test_final_n                          # a word-final n?
     if answer is 0
-      call ZZtestFldeq4_1_1                        # with a vowel before it?
+      call ZZtestFldeq4_0_32                       # with an e before it,
+      if answer is not 0
+        call ZZtestFldeq4_0_31                     # or an i?
+      end
       if answer is 0
         call span_penult_str
         if answer is 0

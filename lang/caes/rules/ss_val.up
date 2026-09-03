@@ -21,16 +21,18 @@ rule span_ph_T takes 1 from ss_val.obj
 end
 
 # And the velar fricative says nothing, because it is not a sound of Catalan's
-# any more: st_phone.up turns a word-final r into it and this is where that r
-# stops being heard. Castilian reaches this phone from j and from g before e
-# and i, and Catalan says the voiced postalveolar for both, so nothing else in
-# the module can arrive here.
+# any more. Castilian reaches this phone from j and from g before e and i,
+# and Catalan says the voiced postalveolar for both; st_phone.up turns a
+# word-final r into it so that the stress falls where it should, and
+# st_phnol.up's cat_drop_mute deletes it again before the phones are valued,
+# so in the ordinary run of things nothing arrives here at all.
 #
-# Laying nothing down is not the same as leaving a gap. The source parameters
-# and the formant targets are whatever the segment before set, so the vowel in
-# front of it simply carries on through, which is what a Catalan word that has
-# lost its r does: passar is [p @ s a] with the a a little longer than it
-# would be. The frame and the fence are the rule's own, as syneresis's are.
+# This is kept for whatever does. It used to be the whole of the r's silence,
+# and it was not silence: laying nothing down leaves the formant targets the
+# vowel set, but the amplitude of voicing is reset to nought for every phone,
+# so the fifteen or twenty milliseconds it lasted were a hole with sharp
+# edges, which is what a tap is, and pujar a was heard with its r. The frame
+# and the fence are the rule's own, as syneresis's are.
 rule span_ph_j takes 1 from ss_val.obj
   call ZZfence_null
   match

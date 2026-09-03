@@ -64,6 +64,14 @@ SUF   := $(if $(filter-out enus,$(TAGS)),-$(subst $(space),-,$(TAGS)))
 CC  ?= cc
 NM  ?= nm
 
+# Which Python writes the rules out and lifts the tables. Every recipe that
+# needs one says $(PYTHON) rather than python3, because on Windows `python3'
+# is not a Python at all: a stock machine has a Microsoft Store stub of that
+# name in front of the real interpreter, which prints an advertisement and
+# exits, and every one of these targets then fails for a reason that has
+# nothing to do with the tree. `make PYTHON=python' is the answer there.
+PYTHON ?= python3
+
 # Which rules the interpreter finds already written as C.
 #
 # `c' links the thirteen megabytes tools/delta-decompile.py writes out of the
@@ -366,12 +374,28 @@ $(OBJDIR)/%.o: %.c $(HEADERS)
 # A source that gets renamed leaves its object behind, and a stale one is a
 # duplicate definition waiting to happen, so they go before the archive is
 # built rather than at the next link. Switching RULES leaves one the same way.
+# The objects of a build, written into a file rather than put on a command
+# line, and the file's name.
+#
+# A recipe reaches the shell as one command line, and mingw32-make cuts that
+# at 8,190 characters without saying anything: what the shell is handed is
+# half a path, and it fails as a syntax error somewhere in the middle of the
+# list. Two languages fit in 8,190 characters and ten do not -- ten is 18,000
+# -- so a build with several languages in it died in the archive and nowhere
+# else, on Windows and not on Linux. The list goes in a file instead, which ar
+# reads with @ and which the sweep for objects an older source list left
+# behind greps, so the recipe stays the same length whatever is in it. The
+# file sits in the object directory, which is where `clean' already looks.
+objlist  = $(file >$1)$(foreach o,$2,$(file >>$1,$(o)))
+listfile = $(1)/objects.list
+
 $(BUILD)/libevv$(SUF).a: $(OBJECTS) $(RULESTAMP)
+	@$(call objlist,$(call listfile,$(OBJDIR)),$(OBJECTS))
 	@for o in $(OBJDIR)/*.o; do \
-	   case " $(OBJECTS) " in *" $$o "*) ;; *) rm -f "$$o" ;; esac; \
+	   grep -qxF "$$o" $(call listfile,$(OBJDIR)) || rm -f "$$o"; \
 	 done
 	@rm -f $@
-	@ar rcs $@ $(OBJECTS)
+	@ar rcs $@ @$(call listfile,$(OBJDIR))
 	@echo "built $@ from $(words $(OBJECTS)) objects"
 
 # The rules as text that can be read and edited, in lang/enus/rules. Written
@@ -384,10 +408,10 @@ $(BUILD)/libevv$(SUF).a: $(OBJECTS) $(RULESTAMP)
         notation-symbols notation-rewrite upper upper-prove upper-check \
         authored constants codepoints
 notation:
-	@python3 tools/delta-notation.py tree
+	@$(PYTHON) tools/delta-notation.py tree
 
 notation-check:
-	@python3 tools/delta-notation.py verify
+	@$(PYTHON) tools/delta-notation.py verify
 
 # The stronger of the two, and the one to believe: every rule emitted out of
 # the text into one stream, held against the bytecode the engine actually runs.
@@ -395,25 +419,25 @@ notation-check:
 # matching the whole stream says the text carries every rule, in order, with
 # nothing added and nothing lost -- which a rule-by-rule comparison cannot.
 notation-prove:
-	@python3 tools/delta-notation.py prove
+	@$(PYTHON) tools/delta-notation.py prove
 
 # The rules rebuilt out of the text alone, opening no object, and the result
 # held against the two generated files in the tree. This is the one that says
 # the text is the source rather than a second copy: what it writes has to be
 # what is already there, byte for byte.
 notation-regenerate:
-	@python3 tools/delta-notation.py regenerate
+	@$(PYTHON) tools/delta-notation.py regenerate
 
 # Where each address the rules name falls. Written out of the objects once,
 # because it is the last thing the emitter wanted them for.
 notation-symbols:
-	@python3 tools/delta-notation.py symbols
+	@$(PYTHON) tools/delta-notation.py symbols
 
 # The two generated files written for real rather than compared, out of the
 # lifted text alone. Wanted when something other than a rule changes what they
 # hold -- a constant of ours adds a store, and the store is named in there.
 notation-rewrite:
-	@python3 tools/delta-notation.py rewrite
+	@$(PYTHON) tools/delta-notation.py rewrite
 
 # What a rule stands for, and what a rule does.
 #
@@ -431,27 +455,27 @@ notation-rewrite:
 # and holds every rule entered and every call made with its arguments against
 # each other, and the audio besides. It wants no objects and no Wine.
 upper:
-	@python3 tools/delta-notation.py upper
+	@$(PYTHON) tools/delta-notation.py upper
 
 upper-prove:
-	@python3 tools/delta-notation.py upper-prove
+	@$(PYTHON) tools/delta-notation.py upper-prove
 
 upper-check:
 	@bash tools/upper-check.sh
 
 authored:
-	@python3 tools/delta-notation.py authored
+	@$(PYTHON) tools/delta-notation.py authored
 
 # And that held against the tree, which is the check for a module written with
 # `authored' rather than lifted. EVV_NOTATION_LANG says which one.
 authored-check:
-	@python3 tools/delta-notation.py authored-check
+	@$(PYTHON) tools/delta-notation.py authored-check
 
 # Bytes a rule of ours names by address, out of lang/<tag>/rules/constants
 # into the one file in a language module that no lifter writes. Run
 # `notation-rewrite' after it: a new store is named in the generated file too.
 constants:
-	@python3 tools/delta-consts.py $(TAGS)
+	@$(PYTHON) tools/delta-consts.py $(TAGS)
 
 # What each of a language's own characters arrives as: the code point a caller
 # writes and the byte its alphabet knows it by. Authored like the constants
@@ -459,7 +483,7 @@ constants:
 # have is in the byte set the engine was built around, and a language of ours
 # can have letters that are not.
 codepoints:
-	@python3 tools/lang-codepoints.py $(TAGS)
+	@$(PYTHON) tools/lang-codepoints.py $(TAGS)
 
 # The tables beside the rules, as text: the variables the language declares,
 # the settings it carries, the statement table, the lookup sets and the bytes
@@ -480,20 +504,20 @@ TEMPLATE ?= itit
 .PHONY: tables-dump tables-check tables-write
 tables-dump:
 	@for t in $(TAGS); do \
-	    python3 tools/gen-globals.py dump $$t && \
-	    python3 tools/lift-ini.py dump $$t && \
-	    python3 tools/delta-link.py dump $$t && \
-	    python3 tools/delta-sets.py dump $$t && \
-	    python3 tools/delta-consts.py dump $$t || exit 1; \
+	    $(PYTHON) tools/gen-globals.py dump $$t && \
+	    $(PYTHON) tools/lift-ini.py dump $$t && \
+	    $(PYTHON) tools/delta-link.py dump $$t && \
+	    $(PYTHON) tools/delta-sets.py dump $$t && \
+	    $(PYTHON) tools/delta-consts.py dump $$t || exit 1; \
 	done
 
 tables-check:
 	@for t in $(TAGS); do \
-	    python3 tools/gen-globals.py regenerate $$t && \
-	    python3 tools/lift-ini.py regenerate $$t && \
-	    python3 tools/delta-link.py regenerate $$t && \
-	    python3 tools/delta-sets.py regenerate $$t && \
-	    python3 tools/delta-consts.py regenerate $$t || exit 1; \
+	    $(PYTHON) tools/gen-globals.py regenerate $$t && \
+	    $(PYTHON) tools/lift-ini.py regenerate $$t && \
+	    $(PYTHON) tools/delta-link.py regenerate $$t && \
+	    $(PYTHON) tools/delta-sets.py regenerate $$t && \
+	    $(PYTHON) tools/delta-consts.py regenerate $$t || exit 1; \
 	done
 
 # How much of a module is still the module it was copied from. A language IBM
@@ -502,15 +526,15 @@ tables-check:
 # against. It reads the text forms only.
 .PHONY: census
 census:
-	@python3 tools/lang-census.py $(firstword $(TAGS)) $(TEMPLATE)
+	@$(PYTHON) tools/lang-census.py $(firstword $(TAGS)) $(TEMPLATE)
 
 tables-write:
 	@for t in $(TAGS); do \
-	    python3 tools/gen-globals.py write $$t && \
-	    python3 tools/lift-ini.py write $$t && \
-	    python3 tools/delta-link.py write $$t && \
-	    python3 tools/delta-sets.py write $$t && \
-	    python3 tools/delta-consts.py write $$t || exit 1; \
+	    $(PYTHON) tools/gen-globals.py write $$t && \
+	    $(PYTHON) tools/lift-ini.py write $$t && \
+	    $(PYTHON) tools/delta-link.py write $$t && \
+	    $(PYTHON) tools/delta-sets.py write $$t && \
+	    $(PYTHON) tools/delta-consts.py write $$t || exit 1; \
 	done
 
 # The rules as C. Thirteen megabytes written out of the bytecode beside it,
@@ -534,7 +558,7 @@ define rules_for
 $(1)/delta_rules_c_$(notdir $(1)).c: tools/delta-decompile.py \
                                      tools/delta-census.py \
                                      $(1)/delta_rules_$(notdir $(1)).c
-	@EVV_LANG_DIR=$(1) python3 tools/delta-decompile.py all
+	@EVV_LANG_DIR=$(1) $(PYTHON) tools/delta-decompile.py all
 endef
 $(foreach l,$(LANGS),$(eval $(call rules_for,$(l))))
 
@@ -543,7 +567,7 @@ $(foreach l,$(LANGS),$(eval $(call rules_for,$(l))))
 # original's, and writing it is the rest of the port.
 missing: $(OBJECTS)
 	@$(NM) $(OBJECTS) > $(BUILD)/syms.txt
-	@python3 tools/missing.py $(BUILD)/syms.txt
+	@$(PYTHON) tools/missing.py $(BUILD)/syms.txt
 
 clean:
 	@rm -rf $(BUILD)/obj-* $(BUILD)/obj32-* $(BUILD)/objwin-* \
@@ -693,12 +717,15 @@ $(OBJDIRWIN)/%.o: %.c $(HEADERS)
 	@mkdir -p $(OBJDIRWIN)
 	@$(CCWIN) $(CFLAGSWIN) -c $< -o $@
 
+# The list in a file, for the reason written where the first archive is made.
+# This is the build that reason was found in.
 $(BUILD)/libevv-win$(SUF).a: $(OBJECTSWIN) $(RULESTAMP)
+	@$(call objlist,$(call listfile,$(OBJDIRWIN)),$(OBJECTSWIN))
 	@for o in $(OBJDIRWIN)/*.o; do \
-	   case " $(OBJECTSWIN) " in *" $$o "*) ;; *) rm -f "$$o" ;; esac; \
+	   grep -qxF "$$o" $(call listfile,$(OBJDIRWIN)) || rm -f "$$o"; \
 	 done
 	@rm -f $@
-	@$(ARWIN) rcs $@ $(OBJECTSWIN)
+	@$(ARWIN) rcs $@ @$(call listfile,$(OBJDIRWIN))
 	@echo "built $@ from $(words $(OBJECTSWIN)) objects"
 
 # The same library thirty-two bit, which is what a screen reader driver that
@@ -738,11 +765,12 @@ $(OBJDIRWIN32)/%.o: %.c $(HEADERS)
 	@$(CCWIN32) $(CFLAGSWIN32) -c $< -o $@
 
 $(BUILD)/libevv-win32$(SUF).a: $(OBJECTSWIN32) $(RULESTAMP)
+	@$(call objlist,$(call listfile,$(OBJDIRWIN32)),$(OBJECTSWIN32))
 	@for o in $(OBJDIRWIN32)/*.o; do \
-	   case " $(OBJECTSWIN32) " in *" $$o "*) ;; *) rm -f "$$o" ;; esac; \
+	   grep -qxF "$$o" $(call listfile,$(OBJDIRWIN32)) || rm -f "$$o"; \
 	 done
 	@rm -f $@
-	@$(ARWIN32) rcs $@ $(OBJECTSWIN32)
+	@$(ARWIN32) rcs $@ @$(call listfile,$(OBJDIRWIN32))
 	@echo "built $@ from $(words $(OBJECTSWIN32)) objects"
 
 # The NVDA add-on: the engine as a synthesiser for the screen reader, loaded
@@ -752,7 +780,7 @@ $(BUILD)/libevv-win32$(SUF).a: $(OBJECTSWIN32) $(RULESTAMP)
 # library that does not export something the driver calls.
 .PHONY: nvda nvda-test
 nvda: win win32
-	@python3 nvda/build.py
+	@$(PYTHON) nvda/build.py
 
 # The two checks that want neither Windows, nor the libraries, nor sound.
 # sequence.py is a speech sequence in and the calls it becomes out, with NVDA
@@ -761,5 +789,5 @@ nvda: win win32
 # fault in code the first check never enters -- the add-on shipped once with a
 # name error in exactly that gap.
 nvda-test:
-	@python3 nvda/test/sequence.py
-	@python3 nvda/test/engine.py
+	@$(PYTHON) nvda/test/sequence.py
+	@$(PYTHON) nvda/test/engine.py

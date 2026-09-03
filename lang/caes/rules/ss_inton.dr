@@ -960,10 +960,10 @@ label L0 was B0
   store movw imm 65532 slot -16
   call ZZfence_null arity 1 depth 1
   push state 0
-  store movw imm 58 slot -6
-  store movw imm 58 slot -10
+  store movw imm 25 slot -6
+  store movw imm 25 slot -10
   store movw imm 98 slot -2
-  store movw imm 56 slot -14
+  store movw imm 15 slot -14
   call ZZstarttest1 arity 1 depth 2
   load movl state 608 into r7
   push state 608
@@ -3314,7 +3314,7 @@ label L17 was B17
   store movw imm 20 slot -2
   jump to L30
 label L18 was B18
-  store movw imm 50 slot -2
+  store movw reg r7w slot -2
   jump to L30
 label L19 was B19
   store movw imm 25 slot -2

@@ -109,23 +109,10 @@ rule apply_span_c_rules takes 3 from st_phone.obj
   local right bytes 8
   call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
   call ZZfenceZZstring109
-  plant test before_i
-  call ZZlpta_load__setscan_r__1 addr right
-  if answer is 0
-    call ZZtest_string_s_1_1_ZZstring77                                # e?
-    if answer is 0
-      call ZZlprp_load__insert_2pt_s_4_1_ZZstring37 addr left addr right  # s
-      if answer is 0
-        go to said
-      end
-    end
-  end
-  backtrack
-place before_i
   plant test hard
   call ZZlpta_load__setscan_r__1 addr right
   if answer is 0
-    call ZZtest_string_s_1_1_ZZstring109                               # i?
+    call cat_front_follows                                             # e or i, accented or not?
     if answer is 0
       call ZZlprp_load__insert_2pt_s_4_1_ZZstring37 addr left addr right  # s
       if answer is 0
@@ -147,22 +134,24 @@ end
 
 # g before e and i is the voiced postalveolar -- gener, girafa -- which is
 # what j says, and the affricate after a nasal or a lateral, which is also
-# what j does: mengen is [m e N d Z @ n] where gener is [Z @ n e]. gue and gui are a hard g with a silent u, so those are tried
-# first and the u is eaten; g with a diaeresis is a different letter, so gue
-# with one falls through to the plain arm and the u is spoken, which is what
-# Catalan does with it.
+# what j does: mengen is [m e N d Z @ n] where gener is [Z @ n e]. gue and
+# gui are a hard g with a silent u, so those are tried first and the u is
+# eaten; g with a diaeresis is a different letter, so gue with one falls
+# through to the plain arm and the u is spoken, which is what Catalan does
+# with it. The front vowel is asked about by cat_front_follows, so that an e
+# or an i with an accent counts: gènere, Guíxols.
 rule apply_span_g_rules takes 3 from st_phone.obj
   local left bytes 8
   local right bytes 8
   call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
   call ZZfenceZZstring109
-  plant test gu_i
+  plant test before_front
   call ZZlpta_load__setscan_r__1 addr right
   if answer is 0
     call ZZtest_string_s_1_1_ZZstring128                               # u?
     if answer is 0
       call ZZsavescptr2 addr right
-      call ZZtest_string_s_1_1_ZZstring77                              # then e?
+      call cat_front_follows                                           # then e or i?
       if answer is 0
         call ZZlprp_load__insert_2pt_s_4_1_ZZstring140 addr left addr right  # g
         if answer is 0
@@ -172,41 +161,11 @@ rule apply_span_g_rules takes 3 from st_phone.obj
     end
   end
   backtrack
-place gu_i
-  plant test before_e
-  call ZZlpta_load__setscan_r__1 addr right
-  if answer is 0
-    call ZZtest_string_s_1_1_ZZstring128                               # u?
-    if answer is 0
-      call ZZsavescptr2 addr right
-      call ZZtest_string_s_1_1_ZZstring109                             # then i?
-      if answer is 0
-        call ZZlprp_load__insert_2pt_s_4_1_ZZstring140 addr left addr right  # g
-        if answer is 0
-          go to said
-        end
-      end
-    end
-  end
-  backtrack
-place before_e
-  plant test before_i
-  call ZZlpta_load__setscan_r__1 addr right
-  if answer is 0
-    call ZZtest_string_s_1_1_ZZstring77                                # e?
-    if answer is 0
-      call cat_insert_zz addr left addr right
-      if answer is 0
-        go to said
-      end
-    end
-  end
-  backtrack
-place before_i
+place before_front
   plant test hard
   call ZZlpta_load__setscan_r__1 addr right
   if answer is 0
-    call ZZtest_string_s_1_1_ZZstring109                               # i?
+    call cat_front_follows                                             # e or i?
     if answer is 0
       call cat_insert_zz addr left addr right
       if answer is 0
@@ -299,6 +258,59 @@ place plain
   go to said
 place medial
   call ZZlprp_load__insert_2pt_s_4_1_ZZstring93 addr left addr right    # n
+  if answer is not 0
+    backtrack
+  end
+place said
+  call succeed
+  put cell right value into arg 2 at 4
+  answer 0
+end
+
+# ll is the palatal lateral, as Castilian's arm has it. l, the raised dot
+# and l again is the geminate l Catalan writes in intel·ligència and
+# col·legi, and it is said as one l, which is what most speech makes of it:
+# the dot and the second l are eaten together. The dot is a letter here so
+# that the word holds together at all -- as a mark it split intel·ligència
+# into two tokens and spelled the first -- and apply_span_enye_rules deletes
+# one that stands anywhere else.
+rule apply_span_l_rules takes 3 from st_phone.obj
+  local left bytes 8
+  local right bytes 8
+  call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
+  call ZZfenceZZstring109
+  plant test geminate
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring69                                # l again: ll
+    if answer is 0
+      call ZZsavescptr2 addr right
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring84 addr left addr right  # L
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place geminate
+  plant test plain
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_middot                       # the dot,
+    if answer is 0
+      call ZZtest_string_s_1_1_ZZstring69                              # then l
+      if answer is 0
+        call ZZsavescptr2 addr right
+        call ZZlprp_load__insert_2pt_s_4_1_ZZstring107 addr left addr right  # one l
+        if answer is 0
+          go to said
+        end
+      end
+    end
+  end
+  backtrack
+place plain
+  call ZZlprp_load__insert_2pt_s_4_1_ZZstring107 addr left addr right   # l
   if answer is not 0
     backtrack
   end
@@ -424,18 +436,41 @@ end
 # consonant -- Spanish mismo, Catalan esdevenir. That wants a test of the
 # following consonant's voicing, and the input statement records a letter's
 # type but not its voice, so it needs a set of its own rather than a field.
+#
+# And sh is the postalveolar, which is the sound x writes: flash, sushi,
+# Bangladesh, xerès. Castilian says a plain s for a borrowed sh and that is
+# Castilian's own reading of it; a Catalan speaker says the sound the
+# language writes with an x, and the h says nothing of its own here as it
+# says nothing anywhere else. The h is eaten, the way the second s of a
+# double one is. What it costs is the handful of words where a prefix ends
+# in s and the stem begins with a mute h -- deshora, deshabitat -- and those
+# are compounds a dictionary would have to know about anyway.
 rule apply_span_s_rules takes 3 from st_phone.obj
   local left bytes 8
   local right bytes 8
   call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
   call ZZfenceZZstring109
-  plant test between_vowels
+  plant test sh
   call ZZlpta_load__setscan_r__1 addr right
   if answer is 0
     call ZZtest_string_s_1_1_ZZstring96                                # s?
     if answer is 0
       call ZZsavescptr2 addr right
       call ZZlprp_load__insert_2pt_s_4_1_ZZstring37 addr left addr right  # s
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place sh
+  plant test between_vowels
+  call ZZlpta_load__setscan_r__1 addr right
+  if answer is 0
+    call ZZtest_string_s_1_1_ZZstring60                                # an h?
+    if answer is 0
+      call ZZsavescptr2 addr right                     # which says nothing
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring64 addr left addr right  # S
       if answer is 0
         go to said
       end
@@ -560,14 +595,23 @@ place qu_first
   end
   backtrack
 place after_vowel
+  # An i with the accent on it is the stressed vowel and no glide, whatever
+  # stands before it: Lluís, país, veí. Without the test they were [L u y s],
+  # [p a y s] and [b @ y].
   plant test plain
   call ZZlpta_load__setscan_l__1 addr left
   if answer is 0
     call ZZtestFldeq1_4_1                                              # vowel before?
     if answer is 0
-      call ZZlprp_load__insert_2pt_s_4_1_ZZstring108 addr left addr right  # y
+      call ZZlpta_load__setscan_r__1 addr left                         # the i itself
       if answer is 0
-        go to said
+        call ZZtestFldeq1_5_0                                          # with an accent?
+        if answer is not 0
+          call ZZlprp_load__insert_2pt_s_4_1_ZZstring108 addr left addr right  # y
+          if answer is 0
+            go to said
+          end
+        end
       end
     end
   end
@@ -595,6 +639,14 @@ end
 # is silent and the letter before it eats it. And after a vowel it is the
 # falling diphthong of au, eu, ou and iu. Everywhere else u is a vowel, which
 # is what makes vuit [b u y t] and cuita [k u y t @].
+#
+# The g arm asks for a vowel after the u as well, because gu before a
+# consonant is the vowel: gust, segur, agut, figura, iogurt. Without that
+# test segur was [s @ G w] and gust had no nucleus at all and said nothing.
+# q is never written before a u that a consonant follows, so its arm is as
+# it was. An unstressed u before a vowel is later made a glide by syneresis
+# in st_phnol.up, whatever stands before it; this arm is only the one that
+# is a glide whether stressed or not.
 rule apply_span_u_rules takes 3 from st_phone.obj
   local left bytes 8
   local right bytes 8
@@ -618,22 +670,37 @@ place after_g
   if answer is 0
     call ZZtest_string_s_1_1_ZZstring54                                # g before?
     if answer is 0
-      call ZZlprp_load__insert_2pt_s_4_1_ZZstring112 addr left addr right  # w
+      call ZZlpta_load__setscan_r__1 addr right
       if answer is 0
-        go to said
+        call ZZtestFldeq1_4_1                                          # and a vowel after?
+        if answer is 0
+          call ZZlprp_load__insert_2pt_s_4_1_ZZstring112 addr left addr right  # w
+          if answer is 0
+            go to said
+          end
+        end
       end
     end
   end
   backtrack
 place after_vowel
+  # A u with the accent on it is the stressed vowel, as the i is: peüc is
+  # spelled with the diaeresis, but ú after a vowel does turn up, and it is
+  # never the glide.
   plant test plain
   call ZZlpta_load__setscan_l__1 addr left
   if answer is 0
     call ZZtestFldeq1_4_1                                              # vowel before?
     if answer is 0
-      call ZZlprp_load__insert_2pt_s_4_1_ZZstring112 addr left addr right  # w
+      call ZZlpta_load__setscan_r__1 addr left                         # the u itself
       if answer is 0
-        go to said
+        call ZZtestFldeq1_5_0                                          # with an accent?
+        if answer is not 0
+          call ZZlprp_load__insert_2pt_s_4_1_ZZstring112 addr left addr right  # w
+          if answer is 0
+            go to said
+          end
+        end
       end
     end
   end
@@ -656,17 +723,52 @@ end
 #
 # A grave is the open vowel and always carries the stress. Which of the two it
 # is has to be asked here, because one arm serves both.
+# The arm the letter chain reaches through the wrapper glob.up rewrote: the
+# two graves, n with a tilde, and the raised dot. The tilde is the palatal
+# nasal, the same phone ny lays down. The dot on its own says nothing and is
+# deleted the way Castilian deletes an h; between two l's it never gets here,
+# because the l rule has eaten it.
 rule apply_span_enye_rules takes 3 from st_phone.obj
   local left bytes 8
   local right bytes 8
   call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
   call ZZfenceZZstring109
-  plant test o_grave
+  plant test tilde
   call ZZlpta_load__setscan_r__1 addr left
   if answer is 0
     call test_string_s 1 1 sym cat_letter_egrave
     if answer is 0
       call cat_insert_eopen addr left addr right
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place tilde
+  plant test dot
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_enye
+    if answer is not 0
+      call test_string_s 1 1 sym cat_letter_bigenye
+    end
+    if answer is 0
+      call ZZlprp_load__insert_2pt_s_4_1_ZZstring94 addr left addr right  # N
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place dot
+  plant test o_grave
+  call ZZlpta_load__setscan_r__1 addr left
+  if answer is 0
+    call test_string_s 1 1 sym cat_letter_middot
+    if answer is 0
+      call lpta_rpta_loadp addr left addr right
+      call ZZdelete_2pt4
       if answer is 0
         go to said
       end
@@ -726,15 +828,86 @@ rule apply_span_e_rules takes 3 from st_phone.obj
   answer 0
 end
 
+# o is the one of the three that is two vowels. Catalan writes the open one
+# and the close one with the same letter and tells them apart in the
+# dictionary, which this module has not got -- but two endings say it in the
+# spelling, and between them they carry most of the words a listener notices.
+#
+# An o before an l that ends the word is open: sol, col, gol, dol, Oriol,
+# caragol, espanyol, rossinyol, futbol, and the plurals with them. So is an o
+# before an r that ends the word, where the o is the word's only vowel: or,
+# cor, por, sor. The second condition is what keeps amor and senyor close,
+# and it is the same test the r rule makes to decide whether to say the r at
+# all -- the r that is still said is the r the open o stands before.
+#
+# Each ending asks one thing more, and both are asking the same question in
+# the end, which is whether the o is the vowel the stress falls on. The l
+# asks that no letter behind it carries the written accent, since Catalan
+# writes one on a word ending in a consonant only where the stress is not
+# where the rule would put it: titol and consol are [t i t u l] and
+# [k O n s u l], the o reduced away, and it is the accent on the syllable
+# before that says so.
+#
+# Two endings more say it too, and glob.up's cat_open_o_ending reads them:
+# ola and osa, with their plurals -- escola, cassola, cosa, rosa. They ask
+# the same thing of the letters behind, that none carries the accent.
+#
+# Everything else takes the close vowel, which is what the whole letter said
+# before. The reduction downstream is untouched: an unstressed o is a u and
+# the value chain does that, and these endings are stressed wherever
+# Catalan writes them without an accent elsewhere.
 rule apply_span_o_rules takes 3 from st_phone.obj
   local left bytes 8
   local right bytes 8
   call ZZget_parm_ptr2 addr left arg 1 addr right arg 2
   call ZZfenceZZstring109
+  plant test before_final_r
+  call cat_final_l_follows addr right                  # an l that ends it?
+  if answer is 0
+    call ZZlpta_load__setscan_l__1 addr left
+    call cat_accent_left                               # with no accent behind?
+    if answer is not 0
+      call cat_insert_oopen addr left addr right
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place before_final_r
+  plant test before_ending
+  call cat_final_r_follows addr right                  # or an r that ends it,
+  if answer is 0
+    call ZZlpta_load__setscan_l__1 addr left
+    call cat_more_vowels_left                          # with no vowel behind?
+    if answer is not 0
+      call cat_insert_oopen addr left addr right
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place before_ending
+  plant test plain
+  call cat_open_o_ending addr right                    # or ola, osa and their plurals,
+  if answer is 0
+    call ZZlpta_load__setscan_l__1 addr left
+    call cat_accent_left                               # with no accent behind?
+    if answer is not 0
+      call cat_insert_oopen addr left addr right
+      if answer is 0
+        go to said
+      end
+    end
+  end
+  backtrack
+place plain
   call ZZlprp_load__insert_2pt_s_4_1_ZZstring116 addr left addr right   # o
   if answer is not 0
-    give up
+    backtrack
   end
+place said
   call succeed
   put cell right value into arg 2 at 4
   answer 0
@@ -822,6 +995,14 @@ end
 # difference between cagar and caga` -- an r at the end of a word goes when
 # the word has a second vowel in it.
 #
+# It goes for a second reason as well, and that one is about the syllable
+# rather than the word: an r at the end of a word whose vowel stands after an
+# l. clar is [k l a], llar [L a], flor [f l O], plor [p l o] -- one syllable
+# each, so the first test says nothing about them, and Central Catalan drops
+# the r in all four where it keeps the one of car, cor and mar. The l is
+# asked about where the walk leftwards has already stepped over the vowel, so
+# it costs one test and no second walk.
+#
 # glob.up says why it becomes a phone rather than becoming nothing, and what
 # the test in front of it asks. The order matters: the drop is asked about
 # first, because an r at the end of a word would otherwise be taken by the
@@ -840,7 +1021,14 @@ rule apply_span_r_rules takes 3 from st_phone.obj
       if answer is 0
         call advance_tok                                   # step on to it
         if answer is 0
-          call cat_more_vowels_left                        # and another behind?
+          call ZZtest_string_s_1_1_ZZstring69              # an l before that?
+          if answer is 0
+            call cat_insert_mute addr left addr right
+            if answer is 0
+              go to said
+            end
+          end
+          call cat_more_vowels_left                        # or another vowel?
           if answer is 0
             call cat_insert_mute addr left addr right
             if answer is 0

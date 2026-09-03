@@ -88,32 +88,134 @@ uint8_t caes_evv_authored_data[] = {
     27,3,21,26,3,27,111,3,26,
     /* cat_num_vintinou, 8 bytes at 177 */
     27,3,21,26,3,21,100,5,
-    /* cat_num_noranta, 8 bytes at 185 */
-    21,4,24,1,21,26,1,72,
-    /* cat_num_quaranta, 8 bytes at 193 */
+    /* cat_num_noranta, 7 bytes at 185 */
+    21,4,24,1,21,26,1,
+    /* cat_num_quaranta, 8 bytes at 192 */
     23,5,1,24,1,21,26,1,
-    /* cat_num_cinquanta, 9 bytes at 201 */
+    /* cat_num_cinquanta, 9 bytes at 200 */
     12,3,21,23,5,1,21,26,1,
-    /* cat_num_trenta, 8 bytes at 210 */
-    26,24,2,21,26,1,72,72,
-    /* cat_num_seixanta, 8 bytes at 218 */
+    /* cat_num_trenta, 6 bytes at 209 */
+    26,24,2,21,26,1,
+    /* cat_num_seixanta, 8 bytes at 215 */
     25,2,3,29,1,21,26,1,
-    /* cat_num_setanta, 8 bytes at 226 */
-    25,2,26,1,21,26,1,72,
-    /* cat_num_vuitanta, 8 bytes at 234 */
+    /* cat_num_setanta, 7 bytes at 223 */
+    25,2,26,1,21,26,1,
+    /* cat_num_vuitanta, 8 bytes at 230 */
     27,5,3,26,1,21,26,1,
-    /* cat_num_join, 2 bytes at 242 */
-    199,72,
-    /* cat_ph_d, 1 bytes at 244 */
+    /* cat_ph_d, 1 bytes at 238 */
     5,
-    /* cat_ph_mute, 1 bytes at 245 */
+    /* cat_ph_mute, 1 bytes at 239 */
     16,
-    /* cat_ph_final_n, 1 bytes at 246 */
+    /* cat_ph_final_n, 1 bytes at 240 */
     15,
-    /* cat_ph_zz, 1 bytes at 247 */
+    /* cat_ph_zz, 1 bytes at 241 */
     18,
-    /* cat_ph_ysh, 2 bytes at 248 */
+    /* cat_ph_ysh, 2 bytes at 242 */
     29,17,
+    /* cat_char_h, 1 bytes at 244 */
+    16,
+    /* cat_char_bigh, 1 bytes at 245 */
+    37,
+    /* cat_char_s, 1 bytes at 246 */
+    25,
+    /* cat_char_bigs, 1 bytes at 247 */
+    46,
+    /* cat_char_v, 1 bytes at 248 */
+    27,
+    /* cat_char_bigv, 1 bytes at 249 */
+    48,
+    /* cat_char_w, 1 bytes at 250 */
+    28,
+    /* cat_char_bigw, 1 bytes at 251 */
+    49,
+    /* cat_char_x, 1 bytes at 252 */
+    29,
+    /* cat_char_bigx, 1 bytes at 253 */
+    50,
+    /* cat_char_y, 1 bytes at 254 */
+    30,
+    /* cat_char_bigy, 1 bytes at 255 */
+    51,
+    /* cat_name_hac, 3 bytes at 256 */
+    16,1,12,
+    /* cat_name_essa, 4 bytes at 259 */
+    2,25,25,1,
+    /* cat_name_ve, 2 bytes at 263 */
+    27,2,
+    /* cat_name_vedoble, 9 bytes at 265 */
+    27,2,199,72,13,4,11,19,2,
+    /* cat_name_ics, 3 bytes at 274 */
+    3,12,25,
+    /* cat_name_igrega, 8 bytes at 277 */
+    3,199,72,15,24,2,15,1,
+    /* cat_char_cedilla, 1 bytes at 285 */
+    151,
+    /* cat_char_bigcedilla, 1 bytes at 286 */
+    152,
+    /* cat_char_j, 1 bytes at 287 */
+    17,
+    /* cat_char_bigj, 1 bytes at 288 */
+    38,
+    /* cat_name_cetrencada, 12 bytes at 289 */
+    12,2,199,72,26,24,2,21,12,1,13,1,
+    /* cat_name_jota, 4 bytes at 301 */
+    17,100,26,1,
+    /* cat_char_zero, 1 bytes at 305 */
+    53,
+    /* cat_num_cent_sp, 5 bytes at 306 */
+    72,12,2,21,26,
+    /* cat_num_cent_join, 7 bytes at 311 */
+    72,12,2,21,26,199,72,
+    /* cat_num_centesim_sp, 10 bytes at 318 */
+    72,12,2,21,26,98,25,3,20,72,
+    /* cat_num_centesim_join, 10 bytes at 328 */
+    199,12,2,21,26,98,25,3,20,72,
+    /* cat_num_cents_join, 7 bytes at 338 */
+    199,12,108,21,26,25,72,
+    /* cat_num_blank3, 3 bytes at 345 */
+    72,72,72,
+    /* cat_num_dos_plain, 3 bytes at 348 */
+    13,110,25,
+    /* cat_num_tres_plain, 4 bytes at 351 */
+    26,24,98,25,
+    /* cat_num_quatre_acc, 6 bytes at 355 */
+    23,5,107,26,24,2,
+    /* cat_num_cinc_plain, 4 bytes at 361 */
+    12,109,21,12,
+    /* cat_num_sis_plain, 3 bytes at 365 */
+    25,109,25,
+    /* cat_num_set_plain, 3 bytes at 368 */
+    25,98,26,
+    /* cat_num_vuit_plain, 4 bytes at 371 */
+    27,111,3,26,
+    /* cat_num_nou_plain, 3 bytes at 375 */
+    21,100,5,
+    /* cat_num_hu, 2 bytes at 378 */
+    16,111,
+    /* cat_num_vintiu, 7 bytes at 380 */
+    27,3,21,26,3,16,111,
+    /* cat_num_milesim, 10 bytes at 387 */
+    199,72,20,3,19,98,25,3,20,72,
+    /* cat_num_milionesim, 13 bytes at 397 */
+    199,72,20,3,19,3,4,21,98,25,3,20,72,
+    /* cat_num_milio, 9 bytes at 410 */
+    199,72,20,3,19,3,110,72,72,
+    /* cat_num_milions, 10 bytes at 419 */
+    199,72,20,3,19,3,110,21,25,72,
+    /* cat_letter_enye, 1 bytes at 429 */
+    155,
+    /* cat_letter_bigenye, 1 bytes at 430 */
+    156,
+    /* cat_letter_middot, 1 bytes at 431 */
+    182,
+    /* cat_letter_eacute, 1 bytes at 432 */
+    108,
+    /* cat_letter_iacute, 1 bytes at 433 */
+    109,
+    /* cat_letter_a, 1 bytes at 434 */
+    1,
+    /* cat_letter_e, 1 bytes at 435 */
+    2,
 };
 
 const delta_store caes_delta_authored_store[] = {

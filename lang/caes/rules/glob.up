@@ -47,9 +47,11 @@ end
 
 # And the arm of the letter chain that Castilian keeps for n with a tilde,
 # which Catalan never writes: it spells that sound ny, and apply_span_n_rules
-# is where that is done. So the arm is free, and this is what it now asks --
-# is the letter either grave? -- with apply_span_enye_rules, which it calls,
-# rewritten to say which.
+# is where that is done. So the arm is shared, and this is what it now asks
+# -- is the letter either grave, or the tilde after all, or the raised dot of
+# the geminate l? -- with apply_span_enye_rules, which it calls, rewritten to
+# say which. The tilde is back because Spanish names come through Catalan
+# text, and a Peña with a silent hole in it was heard.
 rule ZZtest_string_s_1_1_ZZstring58 takes 1 from glob.obj
   bare
   call test_string_s 1 1 sym cat_letter_egrave
@@ -57,6 +59,18 @@ rule ZZtest_string_s_1_1_ZZstring58 takes 1 from glob.obj
     answer 0
   end
   call test_string_s 1 1 sym cat_letter_ograve
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_enye
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_bigenye
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_middot
 end
 
 # The open vowels as phones, for the value chain to test and a letter rule to
@@ -112,25 +126,33 @@ rule cat_voiceless_follows takes 1 from glob.obj
   call ZZtest_string_s_1_1_ZZstring48                  # f
 end
 
-# A word boundary and a space, laid down where Castilian lays down a joiner.
+# Nothing, laid down where Castilian lays down a joiner.
 #
 # Castilian writes a two-digit number as three words -- cuarenta y cinco --
 # and convert_span_double puts the space and the y in between with two calls.
-# Catalan writes quaranta-cinc and says it as a compound: two stresses, the
-# main one on the unit, and neither half's vowels reduced. The machine gives
-# one word one stress, so the two call sites in that rule are pointed at
-# these: the first lays down the boundary mark and a space, which makes two
-# words of the halves and lets each keep its stress and its vowels, and the
-# second lays down nothing, which is where the y went. rules/constants says
-# what the one-word form sounded like and why the mark is needed.
-rule cat_insert_join takes 1 from glob.obj
+# Catalan writes quaranta-cinc and says it as one word with the stress on the
+# unit, so both call sites in that rule are pointed at these and lay down
+# nothing: the tens and the unit run together, and the accent the unit
+# carries is what puts the stress on it. rules/constants says what the two
+# forms sound like and which was asked for.
+rule cat_insert_nothing takes 1 from glob.obj
   bare
-  call insert_l 1 2 sym cat_num_join 0
+  answer 0
 end
 
 rule cat_insert_nothing_given takes 2 from glob.obj
   bare
   answer 0
+end
+
+# A test that never matches, for an arm of Castilian's that Catalan does not
+# take: the three hundreds it says with a word of their own, quinientos,
+# setecientos and novecientos, are cinc-cents, set-cents and nou-cents here,
+# which the regular arm says. Answering 1 is what test_string_s answers when
+# the character is not the one asked about.
+rule cat_never takes 1 from glob.obj
+  bare
+  answer 1
 end
 
 
@@ -166,9 +188,10 @@ end
 # last syllable and the one before it by looking at the last phone, and a word
 # that ended in a vowel would take the stress a syllable back -- passar came
 # out [p a s @], which is a different word. So the r becomes the phone
-# nothing here can reach instead, and ss_val.up makes that silent: the word
-# still ends in a consonant when the stress is placed, and says nothing when
-# it is spoken.
+# nothing here can reach instead: the word still ends in a consonant when
+# the stress is placed. Once it is, st_phnol.up's cat_drop_mute takes the
+# phone out again, and the vowel is the last sound of its word from there
+# on -- passar comes out sample for sample as passa` would.
 
 # Whether the r the letter rule is reading is the last sound of its word.
 # Three things count as the end: nothing to the right at all, something that
@@ -271,6 +294,174 @@ rule cat_insert_mute takes 3 from glob.obj
 end
 
 
+
+# ---- the o that is open, and the l that takes an r with it ---------------
+
+# Whether the scan has come to the end of the word from where it already
+# stands. It is the tail of cat_word_end asked on its own: nothing more, or
+# an s that is itself the last thing, which is the plural -- cargols is
+# [k @ r G O l s] and cors [k O r s], and both are the same word with an s
+# on it.
+rule cat_letter_end takes 1 from glob.obj
+  bare
+  call ZZtestFldeq1_3_1                                # another letter?
+  if answer is not 0
+    answer 0
+  end
+  call ZZtest_string_s_1_1_ZZstring96                  # an s?
+  if answer is not 0
+    answer 1
+  end
+  call ZZtestFldeq1_3_1                                # and nothing after that?
+  if answer is not 0
+    answer 0
+  end
+  answer 1
+end
+
+# One step of the walk leftwards over the letters, looking for the one that
+# carries the written accent: nought where the step found one and one where
+# it did not. It is cat_vowel_step with the accent asked about instead of the
+# vowel, and it stops at the word boundary the same way, since what stands
+# before the first letter is not a letter.
+rule cat_accent_step takes 1 from glob.obj
+  bare
+  call ZZtestFldeq1_3_1                                # still inside the word?
+  if answer is not 0
+    answer 1
+  end
+  call ZZtestFldeq1_5_0                                # does it carry one?
+  if answer is 0
+    answer 0
+  end
+  call advance_tok
+  answer 1
+end
+
+# Whether any letter behind the one the caller has stopped on carries the
+# accent. Eight steps, written out for the reason cat_more_vowels_left is:
+# the notation's while is a backtracking loop and a bare rule has no business
+# planting the choice point one wants.
+#
+# What it is for is the o before a final l. Catalan writes an accent on a
+# word ending in a consonant only where the stress is not on the last
+# syllable, so an accent behind the o says the o is not the stressed vowel:
+# titol, capitol, consol and idol are [t i t u l], [k @ p i t u l],
+# [k O n s u l] and [i D u l], where caragol and Oriol take the open vowel.
+# Without this the reduction that would have made them a u never happens,
+# because the open o is a phone of its own and no arm of the value chain
+# reduces it.
+rule cat_accent_left takes 1 from glob.obj
+  bare
+  call cat_accent_step
+  if answer is 0
+    answer 0
+  end
+  call cat_accent_step
+  if answer is 0
+    answer 0
+  end
+  call cat_accent_step
+  if answer is 0
+    answer 0
+  end
+  call cat_accent_step
+  if answer is 0
+    answer 0
+  end
+  call cat_accent_step
+  if answer is 0
+    answer 0
+  end
+  call cat_accent_step
+  if answer is 0
+    answer 0
+  end
+  call cat_accent_step
+  if answer is 0
+    answer 0
+  end
+  call cat_accent_step
+  if answer is 0
+    answer 0
+  end
+  answer 1
+end
+
+# Whether the letter after the one being read is an l that ends its word.
+# That is where Catalan writes the open o: sol, col, gol, Oriol, caragol,
+# espanyol, rossinyol, futbol -- the vowel before a final l is [O] and the
+# module had been saying the close one for all of them.
+#
+# The caller hands over its right-hand end, so the scan is set past the run
+# it is reading, which for a vowel is the vowel itself. A test that matches
+# steps the scan past what it matched, so the end of the word is asked about
+# from after the l.
+rule cat_final_l_follows takes 2 from glob.obj
+  bare
+  call ZZlpta_load__setscan_r__1 arg 1                 # the letter after it
+  if answer is not 0
+    answer 1
+  end
+  call ZZtest_string_s_1_1_ZZstring69                  # an l?
+  if answer is not 0
+    answer 1
+  end
+  call cat_letter_end
+end
+
+# And whether it is an r that ends its word, which is the other place the
+# open o stands: or, cor, por, sor. The r asks one thing more than the l
+# does, and apply_span_o_rules asks it -- that no vowel stands behind the o
+# -- because a word long enough to lose its r keeps the close vowel: amor is
+# [@ m o] and senyor [s @ N o], where or is [O r]. It is the same question
+# the r rule asks from the other side, since an r that is still said is one
+# with no second vowel behind it, and a said r is what the open o stands
+# before.
+rule cat_final_r_follows takes 2 from glob.obj
+  bare
+  call ZZlpta_load__setscan_r__1 arg 1                 # the letter after it
+  if answer is not 0
+    answer 1
+  end
+  call ZZtest_string_s_1_1_ZZstring94                  # an r?
+  if answer is not 0
+    answer 1
+  end
+  call cat_letter_end
+end
+
+
+# Whether the o is the one of an ending that says it is open: ola or osa,
+# and their plurals oles and oses. escola, cassola, pistola, cosa, rosa and
+# nosa all have the open vowel, and none of them writes it, because the
+# stress is where the rule would put it anyway. What is asked is the l or the
+# s after the o, then an a or an e, then the end of the word by the test the
+# final l uses. Every osa is taken, the adjectives in -os with the nouns,
+# which is what was asked for.
+rule cat_open_o_ending takes 2 from glob.obj
+  bare
+  call ZZlpta_load__setscan_r__1 arg 1                 # the letter after the o
+  if answer is not 0
+    answer 1
+  end
+  call ZZtest_string_s_1_1_ZZstring69                  # an l,
+  if answer is not 0
+    call ZZtest_string_s_1_1_ZZstring96                # or an s?
+    if answer is not 0
+      answer 1
+    end
+  end
+  call test_string_s 1 1 sym cat_letter_a              # then a,
+  if answer is not 0
+    call test_string_s 1 1 sym cat_letter_e            # or the e of the plural?
+    if answer is not 0
+      answer 1
+    end
+  end
+  call cat_letter_end                                  # and nothing more
+end
+
 # Whether the phone the scan is on is the n a Catalan word ends with, which
 # is the interdental's code wearing an n's record. ss_val.up says why.
 rule cat_test_final_n takes 1 from glob.obj
@@ -278,6 +469,164 @@ rule cat_test_final_n takes 1 from glob.obj
   call test_string_s 4 1 sym cat_ph_final_n
 end
 
+
+
+# ---- the name of a letter -----------------------------------------------
+
+# What a lone letter is called, where Catalan and Castilian disagree about it.
+# rules/constants says which six those are and why the other twenty come out
+# right already; u_integ.up says where this is asked from.
+#
+# A name goes in as characters, which the letter rules then read, so this is
+# the same path a number word takes and it asks nothing of the module that
+# convert_span_single_digit does not already ask. The letter is looked at
+# where the run begins -- setscan_r on the left-hand end is the run's first
+# character, the way it is in the digit rules -- and a test that matches
+# steps the scan past it, which is why the two cases are asked in that order
+# and the insertion loads the pointers again rather than trusting the scan.
+#
+# Answering 0 says the letter was named here. Anything else is a letter this
+# has nothing to say about, and char_name then asks the dictionary as before.
+rule cat_char_name takes 3 from glob.obj
+  bare
+  call ZZlpta_load__setscan_r__1 arg 1                 # the letter itself
+  if answer is not 0
+    answer 1
+  end
+  call test_string_s 1 1 sym cat_char_h                # h is hac, not ache
+  if answer is not 0
+    call test_string_s 1 1 sym cat_char_bigh
+  end
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 3 sym cat_name_hac 0
+    answer answer
+  end
+  call test_string_s 1 1 sym cat_char_s                # s is essa, not ese
+  if answer is not 0
+    call test_string_s 1 1 sym cat_char_bigs
+  end
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 4 sym cat_name_essa 0
+    answer answer
+  end
+  call test_string_s 1 1 sym cat_char_v                # v is ve, not uve
+  if answer is not 0
+    call test_string_s 1 1 sym cat_char_bigv
+  end
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 2 sym cat_name_ve 0
+    answer answer
+  end
+  call test_string_s 1 1 sym cat_char_w                # w is ve doble
+  if answer is not 0
+    call test_string_s 1 1 sym cat_char_bigw
+  end
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 9 sym cat_name_vedoble 0
+    answer answer
+  end
+  call test_string_s 1 1 sym cat_char_x                # x is ics, not ekis
+  if answer is not 0
+    call test_string_s 1 1 sym cat_char_bigx
+  end
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 3 sym cat_name_ics 0
+    answer answer
+  end
+  call test_string_s 1 1 sym cat_char_y                # y is i grega
+  if answer is not 0
+    call test_string_s 1 1 sym cat_char_bigy
+  end
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 8 sym cat_name_igrega 0
+    answer answer
+  end
+  call test_string_s 1 1 sym cat_char_cedilla          # c with a cedilla is
+  if answer is not 0
+    call test_string_s 1 1 sym cat_char_bigcedilla     # ce trencada
+  end
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 12 sym cat_name_cetrencada 0
+    answer answer
+  end
+  call test_string_s 1 1 sym cat_char_j                # jota, with the o open
+  if answer is not 0
+    call test_string_s 1 1 sym cat_char_bigj
+  end
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 4 sym cat_name_jota 0
+    answer answer
+  end
+  call test_string_s 1 1 sym cat_char_zero             # and a bare nought is
+  if answer is 0                                       # zero, not cero
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 4 sym cat_num_zero 0
+    answer answer
+  end
+  call ZZtest_string_s_1_1_ZZstring134                 # and the other nine
+  if answer is 0                                       # digits, when spelled
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 3 sym cat_num_un 0
+    answer answer
+  end
+  call ZZtest_string_s_1_1_ZZstring135
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 3 sym cat_num_dos 0
+    answer answer
+  end
+  call ZZtest_string_s_1_1_ZZstring136
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 4 sym cat_num_tres 0
+    answer answer
+  end
+  call ZZtest_string_s_1_1_ZZstring137
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 6 sym cat_num_quatre 0
+    answer answer
+  end
+  call ZZtest_string_s_1_1_ZZstring138
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 4 sym cat_num_cinc 0
+    answer answer
+  end
+  call ZZtest_string_s_1_1_ZZstring139
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 4 sym cat_num_sis 0
+    answer answer
+  end
+  call ZZtest_string_s_1_1_ZZstring141
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 4 sym cat_num_set 0
+    answer answer
+  end
+  call ZZtest_string_s_1_1_ZZstring142
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 4 sym cat_num_vuit 0
+    answer answer
+  end
+  call ZZtest_string_s_1_1_ZZstring143
+  if answer is 0
+    call lpta_rpta_loadp arg 1 arg 2
+    call insert_2pt_s 1 3 sym cat_num_nou 0
+    answer answer
+  end
+  answer 1
+end
 
 # ---- j and g before e or i: the affricate, except between vowels ---------
 
@@ -324,9 +673,9 @@ end
 # which is the same assimilation Castilian makes in front of its own ch and
 # which Catalan spelling reaches through two more letters.
 #
-# A test that matches steps the scan past what it matched, so the e and the i
-# are asked about the letter after the g; one that fails leaves it where it
-# was, so the two can be asked one after the other.
+# A test that matches steps the scan past what it matched, so the front
+# vowel is asked about the letter after the g; one that fails leaves it where
+# it was, so the tests can be asked one after another.
 rule cat_palatal_follows takes 1 from glob.obj
   bare
   call ZZtest_string_s_1_1_ZZstring64                  # a j?
@@ -337,9 +686,30 @@ rule cat_palatal_follows takes 1 from glob.obj
   if answer is not 0
     answer 1
   end
-  call ZZtest_string_s_1_1_ZZstring77                  # with an e after it?
+  call cat_front_follows                               # with e or i after it?
+end
+
+# Whether the letter the scan is on is a front vowel, which is what makes a
+# c or a g soft: e or i, plain or with either accent. The accented ones are
+# letters of their own here and were not being asked about, so gènere came
+# out with a hard g and precís with a hard c. Answering 0 is a match.
+rule cat_front_follows takes 1 from glob.obj
+  bare
+  call ZZtest_string_s_1_1_ZZstring77                  # e
   if answer is 0
     answer 0
   end
-  call ZZtest_string_s_1_1_ZZstring109                 # or an i?
+  call ZZtest_string_s_1_1_ZZstring109                 # i
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_egrave         # e with a grave
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_eacute         # e with an acute
+  if answer is 0
+    answer 0
+  end
+  call test_string_s 1 1 sym cat_letter_iacute         # i with an acute
 end

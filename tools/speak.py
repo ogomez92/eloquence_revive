@@ -142,7 +142,15 @@ def build(tag, jobs, tables):
     lang = "lang/%s" % tag
     steps = []
     if tables:
-        steps.append(([make, "LANGS=" + lang, "tables-write"], None))
+        # This interpreter, said to make, because the recipe's own default is
+        # python3 and on Windows there is no such thing: a stock machine has a
+        # Microsoft Store stub of that name in front of the real one, which
+        # prints an advertisement and exits, and `-t' failed here for that and
+        # nothing else. Quoted with forward slashes because the recipe goes
+        # through a shell and this interpreter lives under Program Files.
+        steps.append(([make, "LANGS=" + lang,
+                       'PYTHON="%s"' % py.replace("\\", "/"),
+                       "tables-write"], None))
     steps += [
         ([py, "tools/delta-consts.py", tag], None),
         ([py, "tools/delta-notation.py", "authored"],
